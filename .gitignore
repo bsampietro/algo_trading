@@ -1,0 +1,6 @@
+__pycache__/*
+tws_output.txt
+*.log
+*.json
+*.pk
+*.pyc

@@ -1,0 +1,2 @@
+class HftTest:
+	pass
