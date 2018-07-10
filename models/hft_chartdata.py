@@ -21,137 +21,115 @@ class ChartData:
         self.min_range_price = 0
         self.max_range_price = 0
         self.trending_price = 0
-        self.do = ("", 0) # tuple with: (action, price)
+        self.action = ("", None) # tuple with: (action, price)
 
         self.timed_prices = []
 
-        self.timer_active = True
-        self.timer = Thread(target = self.timed_work)
-        self.timer.start()
+        # self.timer_active = True
+        # self.timer = Thread(target = self.timed_work)
+        # self.timer.start()
 
         # Class constants
         self.initial_time = time.time()
 
-    def add_price(self, price):
+    def add_price(self, price, price_time):
         cdt = ChartDataPoint()
         cdt.price = price
-        cdt.time = time.time() - self.initial_time
+        if price_time == 0:
+            cdt.time = time.time() # - self.initial_time
+        else:
+            cdt.time = price_time
         if len(self.data) > 0:
             self.data[-1].duration = cdt.time - self.data[-1].time
+
+            if len(self.data) % 10 == 0:
+                self.output_chart()
+
         self.data.append(cdt)
 
-        self.set_state()
-
-        print(self.state_str())
-
+        self.find_and_set_state()
     
-    def last_cdt(self):
-        if len(self.data) == 0:
-            return ChartDataPoint()
-        return self.data[-1]
 
-    def last_price(self):
-        return self.last_cdt().price
+    def find_and_set_state(self):
+        self.action = ("", None)
 
-    def last_time(self):
-        return self.last_cdt().time
-
-
-    def set_state(self):
-        self.do = ("", 0)
-
-        if self.state == STATE["random_walk"]:
+        if self.state_is("random_walk"):
             
 
             self.set_range()
 
         
-        elif self.state == STATE["in_range"]:
+        elif self.state_is("in_range"):
 
 
-            # self.set_range() # make the range thiner if needed
+            self.set_range() # make the range thiner if needed
 
             
             if self.max_range_price < self.last_price() <= self.max_range_price + BREAKING_RANGE_VALUE:
-                self.state = STATE["breaking_up"]
+                self.set_state("breaking_up")
 
             elif self.min_range_price - BREAKING_RANGE_VALUE <= self.last_price() < self.min_range_price:
-                self.state = STATE["breaking_down"]
+                self.set_state("breaking_down")
 
             elif ((self.last_price() > self.max_range_price + BREAKING_RANGE_VALUE) or 
                             (self.last_price() < self.min_range_price - BREAKING_RANGE_VALUE)):
-                self.state = STATE["random_walk"]
+                self.set_state("random_walk")
 
 
-        elif self.state == STATE["breaking_up"]:
+        elif self.state_is("breaking_up"):
             
 
             # # check if trending up:
             # self.state = STATE['trending_up']
             # self.trending_price = self.last_price()
-            # self.do = ("buy", self.last_price()) # ??
+            # self.action = ("buy", self.last_price()) # ??
 
             if ((self.last_price() > self.max_range_price + BREAKING_RANGE_VALUE) or
                             (self.last_price() < self.min_range_price)):
-              self.state = STATE["random_walk"]
+              self.set_state("random_walk")
 
             elif self.min_range_price <= self.last_price() <= (self.max_range_price - MAX_RANGE_VALUE / 2.0):
-                self.state = STATE["in_range"]
+                self.set_state("in_range")
 
 
-        elif self.state == STATE["breaking_down"]:
+        elif self.state_is("breaking_down"):
 
 
             # # check if trending down:
             # self.state = STATE['trending_down']
             # self.trending_price = self.last_price()
-            # self.do = ("sell", self.last_price()) # ??
+            # self.action = ("sell", self.last_price()) # ??
 
             if ((self.last_price() < self.min_range_price - BREAKING_RANGE_VALUE) or
                             (self.last_price() > self.max_range_price)):
-              self.state = STATE["random_walk"]
+              self.set_state("random_walk")
 
-            elif (self.min_range_price + MAX_RANGE_VALUE / 2.0) <= self.last_price() <= self.max_range_prince:
-                self.state = STATE["in_range"]
+            elif (self.min_range_price + MAX_RANGE_VALUE / 2.0) <= self.last_price() <= self.max_range_price:
+                self.set_state("in_range")
 
 
-        elif self.state == STATE["trending_up"]:
+        elif self.state_is("trending_up"):
 
 
             if self.last_price() >= self.trending_price:
                 self.trending_price = self.last_price()
             else:
                 if self.trending_price - self.last_price() >= TRENDING_BREAK_VALUE:
-                    self.state = STATE["random_walk"]
-                    self.do = ("close", 0) # CLOSE POSITION SIGNAL (SELL)
+                    self.set_state("random_walk")
+                    self.action = ("close", self.last_price) # CLOSE POSITION SIGNAL (SELL) # last_price is added for backtesting purposes
 
-        elif self.state == STATE["trending_down"]:
+        elif self.state_is("trending_down"):
 
 
             if self.last_price() <= self.trending_price:
                 self.trending_price = self.last_price()
             else:
                 if self.last_price() - self.trending_price >= TRENDING_BREAK_VALUE:
-                    self.state = STATE["random_walk"]
-                    self.do = ("close", 0) # CLOSE POSITION SIGNAL (BUY)
+                    self.set_state("random_walk")
+                    self.action = ("close", self.last_price) # CLOSE POSITION SIGNAL (BUY) # last_price is added for backtesting purposes
         
 
     
-    def state_str(self):
-        if len(self.data) < 2:
-            return ""
-        str = (
-            f"{time.strftime('%H:%M:%S')}\n"
-            f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
-            f"state: {self.state}\n"
-            f"min_range_price: {self.min_range_price}\n"
-            f"max_range_price: {self.max_range_price}\n"
-            f"trending_price: {self.trending_price}\n"
-            f"do: {self.do}\n"
-        )
-        return str
-
-
     def set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
@@ -166,37 +144,54 @@ class ChartData:
                 break
             
             if self.last_time() - cdt.time > MIN_RANGE_TIME:
-                self.state = STATE["in_range"]
                 self.min_range_price = min_price
                 self.max_range_price = max_price
-                self.do = ("notify", 0)
+                self.set_state("in_range")
+                # self.action = ("notify", None)
 
 
-    def random_walk(self):
-        return self.state == STATE["random_walk"]
+    def state_str(self):
+        if len(self.data) < 2:
+            return ""
+        str = (
+            f"\n{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.data[-1].time))}\n"
+            f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
+            f"state: {self.state}\n"
+            f"min_range_price: {self.min_range_price}\n"
+            f"max_range_price: {self.max_range_price}\n"
+            f"trending_price: {self.trending_price}\n"
+            f"action: {self.action}\n"
+        )
+        return str
 
-    def in_range(self):
-        return self.state == STATE["in_range"]
 
-    def breaking_up(self):
-        return self.state == STATE["breaking_up"]
+    def set_state(self, state):
+        if self.state != STATE[state]:
+            self.action = ("state_changed", f"state changed from {self.state} to {STATE[state]}")
+            self.state = STATE[state]
 
-    def breaking_down(self):
-        return self.state == STATE["breaking_down"]
+    def state_is(self, state):
+        return self.state == STATE[state]
 
-    def trending_up(self):
-        return self.state == STATE["trending_up"]
 
-    def trending_down(self):
-        return self.state == STATE["trending_down"]
+    def last_cdt(self):
+        if len(self.data) == 0:
+            return ChartDataPoint()
+        return self.data[-1]
+
+    def last_price(self):
+        return self.last_cdt().price
+
+    def last_time(self):
+        return self.last_cdt().time
 
 
     def timed_work(self):
         while self.timer_active:
             if len(self.data) > 0:
-                # self.timed_prices.append(self.data[-1].price)
-                if int(time.time()) % 10 == 0:
-                    self.output_chart()
+                self.timed_prices.append(self.data[-1].price)
+                # if len(self.timed_prices) % 60 == 0:
+                #     self.output_chart()
             time.sleep(1)
 
     

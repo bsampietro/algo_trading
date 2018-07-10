@@ -8,7 +8,7 @@ from ib.ib_hft import IBHft
 
 # Main method
 if __name__ == "__main__":
-    logging.basicConfig(filename='./log/_hft.log', level=logging.INFO)
+    logging.basicConfig(filename='./log/hft.log', level=logging.INFO)
     
     try:
         parameters = sys.argv + 5 * ['']

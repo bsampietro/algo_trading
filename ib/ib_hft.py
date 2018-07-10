@@ -4,6 +4,7 @@ sys.path.append('/home/bruno/ib_api/9_73/IBJts/source/pythonclient')
 from threading import Thread
 import logging
 import time
+import json
 
 from ibapi.wrapper import EWrapper
 from ibapi.client import EClient
@@ -17,8 +18,6 @@ from models.hft_monitor import HftMonitor
 
 
 class IBHft(EClient, EWrapper):
-    SPEED_RATIO_THRESHOLD = 1.5
-    MAX_STORED_SPEEDS = 10
 
     def __init__(self, test_mode=False):
         EClient.__init__(self, wrapper = self)
@@ -88,12 +87,11 @@ class IBHft(EClient, EWrapper):
     def request_market_data(self, req_id, contract):
         if self.test_mode:
             # Manually call tickPrice
-            for i in range(400):
-                if i % 2 == 0:
-                    self.tickPrice(self.current_req_id, 4, 1250.00, {"time": i})
-                else:
-                    self.tickPrice(self.current_req_id, 4, 1250.10, {"time": i})
-                time.sleep(10)
+            with open('./data/GCQ8.json', 'r') as f:
+                data = json.load(f)
+            for time, price in data:
+                self.tickPrice(self.current_req_id, 4, price, {"time": time})
+                # time.sleep(1)
             
             for req_id, monitor in self.req_id_to_monitor_map.items():
                 monitor.close()
@@ -104,7 +102,10 @@ class IBHft(EClient, EWrapper):
     def tickPrice(self, reqId, tickType, price:float, attrib):
         super().tickPrice(reqId, tickType, price, attrib)
 
-        self.req_id_to_monitor_map[reqId].price_change(tickType, price)
+        if self.test_mode:
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
+        else:
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, 0)
 
 
     def is_ready(self):
@@ -140,9 +141,12 @@ class IBHft(EClient, EWrapper):
 
 
     # Orders
-    def place_order(self, monitor, action, quantity, price, orderId=None):
+    def place_order(self, monitor, action, quantity, price=0, orderId=None):
         order = Order()
-        order.orderType = "LMT"
+        if price == 0:
+            order.orderType = "MKT"
+        else:    
+            order.orderType = "LMT"
         order.totalQuantity = quantity
         order.action = action # "BUY"|"SELL"
         order.lmtPrice = price
