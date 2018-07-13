@@ -50,8 +50,8 @@ class IBTestData(EClient, EWrapper):
             self.session_requested_data.add(ticker)
 
         # Setting query variables
-        duration_string = "2 D"
-        bar_size = "1 hour" # "1 secs" # "1 min" # "1 hour"
+        duration_string = "14400 S"
+        bar_size = "10 secs" # "1 secs" # "1 min" # "1 hour"
         what_to_show = "MIDPOINT"
         
         # Class level mappings
@@ -80,6 +80,7 @@ class IBTestData(EClient, EWrapper):
 
         self.test_data.sort(key=lambda s: s[0])
         self.test_data = list(map(lambda s: (int(s[0]), s[1]), self.test_data))
+        print(f"Got {len(self.test_data)} data points")
 
         test_data_sanitized = []
         for i in range(len(self.test_data)):
@@ -89,7 +90,7 @@ class IBTestData(EClient, EWrapper):
                 if self.test_data[i][1] != self.test_data[i-1][1]:
                     test_data_sanitized.append(self.test_data[i])
         self.test_data = test_data_sanitized
-
+        print(f"Cleaned to {len(self.test_data)} data points")
 
         print("Saving...")
         with open(f"./data/{self.ticker}.json", "w") as f:

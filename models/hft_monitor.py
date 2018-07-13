@@ -10,6 +10,10 @@ from models.hft_chartdata import ChartData
 
 CONTRACT_NR = 1
 
+def print_and_log(string):
+    logging.info(string)
+    print(string)
+
 class HftMonitor:
 
     def __init__(self, ticker, remote):
@@ -24,6 +28,7 @@ class HftMonitor:
         self.order_price = 0
         # self.confirmed_price = 0
         self.pnl = 0
+        self.nr_of_trades = 0
 
         # Orders
         self.active_order_id = None
@@ -37,7 +42,7 @@ class HftMonitor:
 
     def price_change(self, tickType, price, price_time):
         if price <= 0:
-            print(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
+            print_and_log(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
             return
 
         # bid price = 1
@@ -47,41 +52,54 @@ class HftMonitor:
         if tickType == 4:
             self.chart_data.add_price(price, price_time)
 
-            if self.chart_data.action[0] == "notify" and price_time == 0:
-                self.sound_notify()
+            # if self.chart_data.action[0] == "notify" and price_time == 0:
+            #     self.sound_notify()
 
-            if self.chart_data.action[0] == "state_changed":
-                print(self.chart_data.state_str())
-                print(f"P&L: {self.pnl}")
-                logging.info(self.chart_data.state_str())
+            if self.chart_data.notification[0] == "state_changed":
+                print_and_log(self.chart_data.notification[1])
+                print_and_log("o             o")
+                print_and_log(self.chart_data.state_str())
+                print_and_log("\n\n\n")
+
+            # Debugging purposes
+            if self.chart_data.state in (2, 3):
+                print_and_log(self.chart_data.state_str())
+                print_and_log("\n\n\n")
 
             if self.chart_data.action[0] == "buy":
-                print("Order transmitted to buy at {self.chart_data.action[1]}")
-                
                 self.position = CONTRACT_NR
                 self.order_price = self.chart_data.action[1]
+                self.nr_of_trades += 1
 
                 if self.confirmed_position == 0 and not self.active_order(): # be sure!
                     # remote.place_order(self, "BUY", CONTRACT_NR, self.chart_data.action[1])
                     pass
 
+                print_and_log(f"Order to buy at {self.chart_data.action[1]}")
+                print_and_log("o             o")
+                print_and_log(self.chart_data.state_str())
+                print_and_log("\n\n\n")
+
             elif self.chart_data.action[0] == "sell":
-                print("Order transmitted to sell at {self.chart_data.action[1]}")
-                
                 self.position = -CONTRACT_NR
                 self.order_price = self.chart_data.action[1]
+                self.nr_of_trades += 1
 
                 if self.confirmed_position == 0 and not self.active_order(): # be sure!
                     # remote.place_order(self, "SELL", CONTRACT_NR, self.chart_data.action[1])
                     pass
+
+                print_and_log(f"Order to sell at {self.chart_data.action[1]}")
+                print_and_log("o             o")
+                print_and_log(self.chart_data.state_str())
+                print_and_log("\n\n\n")
             
             elif self.chart_data.action[0] == "close":
-                print("Order transmitted to close")
-
                 if self.position == CONTRACT_NR:
                     self.pnl += self.chart_data.action[1] - self.order_price
                 elif self.position == -CONTRACT_NR:
                     self.pnl += self.order_price - self.chart_data.action[1]
+                self.nr_of_trades += 1
                 
                 if self.confirmed_position == CONTRACT_NR and not self.active_order(): # be sure!
                     # remote.place_order(self, "SELL", CONTRACT_NR)
@@ -90,6 +108,13 @@ class HftMonitor:
                     # remote.place_order(self, "BUY", CONTRACT_NR)
                     pass
 
+                print_and_log(f"Order to close at {self.chart_data.action[1]}")
+                print_and_log("o              o")
+                print_and_log(self.chart_data.state_str())
+                print_and_log("o              o")
+                print_and_log(f"P&L: {self.pnl}")
+                print_and_log(f"Nr of trades {self.nr_of_trades}")
+                print_and_log("\n\n\n")
             
     # All position querying should be done with self.confirmed_position once the system is executing orders
 
@@ -105,9 +130,9 @@ class HftMonitor:
             self.active_order_id = order_id
         self.confirmed_position = remaining
 
-        print(f"Remaining (current positions): {self.confirmed_position}")
+        print_and_log(f"Remaining (current positions): {self.confirmed_position}")
         if abs(self.confirmed_position) > CONTRACT_NR:
-            print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS")
+            print_and_log("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS")
             self.sound_notify()
 
 
