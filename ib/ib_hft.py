@@ -19,7 +19,7 @@ from models.hft_monitor import HftMonitor
 
 class IBHft(EClient, EWrapper):
 
-    def __init__(self, test_mode=False):
+    def __init__(self, input_file=""):
         EClient.__init__(self, wrapper = self)
 
         self.monitors = []
@@ -32,8 +32,9 @@ class IBHft(EClient, EWrapper):
         self.current_req_id = 0
         self.current_order_id = None
 
-        # state variables
-        self.test_mode = test_mode
+        # test variables
+        self.test_mode = "data" in input_file
+        self.input_file = input_file
 
         if self.test_mode:
             self.test_thread = Thread(target = self.connectAck)
@@ -87,7 +88,7 @@ class IBHft(EClient, EWrapper):
     def request_market_data(self, req_id, contract):
         if self.test_mode:
             # Manually call tickPrice
-            with open('./data/GCQ8.json', 'r') as f:
+            with open(self.input_file, "r") as f:
                 data = json.load(f)
             for time, price in data:
                 self.tickPrice(self.current_req_id, 4, price, {"time": time})

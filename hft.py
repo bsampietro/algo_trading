@@ -12,9 +12,7 @@ if __name__ == "__main__":
     
     try:
         parameters = sys.argv + 5 * ['']
-        test_mode = (parameters[1] == "test")
-        
-        ib_hft = IBHft(test_mode)
+        ib_hft = IBHft(parameters[1])
         # Waiting indefinitely to catch the program termination exception
         # time.sleep(999999999)
         print("Main program finished")

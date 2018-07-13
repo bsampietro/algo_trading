@@ -50,8 +50,8 @@ class IBTestData(EClient, EWrapper):
             self.session_requested_data.add(ticker)
 
         # Setting query variables
-        duration_string = "14400 S"
-        bar_size = "10 secs" # "1 secs" # "1 min" # "1 hour"
+        duration_string = "1800 S"
+        bar_size = "1 secs" # "1 secs" # "1 min" # "1 hour"
         what_to_show = "MIDPOINT"
         
         # Class level mappings
@@ -93,7 +93,8 @@ class IBTestData(EClient, EWrapper):
         print(f"Cleaned to {len(self.test_data)} data points")
 
         print("Saving...")
-        with open(f"./data/{self.ticker}.json", "w") as f:
+        file_name = f"./data/{self.ticker}_{bar_size.replace(" ", "|")_{time.strftime('%Y-%m-%d|%H-%M')}}.json"
+        with open(file_name, "w") as f:
             json.dump(self.test_data, f)
         
         print("Disconnecting...")
