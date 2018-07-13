@@ -1,5 +1,7 @@
 import time
 from threading import Thread
+import logging
+import json
 
 import pygal
 
@@ -8,9 +10,9 @@ MAX_RANGE_VALUE = 4 * TICK_PRICE # 0.4
 MIN_RANGE_TIME = 300 # seconds
 BREAKING_RANGE_VALUE = 3 * TICK_PRICE
 MIN_TRENDING_BREAK_VALUE = 3 * TICK_PRICE # 0.3
-MIN_BREAKING_PRICE_CHANGES = 8 # times
+MIN_BREAKING_PRICE_CHANGES = 2 # times
 # MAX_FALSE_BREAKING_DURATION = 5 # secs
-UP_DOWN_RATIO = 2.0
+UP_DOWN_RATIO = 1.0
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
@@ -58,7 +60,7 @@ class ChartData:
         self.action = ("", None)
         cdt = ChartDataPoint()
         cdt.price = price
-        if price_time == 0:
+        if price_time == 0: # live
             cdt.time = time.time() # - self.initial_time
         else:
             cdt.time = price_time
@@ -70,6 +72,9 @@ class ChartData:
 
             if len(self.data) % 10 == 0:
                 self.output_chart()
+
+            if len(self.data) % 100 == 0 and price_time == 0:
+                self.save_data()
 
         self.data.append(cdt)
 
@@ -146,7 +151,7 @@ class ChartData:
                 self.max_breaking_price = self.last_price()
                 self.breaking_time = self.last_time()
 
-            mid_price = round((self.max_breaking_price - self.min_breaking_price) / 2.0, 2)
+            mid_price = round((self.max_breaking_price + self.min_breaking_price) / 2.0, 2)
             time_up_down = self.time_up_down_since(self.breaking_time, mid_price)
 
             duration_ok = False
@@ -155,6 +160,11 @@ class ChartData:
             else:
                 if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > UP_DOWN_RATIO:
                     duration_ok = True
+
+            logging.info("1st: Inside decision methods:")
+            logging.info(f"mid_price: {mid_price}")
+            logging.info(f"time_up_down: {time_up_down}")
+            logging.info(f"duration_ok: {duration_ok}")
             ## -------------------
 
             
@@ -201,7 +211,7 @@ class ChartData:
                 self.breaking_time = self.last_time()
                 self.breaking_price_changes = 0
 
-            mid_price = round((self.max_breaking_price - self.min_breaking_price) / 2.0, 2)
+            mid_price = round((self.max_breaking_price + self.min_breaking_price) / 2.0, 2)
             time_up_down = self.time_up_down_since(self.breaking_time, mid_price)
 
             duration_ok = False
@@ -210,6 +220,11 @@ class ChartData:
             else:
                 if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > UP_DOWN_RATIO:
                     duration_ok = True
+
+            logging.info("1st: Inside decision methods:")
+            logging.info(f"mid_price: {mid_price}")
+            logging.info(f"time_up_down: {time_up_down}")
+            logging.info(f"duration_ok: {duration_ok}")
             ## -------------------
 
             
@@ -367,6 +382,13 @@ class ChartData:
 
         chart.show_dots = False
         chart.render_to_file(f"/media/ramd/timed_prices.svg")
+
+
+    def save_data(self):
+        mapped_data = list(map(lambda cdt: (cdt.time, cdt.price), self.data))
+        file_name = f"./data/GCQ8_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        with open(file_name, "w") as f:
+            json.dump(mapped_data, f)
 
 
 

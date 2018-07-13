@@ -57,12 +57,11 @@ class HftMonitor:
 
             if self.chart_data.notification[0] == "state_changed":
                 print_and_log(self.chart_data.notification[1])
-                print_and_log("o             o")
-                print_and_log(self.chart_data.state_str())
                 print_and_log("\n\n\n")
 
             # Debugging purposes
-            if self.chart_data.state in (2, 3):
+            if self.chart_data.state in (2, 3, 4, 5):
+                print_and_log("2nd: Internal state data:")
                 print_and_log(self.chart_data.state_str())
                 print_and_log("\n\n\n")
 
@@ -75,9 +74,8 @@ class HftMonitor:
                     # remote.place_order(self, "BUY", CONTRACT_NR, self.chart_data.action[1])
                     pass
 
+                print_and_log(f"3rd: Decision:")
                 print_and_log(f"Order to buy at {self.chart_data.action[1]}")
-                print_and_log("o             o")
-                print_and_log(self.chart_data.state_str())
                 print_and_log("\n\n\n")
 
             elif self.chart_data.action[0] == "sell":
@@ -89,9 +87,8 @@ class HftMonitor:
                     # remote.place_order(self, "SELL", CONTRACT_NR, self.chart_data.action[1])
                     pass
 
+                print_and_log(f"3rd: Decision:")
                 print_and_log(f"Order to sell at {self.chart_data.action[1]}")
-                print_and_log("o             o")
-                print_and_log(self.chart_data.state_str())
                 print_and_log("\n\n\n")
             
             elif self.chart_data.action[0] == "close":
@@ -108,10 +105,9 @@ class HftMonitor:
                     # remote.place_order(self, "BUY", CONTRACT_NR)
                     pass
 
+                print_and_log(f"3rd: Decision:")
                 print_and_log(f"Order to close at {self.chart_data.action[1]}")
-                print_and_log("o              o")
                 print_and_log(self.chart_data.state_str())
-                print_and_log("o              o")
                 print_and_log(f"P&L: {self.pnl}")
                 print_and_log(f"Nr of trades {self.nr_of_trades}")
                 print_and_log("\n\n\n")
