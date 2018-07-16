@@ -19,10 +19,11 @@ from models.hft_monitor import HftMonitor
 
 class IBHft(EClient, EWrapper):
 
-    def __init__(self, input_file=""):
+    def __init__(self, tickers=[], input_file=""):
         EClient.__init__(self, wrapper = self)
 
         self.monitors = []
+        self.tickers = tickers
 
         # state variables
         self.req_id_to_monitor_map = {}
@@ -33,10 +34,12 @@ class IBHft(EClient, EWrapper):
         self.current_order_id = None
 
         # test variables
-        self.test_mode = "data" in input_file
-        self.input_file = input_file
+        self.test_mode = False if input_file == "" else True
 
         if self.test_mode:
+            self.input_file = input_file
+            self.tickers = [input_file.replace("data/", "")]
+
             self.test_thread = Thread(target = self.connectAck)
             self.test_thread.start()
             self.test_thread.join()
@@ -53,11 +56,8 @@ class IBHft(EClient, EWrapper):
 
     def connectAck(self):
         """ callback signifying completion of successful connection """
-        # self.logAnswer(current_fn_name(), vars())
-
-        # tickers = [sys.argv[1]] # can be taken from list in the future
-        tickers = ["GCQ8"]
-        for ticker in tickers:
+        # tickers = ["GCQ8"]
+        for ticker in self.tickers:
             monitor = HftMonitor(ticker, self)
             self.start_monitoring(monitor)
             self.monitors.append(monitor)
@@ -105,7 +105,7 @@ class IBHft(EClient, EWrapper):
         if self.test_mode:
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
         else:
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, 0)
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
 
 
     def is_ready(self):

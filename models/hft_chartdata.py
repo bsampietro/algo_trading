@@ -5,6 +5,8 @@ import json
 
 import pygal
 
+import gvars
+
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
@@ -47,29 +49,18 @@ class ChartData:
         # self.timer = Thread(target = self.timed_work)
         # self.timer.start()
 
-        # Class constants
-        self.initial_time = time.time()
 
     def add_price(self, price, price_time):
         self.notification = ("", None)
         self.action = ("", None)
         cdp = ChartDataPoint()
         cdp.price = price
-        if price_time == 0: # live
-            cdp.time = time.time() # - self.initial_time
-        else:
-            cdp.time = price_time
+        cdp.time = price_time
         if len(self.data) > 0:
             if self.data[-1].price == price:
                 return
 
             self.data[-1].duration = cdp.time - self.data[-1].time
-
-            if len(self.data) % 10 == 0:
-                self.output_chart()
-
-            if len(self.data) % 100 == 0 and price_time == 0:
-                self.save_data()
 
         self.data.append(cdp)
 
@@ -156,10 +147,10 @@ class ChartData:
                 if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > self.prm["UP_DOWN_RATIO"]:
                     duration_ok = True
 
-            logging.info("1st: Inside decision methods:")
-            logging.info(f"mid_price: {mid_price}")
-            logging.info(f"time_up_down: {time_up_down}")
-            logging.info(f"duration_ok: {duration_ok}")
+            gvars.datalog[self.ticker].write("1st: Inside decision methods:\n")
+            gvars.datalog[self.ticker].write(f"mid_price: {mid_price}\n")
+            gvars.datalog[self.ticker].write(f"time_up_down: {time_up_down}\n")
+            gvars.datalog[self.ticker].write(f"duration_ok: {duration_ok}\n\n")
             ## -------------------
 
             
@@ -216,10 +207,10 @@ class ChartData:
                 if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.prm["UP_DOWN_RATIO"]:
                     duration_ok = True
 
-            logging.info("1st: Inside decision methods:")
-            logging.info(f"mid_price: {mid_price}")
-            logging.info(f"time_up_down: {time_up_down}")
-            logging.info(f"duration_ok: {duration_ok}")
+            gvars.datalog[self.ticker].write("1st: Inside decision methods:\n")
+            gvars.datalog[self.ticker].write(f"mid_price: {mid_price}\n")
+            gvars.datalog[self.ticker].write(f"time_up_down: {time_up_down}\n")
+            gvars.datalog[self.ticker].write(f"duration_ok: {duration_ok}\n\n")
             ## -------------------
 
             
@@ -292,7 +283,6 @@ class ChartData:
         if len(self.data) < 2:
             return ""
         str = (
-            f"\n{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.data[-1].time))}\n"
             f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
             f"state: {self.state}\n"
             f"min_range_price: {self.min_range_price}\n"
@@ -365,6 +355,8 @@ class ChartData:
     
     def close(self):
         self.timer_active = False
+        self.output_chart()
+        self.save_data()
 
 
     def output_chart(self):
@@ -381,7 +373,7 @@ class ChartData:
 
     def save_data(self):
         mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
-        file_name = f"./data/{self.ticker}_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        file_name = f"/media/ramd/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
         with open(file_name, "w") as f:
             json.dump(mapped_data, f)
 
@@ -405,7 +397,7 @@ def get_parameters_for_ticker(ticker):
         parameters["MIN_RANGE_TIME"] = 300 # seconds
         parameters["BREAKING_RANGE_VALUE"] = 3 * parameters["TICK_PRICE"]
         parameters["MIN_TRENDING_BREAK_VALUE"] = 3 * parameters["TICK_PRICE"] # 0.3
-        parameters["MIN_BREAKING_PRICE_CHANGES"] = 2 # times
+        parameters["MIN_BREAKING_PRICE_CHANGES"] = 5 # times
         # MAX_FALSE_BREAKING_DURATION = 5 # secs
         parameters["UP_DOWN_RATIO"] = 1.0
     return parameters

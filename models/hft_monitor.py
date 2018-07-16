@@ -7,12 +7,9 @@ from threading import Thread
 
 from lib import util
 from models.hft_chartdata import ChartData
+import gvars
 
 CONTRACT_NR = 1
-
-def print_and_log(string):
-    logging.info(string)
-    print(string)
 
 class HftMonitor:
 
@@ -34,7 +31,7 @@ class HftMonitor:
         self.active_order_id = None
         
         # general variables
-        self.ticker = ticker.upper()
+        self.ticker = ticker #.upper()
         self.contract = util.get_contract(self.ticker)
 
         self.remote = remote
@@ -42,7 +39,7 @@ class HftMonitor:
 
     def price_change(self, tickType, price, price_time):
         if price <= 0:
-            print_and_log(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
+            gvars.datalog[self.ticker].write(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}\n")
             return
 
         # bid price = 1
@@ -50,20 +47,22 @@ class HftMonitor:
         # last traded price = 4
 
         if tickType == 4:
+            gvars.datalog[self.ticker].write(f"=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(price_time))}: {price}\n")
+
             self.chart_data.add_price(price, price_time)
 
-            # if self.chart_data.action[0] == "notify" and price_time == 0:
+            # if self.chart_data.action[0] == "notify":
             #     self.sound_notify()
 
             if self.chart_data.notification[0] == "state_changed":
-                print_and_log(self.chart_data.notification[1])
-                print_and_log("\n\n\n")
+                gvars.datalog[self.ticker].write(self.chart_data.notification[1])
+                gvars.datalog[self.ticker].write("\n\n\n")
 
             # Debugging purposes
             if self.chart_data.state in (2, 3, 4, 5):
-                print_and_log("2nd: Internal state data:")
-                print_and_log(self.chart_data.state_str())
-                print_and_log("\n\n\n")
+                gvars.datalog[self.ticker].write("2nd: Internal state data:\n")
+                gvars.datalog[self.ticker].write(self.chart_data.state_str())
+                gvars.datalog[self.ticker].write("\n\n\n")
 
             if self.chart_data.action[0] == "buy":
                 self.position = CONTRACT_NR
@@ -74,9 +73,9 @@ class HftMonitor:
                     # remote.place_order(self, "BUY", CONTRACT_NR, self.chart_data.action[1])
                     pass
 
-                print_and_log(f"3rd: Decision:")
-                print_and_log(f"Order to buy at {self.chart_data.action[1]}")
-                print_and_log("\n\n\n")
+                gvars.datalog[self.ticker].write(f"3rd: Decision:\n")
+                gvars.datalog[self.ticker].write(f"Order to buy at {self.chart_data.action[1]}\n")
+                gvars.datalog[self.ticker].write("\n\n\n")
 
             elif self.chart_data.action[0] == "sell":
                 self.position = -CONTRACT_NR
@@ -87,9 +86,9 @@ class HftMonitor:
                     # remote.place_order(self, "SELL", CONTRACT_NR, self.chart_data.action[1])
                     pass
 
-                print_and_log(f"3rd: Decision:")
-                print_and_log(f"Order to sell at {self.chart_data.action[1]}")
-                print_and_log("\n\n\n")
+                gvars.datalog[self.ticker].write(f"3rd: Decision:\n")
+                gvars.datalog[self.ticker].write(f"Order to sell at {self.chart_data.action[1]}\n")
+                gvars.datalog[self.ticker].write("\n\n\n")
             
             elif self.chart_data.action[0] == "close":
                 if self.position == CONTRACT_NR:
@@ -105,12 +104,12 @@ class HftMonitor:
                     # remote.place_order(self, "BUY", CONTRACT_NR)
                     pass
 
-                print_and_log(f"3rd: Decision:")
-                print_and_log(f"Order to close at {self.chart_data.action[1]}")
-                print_and_log(self.chart_data.state_str())
-                print_and_log(f"P&L: {self.pnl}")
-                print_and_log(f"Nr of trades {self.nr_of_trades}")
-                print_and_log("\n\n\n")
+                gvars.datalog[self.ticker].write(f"3rd: Decision:\n")
+                gvars.datalog[self.ticker].write(f"Order to close at {self.chart_data.action[1]}\n")
+                gvars.datalog[self.ticker].write(self.chart_data.state_str())
+                gvars.datalog[self.ticker].write(f"P&L: {self.pnl}\n")
+                gvars.datalog[self.ticker].write(f"Nr of trades {self.nr_of_trades}\n")
+                gvars.datalog[self.ticker].write("\n\n\n")
             
     # All position querying should be done with self.confirmed_position once the system is executing orders
 
@@ -126,9 +125,9 @@ class HftMonitor:
             self.active_order_id = order_id
         self.confirmed_position = remaining
 
-        print_and_log(f"Remaining (current positions): {self.confirmed_position}")
+        gvars.datalog[self.ticker].write(f"Remaining (current positions): {self.confirmed_position}\n")
         if abs(self.confirmed_position) > CONTRACT_NR:
-            print_and_log("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS")
+            gvars.datalog[self.ticker].write("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             self.sound_notify()
 
 
