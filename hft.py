@@ -1,6 +1,5 @@
 import sys
 import logging
-from datetime import datetime, date
 import time
 
 from ib.ib_hft import IBHft

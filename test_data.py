@@ -12,7 +12,7 @@ if __name__ == "__main__":
     
     try:
         parameters = sys.argv + 5 * ['']
-        parameters[1] = "GCQ8"
+        # parameters[1] = "GCQ8"
         ib_hft = IBTestData(parameters[1])
         # Waiting indefinitely to catch the program termination exception
         # time.sleep(999999999)

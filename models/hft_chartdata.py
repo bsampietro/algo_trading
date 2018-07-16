@@ -5,19 +5,14 @@ import json
 
 import pygal
 
-TICK_PRICE = 0.10
-MAX_RANGE_VALUE = 4 * TICK_PRICE # 0.4
-MIN_RANGE_TIME = 300 # seconds
-BREAKING_RANGE_VALUE = 3 * TICK_PRICE
-MIN_TRENDING_BREAK_VALUE = 3 * TICK_PRICE # 0.3
-MIN_BREAKING_PRICE_CHANGES = 2 # times
-# MAX_FALSE_BREAKING_DURATION = 5 # secs
-UP_DOWN_RATIO = 1.0
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
 class ChartData:
-    def __init__(self):
+    def __init__(self, ticker):
+
+        self.ticker = ticker
+        self.prm = get_parameters_for_ticker(ticker)
         
         # Data
         self.data = []
@@ -58,17 +53,17 @@ class ChartData:
     def add_price(self, price, price_time):
         self.notification = ("", None)
         self.action = ("", None)
-        cdt = ChartDataPoint()
-        cdt.price = price
+        cdp = ChartDataPoint()
+        cdp.price = price
         if price_time == 0: # live
-            cdt.time = time.time() # - self.initial_time
+            cdp.time = time.time() # - self.initial_time
         else:
-            cdt.time = price_time
+            cdp.time = price_time
         if len(self.data) > 0:
             if self.data[-1].price == price:
                 return
 
-            self.data[-1].duration = cdt.time - self.data[-1].time
+            self.data[-1].duration = cdp.time - self.data[-1].time
 
             if len(self.data) % 10 == 0:
                 self.output_chart()
@@ -76,7 +71,7 @@ class ChartData:
             if len(self.data) % 100 == 0 and price_time == 0:
                 self.save_data()
 
-        self.data.append(cdt)
+        self.data.append(cdp)
 
         self.find_and_set_state()
     
@@ -95,7 +90,7 @@ class ChartData:
             self.set_range() # make the range thiner if needed
 
             
-            if self.max_range_price < self.last_price() <= self.max_range_price + BREAKING_RANGE_VALUE:
+            if self.max_range_price < self.last_price() <= self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]:
                 self.breaking_price_changes = 0
                 
                 # self.false_breaking_time = 0
@@ -107,7 +102,7 @@ class ChartData:
                 
                 self.set_state("breaking_up")
 
-            elif self.min_range_price - BREAKING_RANGE_VALUE <= self.last_price() < self.min_range_price:
+            elif self.min_range_price - self.prm["BREAKING_RANGE_VALUE"] <= self.last_price() < self.min_range_price:
                 self.breaking_price_changes = 0
                 
                 # self.false_breaking_time = 0
@@ -119,8 +114,8 @@ class ChartData:
                 
                 self.set_state("breaking_down")
 
-            elif ((self.last_price() > self.max_range_price + BREAKING_RANGE_VALUE) or 
-                            (self.last_price() < self.min_range_price - BREAKING_RANGE_VALUE)):
+            elif ((self.last_price() > self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]) or 
+                            (self.last_price() < self.min_range_price - self.prm["BREAKING_RANGE_VALUE"])):
                 self.set_state("random_walk")
 
 
@@ -158,7 +153,7 @@ class ChartData:
             if time_up_down[2] == 0:
                 duration_ok = True
             else:
-                if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > UP_DOWN_RATIO:
+                if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > self.prm["UP_DOWN_RATIO"]:
                     duration_ok = True
 
             logging.info("1st: Inside decision methods:")
@@ -168,14 +163,14 @@ class ChartData:
             ## -------------------
 
             
-            if ((self.last_price() > self.max_range_price + BREAKING_RANGE_VALUE) or
+            if ((self.last_price() > self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]) or
                             (self.last_price() < self.min_range_price)):
               self.set_state("random_walk")
 
-            elif self.min_range_price <= self.last_price() <= (self.max_range_price - TICK_PRICE):
+            elif self.min_range_price <= self.last_price() <= (self.max_range_price - self.prm["TICK_PRICE"]):
                 self.set_state("in_range")
 
-            elif (self.breaking_price_changes > MIN_BREAKING_PRICE_CHANGES and
+            elif (self.breaking_price_changes > self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() > mid_price and duration_ok):
                 self.trending_price = self.last_price()
                 self.transaction_price = self.last_price()
@@ -218,7 +213,7 @@ class ChartData:
             if time_up_down[0] == 0:
                 duration_ok = True
             else:
-                if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > UP_DOWN_RATIO:
+                if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.prm["UP_DOWN_RATIO"]:
                     duration_ok = True
 
             logging.info("1st: Inside decision methods:")
@@ -228,14 +223,14 @@ class ChartData:
             ## -------------------
 
             
-            if ((self.last_price() < self.min_range_price - BREAKING_RANGE_VALUE) or
+            if ((self.last_price() < self.min_range_price - self.prm["BREAKING_RANGE_VALUE"]) or
                             (self.last_price() > self.max_range_price)):
               self.set_state("random_walk")
 
-            elif (self.min_range_price + TICK_PRICE) <= self.last_price() <= self.max_range_price:
+            elif (self.min_range_price + self.prm["TICK_PRICE"]) <= self.last_price() <= self.max_range_price:
                 self.set_state("in_range")
 
-            elif (self.breaking_price_changes > MIN_BREAKING_PRICE_CHANGES and
+            elif (self.breaking_price_changes > self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() < mid_price and duration_ok):
                 self.trending_price = self.last_price()
                 self.transaction_price = self.last_price()
@@ -245,7 +240,7 @@ class ChartData:
 
         elif self.state_is("trending_up"):
 
-            trending_break_value = MIN_TRENDING_BREAK_VALUE
+            trending_break_value = self.prm["MIN_TRENDING_BREAK_VALUE"]
             new_trending_break_value = (self.trending_price - self.transaction_price) / 3.0
             if new_trending_break_value > trending_break_value:
                 trending_break_value = new_trending_break_value
@@ -259,7 +254,7 @@ class ChartData:
 
         elif self.state_is("trending_down"):
 
-            trending_break_value = MIN_TRENDING_BREAK_VALUE
+            trending_break_value = self.prm["MIN_TRENDING_BREAK_VALUE"]
             new_trending_break_value = (self.transaction_price - self.trending_price) / 3.0
             if new_trending_break_value > trending_break_value:
                 trending_break_value = new_trending_break_value
@@ -276,17 +271,17 @@ class ChartData:
     def set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
-        for cdt in reversed(self.data):
-            if cdt.price > max_price:
-                max_price = cdt.price
-            elif cdt.price < min_price:
-                min_price = cdt.price
+        for cdp in reversed(self.data):
+            if cdp.price > max_price:
+                max_price = cdp.price
+            elif cdp.price < min_price:
+                min_price = cdp.price
             
             range_value = max_price - min_price
-            if range_value > MAX_RANGE_VALUE:
+            if range_value > self.prm["MAX_RANGE_VALUE"]:
                 break
             
-            if self.last_time() - cdt.time > MIN_RANGE_TIME:
+            if self.last_time() - cdp.time > self.prm["MIN_RANGE_TIME"]:
                 self.min_range_price = min_price
                 self.max_range_price = max_price
                 self.set_state("in_range")
@@ -324,22 +319,22 @@ class ChartData:
         return self.state == STATE[state]
 
 
-    def last_cdt(self):
+    def last_cdp(self):
         if len(self.data) == 0:
             return ChartDataPoint()
         return self.data[-1]
 
     def last_price(self):
-        return self.last_cdt().price
+        return self.last_cdp().price
 
     def last_time(self):
-        return self.last_cdt().time
+        return self.last_cdp().time
 
     def data_since(self, the_time):
         data_since = []
-        for cdt in reversed(self.data):
-            data_since.append(cdt)
-            if cdt.time == the_time:
+        for cdp in reversed(self.data):
+            data_since.append(cdp)
+            if cdp.time == the_time:
                 break
         data_since.reverse()
         assert len(data_since) < len(self.data)
@@ -349,13 +344,13 @@ class ChartData:
         time_up = 0
         time_equal = 0
         time_down = 0
-        for cdt in self.data_since(the_time):
-            if cdt.price > price:
-                time_up += cdt.duration
-            elif cdt.price == price:
-                time_equal += cdt.duration
+        for cdp in self.data_since(the_time):
+            if cdp.price > price:
+                time_up += cdp.duration
+            elif cdp.price == price:
+                time_equal += cdp.duration
             else:
-                time_down += cdt.duration
+                time_down += cdp.duration
         return (time_up, time_equal, time_down)
 
 
@@ -378,15 +373,15 @@ class ChartData:
         # chart.add("Prices", self.timed_prices)
 
         chart = pygal.XY()
-        chart.add('Prices',  list(map(lambda cdt: (cdt.time, cdt.price), self.data)))
+        chart.add('Prices',  list(map(lambda cdp: (cdp.time, cdp.price), self.data)))
 
         chart.show_dots = False
         chart.render_to_file(f"/media/ramd/timed_prices.svg")
 
 
     def save_data(self):
-        mapped_data = list(map(lambda cdt: (cdt.time, cdt.price), self.data))
-        file_name = f"./data/GCQ8_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
+        file_name = f"./data/{self.ticker}_{time.strftime('%Y-%m-%d|%H-%M')}.json"
         with open(file_name, "w") as f:
             json.dump(mapped_data, f)
 
@@ -400,3 +395,17 @@ class ChartDataPoint:
         self.time = 0
         self.duration = 0
         # self.slope = 0
+
+
+def get_parameters_for_ticker(ticker):
+    parameters = {}
+    if ticker[0:2] == "GC":
+        parameters["TICK_PRICE"] = 0.10
+        parameters["MAX_RANGE_VALUE"] = 4 * parameters["TICK_PRICE"] # 0.4
+        parameters["MIN_RANGE_TIME"] = 300 # seconds
+        parameters["BREAKING_RANGE_VALUE"] = 3 * parameters["TICK_PRICE"]
+        parameters["MIN_TRENDING_BREAK_VALUE"] = 3 * parameters["TICK_PRICE"] # 0.3
+        parameters["MIN_BREAKING_PRICE_CHANGES"] = 2 # times
+        # MAX_FALSE_BREAKING_DURATION = 5 # secs
+        parameters["UP_DOWN_RATIO"] = 1.0
+    return parameters

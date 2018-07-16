@@ -18,7 +18,7 @@ class HftMonitor:
 
     def __init__(self, ticker, remote):
         # price variables to be substituted by:
-        self.chart_data = ChartData()
+        self.chart_data = ChartData(ticker)
         
         # Positions
         self.position = 0

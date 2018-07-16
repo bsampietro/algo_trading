@@ -87,12 +87,11 @@ class IBHft(EClient, EWrapper):
 
     def request_market_data(self, req_id, contract):
         if self.test_mode:
-            # Manually call tickPrice
             with open(self.input_file, "r") as f:
                 data = json.load(f)
+
             for time, price in data:
                 self.tickPrice(self.current_req_id, 4, price, {"time": time})
-                # time.sleep(1)
             
             for req_id, monitor in self.req_id_to_monitor_map.items():
                 monitor.close()
