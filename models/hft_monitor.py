@@ -47,6 +47,7 @@ class HftMonitor:
         # last traded price = 4
 
         if tickType == 4:
+            print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(price_time))}: {price}")
             gvars.datalog[self.ticker].write(f"=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(price_time))}: {price}\n")
 
             self.chart_data.add_price(price, price_time)
@@ -76,6 +77,7 @@ class HftMonitor:
                 gvars.datalog[self.ticker].write(f"3rd: Decision:\n")
                 gvars.datalog[self.ticker].write(f"Order to buy at {self.chart_data.action[1]}\n")
                 gvars.datalog[self.ticker].write("\n\n\n")
+                print(f"Order to buy {self.ticker} at {self.chart_data.action[1]}")
 
             elif self.chart_data.action[0] == "sell":
                 self.position = -CONTRACT_NR
@@ -89,6 +91,7 @@ class HftMonitor:
                 gvars.datalog[self.ticker].write(f"3rd: Decision:\n")
                 gvars.datalog[self.ticker].write(f"Order to sell at {self.chart_data.action[1]}\n")
                 gvars.datalog[self.ticker].write("\n\n\n")
+                print(f"Order to sell {self.ticker} at {self.chart_data.action[1]}")
             
             elif self.chart_data.action[0] == "close":
                 if self.position == CONTRACT_NR:
@@ -110,6 +113,9 @@ class HftMonitor:
                 gvars.datalog[self.ticker].write(f"P&L: {self.pnl}\n")
                 gvars.datalog[self.ticker].write(f"Nr of trades {self.nr_of_trades}\n")
                 gvars.datalog[self.ticker].write("\n\n\n")
+                print(f"Order to close {self.ticker} at {self.chart_data.action[1]}")
+                print(f"P&L: {self.pnl}")
+                print(f"Nr of trades {self.nr_of_trades}")
             
     # All position querying should be done with self.confirmed_position once the system is executing orders
 

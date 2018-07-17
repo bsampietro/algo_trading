@@ -14,7 +14,7 @@ class ChartData:
     def __init__(self, ticker):
 
         self.ticker = ticker
-        self.prm = get_parameters_for_ticker(ticker)
+        self.prm = get_initial_parameters_for_ticker(ticker)
         
         # Data
         self.data = []
@@ -161,7 +161,7 @@ class ChartData:
             elif self.min_range_price <= self.last_price() <= (self.max_range_price - self.prm["TICK_PRICE"]):
                 self.set_state("in_range")
 
-            elif (self.breaking_price_changes > self.prm["MIN_BREAKING_PRICE_CHANGES"] and
+            elif (self.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() > mid_price and duration_ok):
                 self.trending_price = self.last_price()
                 self.transaction_price = self.last_price()
@@ -221,7 +221,7 @@ class ChartData:
             elif (self.min_range_price + self.prm["TICK_PRICE"]) <= self.last_price() <= self.max_range_price:
                 self.set_state("in_range")
 
-            elif (self.breaking_price_changes > self.prm["MIN_BREAKING_PRICE_CHANGES"] and
+            elif (self.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() < mid_price and duration_ok):
                 self.trending_price = self.last_price()
                 self.transaction_price = self.last_price()
@@ -363,19 +363,26 @@ class ChartData:
         # chart = pygal.Line()
         # # chart.x_labels = self.times
         # chart.add("Prices", self.timed_prices)
+        initial_time = self.data[0].time
 
         chart = pygal.XY()
-        chart.add('Prices',  list(map(lambda cdp: (cdp.time, cdp.price), self.data)))
+        chart.add('Prices',  list(map(lambda cdp: (cdp.time - initial_time, cdp.price), self.data)))
 
         chart.show_dots = False
-        chart.render_to_file(f"/media/ramd/timed_prices.svg")
+        chart.render_to_file(f"{gvars.TEMP_DIR}/{self.ticker}_timed_prices.svg")
 
 
     def save_data(self):
+        if self.test_mode():
+            return
         mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
-        file_name = f"/media/ramd/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        file_name = f"{gvars.TEMP_DIR}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
         with open(file_name, "w") as f:
             json.dump(mapped_data, f)
+
+
+    def test_mode(self):
+        return len(self.ticker) != 4
 
 
 
@@ -389,15 +396,27 @@ class ChartDataPoint:
         # self.slope = 0
 
 
-def get_parameters_for_ticker(ticker):
-    parameters = {}
+def get_initial_parameters_for_ticker(ticker):
+    prms = {}
     if ticker[0:2] == "GC":
-        parameters["TICK_PRICE"] = 0.10
-        parameters["MAX_RANGE_VALUE"] = 4 * parameters["TICK_PRICE"] # 0.4
-        parameters["MIN_RANGE_TIME"] = 300 # seconds
-        parameters["BREAKING_RANGE_VALUE"] = 3 * parameters["TICK_PRICE"]
-        parameters["MIN_TRENDING_BREAK_VALUE"] = 3 * parameters["TICK_PRICE"] # 0.3
-        parameters["MIN_BREAKING_PRICE_CHANGES"] = 5 # times
-        # MAX_FALSE_BREAKING_DURATION = 5 # secs
-        parameters["UP_DOWN_RATIO"] = 1.0
-    return parameters
+        prms["TICK_PRICE"] = 0.10
+    elif ticker[0:2] == "CL":
+        prms["TICK_PRICE"] = 0.01
+    elif ticker[0:2] == "NG":
+        prms["TICK_PRICE"] = 0.001
+    elif ticker[0:2] == "ES":
+        prms["TICK_PRICE"] = 0.25
+    elif ticker[0:2] == "6E":
+        prms["TICK_PRICE"] = 0.00005
+
+    prms["MAX_RANGE_VALUE"] = 4 * prms["TICK_PRICE"] # 0.4
+    prms["MIN_RANGE_TIME"] = 300 # seconds
+    
+    prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
+    prms["MIN_BREAKING_PRICE_CHANGES"] = 4 # times
+
+    prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"] # 0.3
+    # MAX_FALSE_BREAKING_DURATION = 5 # secs
+    prms["UP_DOWN_RATIO"] = 1.0
+
+    return prms

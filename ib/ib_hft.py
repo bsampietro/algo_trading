@@ -38,7 +38,7 @@ class IBHft(EClient, EWrapper):
 
         if self.test_mode:
             self.input_file = input_file
-            self.tickers = [input_file.replace("data/", "")]
+            self.tickers = [util.ticker_from_file(input_file)]
 
             self.test_thread = Thread(target = self.connectAck)
             self.test_thread.start()

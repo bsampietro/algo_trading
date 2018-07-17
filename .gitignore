@@ -4,3 +4,4 @@ tws_output.txt
 *.json
 *.pk
 *.pyc
+input/contracts.txt
