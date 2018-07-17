@@ -19,12 +19,14 @@ def get_contract(symbol):
         return get_stock_contract(symbol)
 
 def contract_type(symbol):
-    if len(symbol) == 4 and symbol[3].isdigit():
+    if len(symbol) in (4, 5) and symbol[-1].isdigit():
         return "FUT"
-    elif len(symbol) >= 6:
-        return "OPT"
-    else:
+    # elif len(symbol) >= 6:
+    #     return "OPT"
+    elif len(symbol) <= 4:
         return "STK"
+    else:
+        return "" # is nothing
 
 def today_in_string():
     return datetime.today().strftime("%Y%m%d")
@@ -111,13 +113,15 @@ def get_futures_contract(symbol):
         contract.exchange = "ECBOT" # on IB is ECBOT
     elif symbol[0:2] in ("VX" ,"VIX"):
         contract.exchange = "CFE"
+    elif symbol[0:3] in ("EUR"):
+        contract.exchange = "GLOBEX"
     
     # using localSymbol
     # contract.localSymbol = symbol[0:4]
     
-    # using symbol and date
-    contract.symbol = symbol[0:2]
-    contract.lastTradeDateOrContractMonth = get_futures_date(symbol[2:4]) # eg. "201612"
+    ticker_length = len(symbol) - 2 # 2 is the lengh of month and year. eg. U8
+    contract.symbol = symbol[0:ticker_length]
+    contract.lastTradeDateOrContractMonth = get_futures_date(symbol[-2:]) # eg. "201612"
 
     return contract
 

@@ -6,6 +6,7 @@ import json
 import pygal
 
 import gvars
+from lib import util
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
@@ -382,7 +383,7 @@ class ChartData:
 
 
     def test_mode(self):
-        return len(self.ticker) != 4
+        return util.contract_type(self.ticker) != "FUT"
 
 
 
@@ -406,7 +407,7 @@ def get_initial_parameters_for_ticker(ticker):
         prms["TICK_PRICE"] = 0.001
     elif ticker[0:2] == "ES":
         prms["TICK_PRICE"] = 0.25
-    elif ticker[0:2] == "6E":
+    elif ticker[0:3] == "EUR":
         prms["TICK_PRICE"] = 0.00005
 
     prms["MAX_RANGE_VALUE"] = 4 * prms["TICK_PRICE"] # 0.4

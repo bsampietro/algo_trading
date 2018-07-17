@@ -12,16 +12,16 @@ if __name__ == "__main__":
     logging.basicConfig(filename='./log/hft.log', level=logging.INFO)
     
     try:
-        if len(sys.argv[1]) != 4:
-            ticker = util.ticker_from_file(sys.argv[1])
-            gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
-
-            ib_hft = IBHft(input_file = sys.argv[1])
-        else:
+        if util.contract_type(sys.argv[1]) == "FUT":
             for ticker in sys.argv[1:]:
                 gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
             
             ib_hft = IBHft(tickers = sys.argv[1:])
+        else:
+            ticker = util.ticker_from_file(sys.argv[1])
+            gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
+
+            ib_hft = IBHft(input_file = sys.argv[1])
 
         print("Main program finished")
     except:
