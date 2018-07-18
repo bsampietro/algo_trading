@@ -1,7 +1,7 @@
 import sys
 sys.path.append('/home/bruno/ib_api/9_73/IBJts/source/pythonclient')
 
-from threading import Thread
+from threading import Thread, Lock
 import logging
 import time
 import json
@@ -32,6 +32,9 @@ class IBHft(EClient, EWrapper):
         # tws variables
         self.current_req_id = 0
         self.current_order_id = None
+
+        # threading variables
+        self.lock = Lock()
 
         # test variables
         self.test_mode = False if input_file == "" else True
@@ -142,22 +145,23 @@ class IBHft(EClient, EWrapper):
 
     # Orders
     def place_order(self, monitor, action, quantity, price=0, orderId=None):
-        order = Order()
-        if price == 0:
-            order.orderType = "MKT"
-        else:    
-            order.orderType = "LMT"
-        order.totalQuantity = quantity
-        order.action = action # "BUY"|"SELL"
-        order.lmtPrice = price
+        with self.lock:
+            order = Order()
+            if price == 0:
+                order.orderType = "MKT"
+            else:    
+                order.orderType = "LMT"
+            order.totalQuantity = quantity
+            order.action = action # "BUY"|"SELL"
+            order.lmtPrice = price
 
-        if orderId is None:
-            order_id = self.get_next_order_id()
-            self.order_id_to_monitor_map[next_order_id] = monitor
-        else:
-            order_id = orderId
+            if orderId is None:
+                order_id = self.get_next_order_id()
+                self.order_id_to_monitor_map[next_order_id] = monitor
+            else:
+                order_id = orderId
 
-        self.placeOrder(order_id, monitor.contract, order)
+            self.placeOrder(order_id, monitor.contract, order)
 
 
     def orderStatus(self, orderId, status, filled,

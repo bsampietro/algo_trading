@@ -259,7 +259,6 @@ class ChartData:
                     self.set_state("random_walk")
         
 
-    
     def set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
@@ -306,6 +305,7 @@ class ChartData:
             self.notification = ("state_changed", f"state changed from {self.state} to {STATE[state]}")
             self.state = STATE[state]
 
+    
     def state_is(self, state):
         return self.state == STATE[state]
 
@@ -321,6 +321,7 @@ class ChartData:
     def last_time(self):
         return self.last_cdp().time
 
+    
     def data_since(self, the_time):
         data_since = []
         for cdp in reversed(self.data):
@@ -331,6 +332,7 @@ class ChartData:
         assert len(data_since) < len(self.data)
         return data_since
 
+    
     def time_up_down_since(self, the_time, price):
         time_up = 0
         time_equal = 0
