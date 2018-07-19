@@ -60,7 +60,7 @@ class HftMonitor:
                 gvars.datalog[self.ticker].write("\n\n\n")
 
             # Debugging purposes
-            if self.chart_data.state in (2, 3, 4, 5):
+            if self.chart_data.state in (1, 2, 3, 4, 5):
                 gvars.datalog[self.ticker].write("2nd: Internal state data:\n")
                 gvars.datalog[self.ticker].write(self.chart_data.state_str())
                 gvars.datalog[self.ticker].write("\n\n\n")

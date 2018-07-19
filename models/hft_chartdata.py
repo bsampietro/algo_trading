@@ -262,21 +262,35 @@ class ChartData:
     def set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
+        outside_duration = 0
         for cdp in reversed(self.data):
             if cdp.price > max_price:
-                max_price = cdp.price
+
+                if cdp.price - min_price <= self.prm["MAX_RANGE_VALUE"]:
+                    max_price = cdp.price
+                    outside_duration = 0
+                else:
+                    outside_duration += cdp.duration
+                    if outside_duration > self.prm["MAX_TIME_OUTSIDE_OF RANGE"]:
+                        break
+
             elif cdp.price < min_price:
-                min_price = cdp.price
-            
-            range_value = max_price - min_price
-            if range_value > self.prm["MAX_RANGE_VALUE"]:
-                break
+
+                if max_price - cdp.price <= self.prm["MAX_RANGE_VALUE"]:
+                    min_price = cdp.price
+                    outside_duration = 0
+                else:
+                    outside_duration += cdp.duration
+                    if outside_duration > self.prm["MAX_TIME_OUTSIDE_OF RANGE"]:
+                        break
+
+            else: # Inside max and min
+                outside_duration = 0
             
             if self.last_time() - cdp.time > self.prm["MIN_RANGE_TIME"]:
                 self.min_range_price = min_price
                 self.max_range_price = max_price
                 self.set_state("in_range")
-                # self.action = ("notify", None)
 
 
     def state_str(self):
@@ -302,7 +316,7 @@ class ChartData:
 
     def set_state(self, state):
         if self.state != STATE[state]:
-            self.notification = ("state_changed", f"state changed from {self.state} to {STATE[state]}")
+            self.notification = ("state_changed", f"State changed from {self.state} to {STATE[state]}")
             self.state = STATE[state]
 
     
@@ -403,23 +417,31 @@ def get_initial_parameters_for_ticker(ticker):
     prms = {}
     if ticker[0:2] == "GC":
         prms["TICK_PRICE"] = 0.10
+        prms["MAX_RANGE_VALUE"] = 5 * prms["TICK_PRICE"]
+        prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
     elif ticker[0:2] == "CL":
         prms["TICK_PRICE"] = 0.01
+        prms["MAX_RANGE_VALUE"] = 8 * prms["TICK_PRICE"]
+        prms["BREAKING_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
     elif ticker[0:2] == "NG":
         prms["TICK_PRICE"] = 0.001
+        prms["MAX_RANGE_VALUE"] = 8 * prms["TICK_PRICE"]
+        prms["BREAKING_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
     elif ticker[0:2] == "ES":
         prms["TICK_PRICE"] = 0.25
+        prms["MAX_RANGE_VALUE"] = 5 * prms["TICK_PRICE"]
+        prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
     elif ticker[0:3] == "EUR":
         prms["TICK_PRICE"] = 0.00005
+        prms["MAX_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
+        prms["BREAKING_RANGE_VALUE"] = 2 * prms["TICK_PRICE"]
 
-    prms["MAX_RANGE_VALUE"] = 4 * prms["TICK_PRICE"] # 0.4
-    prms["MIN_RANGE_TIME"] = 300 # seconds
+    prms["MIN_RANGE_TIME"] = 450 # seconds
+    prms["MAX_TIME_OUTSIDE_OF RANGE"] = prms["MIN_RANGE_TIME"] / 20 # 5% of the time
     
-    prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
     prms["MIN_BREAKING_PRICE_CHANGES"] = 4 # times
-
-    prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"] # 0.3
-    # MAX_FALSE_BREAKING_DURATION = 5 # secs
     prms["UP_DOWN_RATIO"] = 1.0
+
+    prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"]
 
     return prms
