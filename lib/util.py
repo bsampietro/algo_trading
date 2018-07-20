@@ -21,9 +21,7 @@ def get_contract(symbol):
 def contract_type(symbol):
     if len(symbol) in (4, 5) and symbol[-1].isdigit():
         return "FUT"
-    # elif len(symbol) >= 6:
-    #     return "OPT"
-    elif len(symbol) <= 4:
+    elif len(symbol) <= 5:
         return "STK"
     else:
         return "" # is nothing
@@ -110,14 +108,14 @@ def get_futures_contract(symbol):
     elif symbol[0:2] in ("ES", "GE", "6E", "6J"):
         contract.exchange = "GLOBEX"
     elif symbol[0:2] in ("UB" ,"ZB", "ZN", "ZF", "ZT", "ZS", "ZC", "ZW", "YM"):
-        contract.exchange = "ECBOT" # on IB is ECBOT
-    elif symbol[0:2] in ("VX" ,"VIX"):
+        contract.exchange = "ECBOT"
+    elif symbol[0:2] in ("VX"):
         contract.exchange = "CFE"
-    elif symbol[0:3] in ("EUR"):
+    elif symbol[0:3] in ("EUR", "JPY"):
         contract.exchange = "GLOBEX"
-    
-    # using localSymbol
-    # contract.localSymbol = symbol[0:4]
+    elif symbol[0:3] in ("VIX"):
+        contract.exchange = "CFE"
+        contract.localSymbol = "VX" + symbol[-2:]
     
     ticker_length = len(symbol) - 2 # 2 is the lengh of month and year. eg. U8
     contract.symbol = symbol[0:ticker_length]
