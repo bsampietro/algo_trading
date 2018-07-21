@@ -7,6 +7,8 @@ import pygal
 
 import gvars
 from lib import util
+from models.states.breaking import Breaking
+from models.cycle import Cycle
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
 HEIGHT = {"max": 1, "mid": 0, "min": -1}
@@ -22,17 +24,13 @@ class ChartData:
         self.data = []
         self.state = STATE["random_walk"]
 
+        self.cycles = []
+        
+        # Not in use now because it is a property
+        # self.ls = None
+
         self.min_range_price = 0
         self.max_range_price = 0
-        
-        # ----------Breaking data ----------------
-        self.breaking_price_changes = 0
-
-        # up down
-        self.min_breaking_price = 0
-        self.max_breaking_price = 0
-        self.breaking_time = 0
-        # -----------------------------------------
 
         self.trending_price = 0
         self.transaction_price = 0 # bought price
@@ -92,7 +90,6 @@ class ChartData:
                 self.data[-2].height = HEIGHT["max"]
 
     
-
     def find_and_set_state(self):
 
         if self.state_is("random_walk"):
@@ -103,26 +100,15 @@ class ChartData:
         
         elif self.state_is("in_range"):
 
-
             self.set_range() # make the range thiner if needed
 
             
             if self.max_range_price < self.last_price() <= self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]:
-                self.breaking_price_changes = 0
-
-                self.min_breaking_price = self.last_price()
-                self.max_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-                
+                self.ls = Breaking("up", self)
                 self.set_state("breaking_up")
 
             elif self.min_range_price - self.prm["BREAKING_RANGE_VALUE"] <= self.last_price() < self.min_range_price:
-                self.breaking_price_changes = 0
-
-                self.min_breaking_price = self.last_price()
-                self.max_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-                
+                self.ls = Breaking("down", self)
                 self.set_state("breaking_down")
 
             elif ((self.last_price() > self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]) or 
@@ -145,35 +131,10 @@ class ChartData:
             #     self.set_state('trending_up')
             #     return
 
-            self.breaking_price_changes += 1
+            self.ls.price_changed()
 
-            ## Time up down system
-            if self.last_price() < self.min_breaking_price:
-                self.min_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-                self.breaking_price_changes = 0
-            elif self.last_price() > self.max_breaking_price:
-                self.max_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-
-            mid_price = round((self.max_breaking_price + self.min_breaking_price) / 2.0, 2)
-            time_up_down = self.time_up_down_since(self.breaking_time, mid_price)
-
-            duration_ok = False
-            if time_up_down[2] == 0:
-                duration_ok = True
-            else:
-                if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > self.prm["UP_DOWN_RATIO"]:
-                    duration_ok = True
-
-            gvars.datalog[self.ticker].write("1st: Inside decision methods:\n")
-            gvars.datalog[self.ticker].write(f"mid_price: {mid_price}\n")
-            gvars.datalog[self.ticker].write(f"time_up_down: {time_up_down}\n")
-            gvars.datalog[self.ticker].write(f"duration_ok: {duration_ok}\n\n")
-            ## -------------------
-
-            if (self.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
-                            self.last_price() > mid_price and duration_ok):
+            if (self.ls.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
+                            self.last_price() > self.ls.mid_price and self.ls.duration_ok):
                 # self.transaction_price = round(self.last_price() - 1 * self.prm["TICK_PRICE"], 2)
                 self.transaction_price = self.last_price()
                 self.transaction_time = self.last_time()
@@ -193,35 +154,10 @@ class ChartData:
                 self.set_state("in_range")
                 return
 
-            self.breaking_price_changes += 1
+            self.ls.price_changed()
 
-            ## Time up down system
-            if self.last_price() < self.min_breaking_price:
-                self.min_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-            elif self.last_price() > self.max_breaking_price:
-                self.max_breaking_price = self.last_price()
-                self.breaking_time = self.last_time()
-                self.breaking_price_changes = 0
-
-            mid_price = round((self.max_breaking_price + self.min_breaking_price) / 2.0, 2)
-            time_up_down = self.time_up_down_since(self.breaking_time, mid_price)
-
-            duration_ok = False
-            if time_up_down[0] == 0:
-                duration_ok = True
-            else:
-                if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.prm["UP_DOWN_RATIO"]:
-                    duration_ok = True
-
-            gvars.datalog[self.ticker].write("1st: Inside decision methods:\n")
-            gvars.datalog[self.ticker].write(f"mid_price: {mid_price}\n")
-            gvars.datalog[self.ticker].write(f"time_up_down: {time_up_down}\n")
-            gvars.datalog[self.ticker].write(f"duration_ok: {duration_ok}\n\n")
-            ## -------------------
-
-            if (self.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
-                            self.last_price() < mid_price and duration_ok):
+            if (self.ls.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
+                            self.last_price() < self.ls.mid_price and self.ls.duration_ok):
                 # self.transaction_price = round(self.last_price() + 1 * self.prm["TICK_PRICE"], 2)
                 self.transaction_price = self.last_price()
                 self.transaction_time = self.last_time()
@@ -318,6 +254,26 @@ class ChartData:
     def last_time(self):
         return self.last_cdp().time
 
+
+    # ------ Cycles ------------
+    # Last State
+    @property
+    def ls(self):
+        return self.cycles[-1].last_state()
+    
+    # add_state(self, state)
+    @ls.setter
+    def ls(self, value):
+        if len(self.cycles) == 0 or self.cycles[-1].closed:
+            self.cycles.append(Cycle())
+        self.cycles[-1].add_state(value)
+
+    def close_cycle(self, succesfull):
+        self.cycles[-1].succesfull = succesfull
+        self.cycles[-1].closed = True
+    # --------------------------
+
+
     
     # the_time could be a specific time or an amount of time since now
     def data_since(self, time_or_duration):
@@ -376,24 +332,24 @@ class ChartData:
 
 
     def state_str(self):
+
         if len(self.data) < 2:
             return ""
-        str = (
+        output = (
             f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
             f"state: {self.state}\n"
-            f"min_range_price: {self.min_range_price}\n"
-            f"max_range_price: {self.max_range_price}\n"
-
-            f"breaking_price_changes: {self.breaking_price_changes}\n"
-            f"min_breaking_price: {self.min_breaking_price}\n"
-            f"max_breaking_price: {self.max_breaking_price}\n"
-            f"breaking_time: {self.breaking_time}\n"
-
-            f"trending_price: {self.trending_price}\n"
-            f"transaction_price: {self.transaction_price}\n"
-            f"action: {self.action}\n"
         )
-        return str
+        #     f"min_range_price: {self.min_range_price}\n"
+        #     f"max_range_price: {self.max_range_price}\n"
+        #     f"{ls_state_str}"
+        #     f"trending_price: {self.trending_price}\n"
+        #     f"transaction_price: {self.transaction_price}\n"
+        #     f"action: {self.action}\n"
+        # )
+        if len(self.cycles) > 0:
+            for state in self.cycles[-1].states:
+                output += state.state_str()
+        return output
 
 
     def output_chart(self):
@@ -428,7 +384,6 @@ class ChartData:
     #             self.timed_prices.append(self.last_price())
     #         sec += 1
     #         time.sleep(1)
-
 
 
 class ChartDataPoint:

@@ -1,0 +1,12 @@
+# Represents a whole cycle from random walk to random walk
+class Cycle:
+    def __init__(self):
+    	self.succesfull = False
+    	self.closed = False
+    	self.states = []
+
+    def add_state(self, state):
+    	self.states.append(state)
+
+    def last_state(self):
+    	return self.states[-1]
