@@ -4,7 +4,6 @@ from datetime import datetime, date
 import time
 
 from ib.ib_test_data import IBTestData
-# from models.hft_monitor import HftMonitor
 
 # Main method
 if __name__ == "__main__":

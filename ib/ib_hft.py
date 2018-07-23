@@ -14,7 +14,7 @@ from ibapi.order import *
 
 from lib import util
 
-from models.hft_monitor import HftMonitor
+from models.monitor import Monitor
 
 
 class IBHft(EClient, EWrapper):
@@ -61,7 +61,7 @@ class IBHft(EClient, EWrapper):
         """ callback signifying completion of successful connection """
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
-            monitor = HftMonitor(ticker, self)
+            monitor = Monitor(ticker, self)
             self.start_monitoring(monitor)
             self.monitors.append(monitor)
 

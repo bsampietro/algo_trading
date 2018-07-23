@@ -6,12 +6,12 @@ import statistics
 from threading import Thread
 
 from lib import util
-from models.hft_chartdata import ChartData
+from models.chartdata import ChartData
 import gvars
 
 CONTRACT_NR = 1
 
-class HftMonitor:
+class Monitor:
 
     def __init__(self, ticker, remote):
         # price variables to be substituted by:

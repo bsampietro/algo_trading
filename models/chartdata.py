@@ -164,6 +164,7 @@ class ChartData:
 
             if self.ls.trending_stop():
                 self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (SELL) # last_price is added for backtesting purposes
+                self.cycles[-1].pnl = self.last_price() - self.ls.transaction_price
                 self.set_state("random_walk")
 
         elif self.state_is("trending_down"):
@@ -172,6 +173,7 @@ class ChartData:
 
             if self.ls.trending_stop():
                 self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (BUY) # last_price is added for backtesting purposes
+                self.cycles[-1].pnl = self.ls.transaction_price - self.last_price()
                 self.set_state("random_walk")
         
 
@@ -211,10 +213,6 @@ class ChartData:
 
         if start_time > 0:
             self.ls = Range(self, min_price, max_price, start_time)
-            # will be removed in favor of Range
-            self.min_range_price = min_price
-            self.max_range_price = max_price
-            # -----
             self.set_state("in_range")
 
 
@@ -255,13 +253,9 @@ class ChartData:
     # add_state(self, state)
     @ls.setter
     def ls(self, value):
-        if len(self.cycles) == 0 or self.cycles[-1].closed:
+        if len(self.cycles) == 0 or self.cycles[-1].closed():
             self.cycles.append(Cycle())
         self.cycles[-1].add_state(value)
-
-    def close_cycle(self, succesfull):
-        self.cycles[-1].succesfull = succesfull
-        self.cycles[-1].closed = True
     # --------------------------
 
 
