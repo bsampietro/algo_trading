@@ -69,10 +69,11 @@ class Breaking:
 
 
     def state_str(self):
-        str = (
+        output = (
+            f"BREAKING {self.direction}:\n"
             f"breaking_price_changes: {self.breaking_price_changes}\n"
             f"min_breaking_price: {self.min_breaking_price}\n"
             f"max_breaking_price: {self.max_breaking_price}\n"
             f"breaking_time: {self.breaking_time}\n"
         )
-        return str
+        return output

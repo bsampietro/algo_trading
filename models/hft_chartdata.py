@@ -7,7 +7,12 @@ import pygal
 
 import gvars
 from lib import util
+
+# State objects can be used to return data and decide in this class whether to change state
+# or just return direct information and get this class to ask if should change or not
 from models.states.breaking import Breaking
+from models.states.range import Range
+from models.states.trending import Trending
 from models.cycle import Cycle
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
@@ -28,13 +33,6 @@ class ChartData:
         
         # Not in use now because it is a property
         # self.ls = None
-
-        self.min_range_price = 0
-        self.max_range_price = 0
-
-        self.trending_price = 0
-        self.transaction_price = 0 # bought price
-        self.transaction_time = 0 # bought time
         
         self.notification = ("", None)
         self.action = ("", None) # tuple with: (action, price)
@@ -94,63 +92,59 @@ class ChartData:
 
         if self.state_is("random_walk"):
             
-
             self.set_range()
-
         
         elif self.state_is("in_range"):
 
-            self.set_range() # make the range thiner if needed
-
+            self.last_range.price_changed()
+            rng = self.last_range
             
-            if self.max_range_price < self.last_price() <= self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]:
+            if rng.max_price < self.last_price() <= rng.max_price + self.prm["BREAKING_RANGE_VALUE"]:
                 self.ls = Breaking("up", self)
                 self.set_state("breaking_up")
 
-            elif self.min_range_price - self.prm["BREAKING_RANGE_VALUE"] <= self.last_price() < self.min_range_price:
+            elif rng.min_price - self.prm["BREAKING_RANGE_VALUE"] <= self.last_price() < rng.min_price:
                 self.ls = Breaking("down", self)
                 self.set_state("breaking_down")
 
-            elif ((self.last_price() > self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]) or 
-                            (self.last_price() < self.min_range_price - self.prm["BREAKING_RANGE_VALUE"])):
+            elif ((self.last_price() > rng.max_price + self.prm["BREAKING_RANGE_VALUE"]) or 
+                            (self.last_price() < rng.min_price - self.prm["BREAKING_RANGE_VALUE"])):
                 self.set_state("random_walk")
 
 
         elif self.state_is("breaking_up"):
 
-            if ((self.last_price() > self.max_range_price + self.prm["BREAKING_RANGE_VALUE"]) or
-                            (self.last_price() < self.min_range_price)):
+            rng = self.last_range
+
+            if ((self.last_price() > rng.max_price + self.prm["BREAKING_RANGE_VALUE"]) or
+                            (self.last_price() < rng.min_price)):
                 self.set_state("random_walk")
                 return
 
-            if self.min_range_price <= self.last_price() <= (self.max_range_price - self.prm["TICK_PRICE"]):
+            if rng.min_price <= self.last_price() <= (rng.max_price - self.prm["TICK_PRICE"]):
                 self.set_state("in_range")
                 return
-
-            # if self.transaction_price >= self.last_price():
-            #     self.set_state('trending_up')
-            #     return
 
             self.ls.price_changed()
 
             if (self.ls.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() > self.ls.mid_price and self.ls.duration_ok):
                 # self.transaction_price = round(self.last_price() - 1 * self.prm["TICK_PRICE"], 2)
-                self.transaction_price = self.last_price()
-                self.transaction_time = self.last_time()
-                self.trending_price = self.transaction_price
-                self.action = ("buy", self.transaction_price)
+                self.ls = Trending('up', self)
+                self.action = ("buy", self.last_price())
                 self.set_state('trending_up')
 
 
         elif self.state_is("breaking_down"):
 
-            if ((self.last_price() < self.min_range_price - self.prm["BREAKING_RANGE_VALUE"]) or
-                            (self.last_price() > self.max_range_price)):
+            rng = self.last_range
+
+            if ((self.last_price() < rng.min_price - self.prm["BREAKING_RANGE_VALUE"]) or
+                            (self.last_price() > rng.max_price)):
                 self.set_state("random_walk")
                 return
 
-            elif (self.min_range_price + self.prm["TICK_PRICE"]) <= self.last_price() <= self.max_range_price:
+            elif (rng.min_price + self.prm["TICK_PRICE"]) <= self.last_price() <= rng.max_price:
                 self.set_state("in_range")
                 return
 
@@ -159,78 +153,69 @@ class ChartData:
             if (self.ls.breaking_price_changes >= self.prm["MIN_BREAKING_PRICE_CHANGES"] and
                             self.last_price() < self.ls.mid_price and self.ls.duration_ok):
                 # self.transaction_price = round(self.last_price() + 1 * self.prm["TICK_PRICE"], 2)
-                self.transaction_price = self.last_price()
-                self.transaction_time = self.last_time()
-                self.trending_price = self.transaction_price
-                self.action = ("sell", self.transaction_price)
+                self.ls = Trending('down', self)
+                self.action = ("sell", self.last_price())
                 self.set_state('trending_down')
 
 
         elif self.state_is("trending_up"):
 
-            trending_break_value = self.prm["MIN_TRENDING_BREAK_VALUE"]
-            new_trending_break_value = (self.trending_price - self.transaction_price) / 3.0
-            if new_trending_break_value > trending_break_value:
-                trending_break_value = new_trending_break_value
+            self.ls.price_changed()
 
-            if self.last_price() >= self.trending_price:
-                self.trending_price = self.last_price()
-            else:
-                min_max = self.min_max_since(self.prm["TRENDING_BREAK_TIME"])
-                if (self.trending_price - self.last_price() >= trending_break_value or 
-                        min_max[1] - min_max[0] <= self.prm["MIN_TRENDING_BREAK_VALUE"]):
-                    self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (SELL) # last_price is added for backtesting purposes
-                    self.set_state("random_walk")
+            if self.ls.trending_stop():
+                self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (SELL) # last_price is added for backtesting purposes
+                self.set_state("random_walk")
 
         elif self.state_is("trending_down"):
 
-            trending_break_value = self.prm["MIN_TRENDING_BREAK_VALUE"]
-            new_trending_break_value = (self.transaction_price - self.trending_price) / 3.0
-            if new_trending_break_value > trending_break_value:
-                trending_break_value = new_trending_break_value
+            self.ls.price_changed()
 
-            if self.last_price() <= self.trending_price:
-                self.trending_price = self.last_price()
-            else:
-                min_max = self.min_max_since(self.prm["TRENDING_BREAK_TIME"])
-                if (self.last_price() - self.trending_price >= trending_break_value or 
-                        min_max[1] - min_max[0] <= self.prm["MIN_TRENDING_BREAK_VALUE"]):
-                    self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (BUY) # last_price is added for backtesting purposes
-                    self.set_state("random_walk")
+            if self.ls.trending_stop():
+                self.action = ("close", self.last_price()) # CLOSE POSITION SIGNAL (BUY) # last_price is added for backtesting purposes
+                self.set_state("random_walk")
         
 
     def set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
+        max_range_value = self.prm["MAX_RANGE_VALUE"]
         outside_duration = 0
+        start_time = 0
         for cdp in reversed(self.data):
             if cdp.price > max_price:
 
-                if cdp.price - min_price <= self.prm["MAX_RANGE_VALUE"]:
+                if cdp.price - min_price <= max_range_value:
                     max_price = cdp.price
                     outside_duration = 0
                 else:
                     outside_duration += cdp.duration
-                    if outside_duration > self.prm["MAX_TIME_OUTSIDE_OF RANGE"]:
+                    if outside_duration > self.prm["MIN_RANGE_TIME"] / 20.0:
                         break
 
             elif cdp.price < min_price:
 
-                if max_price - cdp.price <= self.prm["MAX_RANGE_VALUE"]:
+                if max_price - cdp.price <= max_range_value:
                     min_price = cdp.price
                     outside_duration = 0
                 else:
                     outside_duration += cdp.duration
-                    if outside_duration > self.prm["MAX_TIME_OUTSIDE_OF RANGE"]:
+                    if outside_duration > self.prm["MIN_RANGE_TIME"] / 20.0:
                         break
 
             else: # Inside max and min
                 outside_duration = 0
             
             if self.last_time() - cdp.time > self.prm["MIN_RANGE_TIME"]:
-                self.min_range_price = min_price
-                self.max_range_price = max_price
-                self.set_state("in_range")
+                start_time = cdp.time
+                # max_range_value = max_price - min_price # in the case we want to consider thiner ranges
+
+        if start_time > 0:
+            self.ls = Range(self, min_price, max_price, start_time)
+            # will be removed in favor of Range
+            self.min_range_price = min_price
+            self.max_range_price = max_price
+            # -----
+            self.set_state("in_range")
 
 
     def set_state(self, state):
@@ -253,6 +238,12 @@ class ChartData:
 
     def last_time(self):
         return self.last_cdp().time
+
+    @property
+    def last_range(self):
+        for state in reversed(self.cycles[-1].states):
+            if type(state) is Range:
+                return state
 
 
     # ------ Cycles ------------
@@ -332,20 +323,13 @@ class ChartData:
 
 
     def state_str(self):
-
         if len(self.data) < 2:
             return ""
         output = (
             f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
             f"state: {self.state}\n"
+            f"action: {self.action}\n"
         )
-        #     f"min_range_price: {self.min_range_price}\n"
-        #     f"max_range_price: {self.max_range_price}\n"
-        #     f"{ls_state_str}"
-        #     f"trending_price: {self.trending_price}\n"
-        #     f"transaction_price: {self.transaction_price}\n"
-        #     f"action: {self.action}\n"
-        # )
         if len(self.cycles) > 0:
             for state in self.cycles[-1].states:
                 output += state.state_str()
@@ -397,39 +381,39 @@ class ChartDataPoint:
 
 
 def get_initial_parameters_for_ticker(ticker):
-    prms = {}
+    prm = {}
     if ticker[0:2] == "GC":
-        prms["TICK_PRICE"] = 0.10
-        prms["MAX_RANGE_VALUE"] = 5 * prms["TICK_PRICE"]
-        prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
-        prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"]
+        prm["TICK_PRICE"] = 0.10
+        prm["MAX_RANGE_VALUE"] = 5 * prm["TICK_PRICE"]
+        prm["BREAKING_RANGE_VALUE"] = 3 * prm["TICK_PRICE"]
+        prm["MIN_TRENDING_BREAK_VALUE"] = 2 * prm["TICK_PRICE"]
     elif ticker[0:2] == "CL":
-        prms["TICK_PRICE"] = 0.01
-        prms["MAX_RANGE_VALUE"] = 8 * prms["TICK_PRICE"]
-        prms["BREAKING_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
-        prms["MIN_TRENDING_BREAK_VALUE"] = 3 * prms["TICK_PRICE"]
+        prm["TICK_PRICE"] = 0.01
+        prm["MAX_RANGE_VALUE"] = 8 * prm["TICK_PRICE"]
+        prm["BREAKING_RANGE_VALUE"] = 4 * prm["TICK_PRICE"]
+        prm["MIN_TRENDING_BREAK_VALUE"] = 3 * prm["TICK_PRICE"]
     elif ticker[0:2] == "NG":
-        prms["TICK_PRICE"] = 0.001
-        prms["MAX_RANGE_VALUE"] = 8 * prms["TICK_PRICE"]
-        prms["BREAKING_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
-        prms["MIN_TRENDING_BREAK_VALUE"] = 3 * prms["TICK_PRICE"]
+        prm["TICK_PRICE"] = 0.001
+        prm["MAX_RANGE_VALUE"] = 8 * prm["TICK_PRICE"]
+        prm["BREAKING_RANGE_VALUE"] = 4 * prm["TICK_PRICE"]
+        prm["MIN_TRENDING_BREAK_VALUE"] = 3 * prm["TICK_PRICE"]
     elif ticker[0:2] == "ES":
-        prms["TICK_PRICE"] = 0.25
-        prms["MAX_RANGE_VALUE"] = 5 * prms["TICK_PRICE"]
-        prms["BREAKING_RANGE_VALUE"] = 3 * prms["TICK_PRICE"]
-        prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"]
+        prm["TICK_PRICE"] = 0.25
+        prm["MAX_RANGE_VALUE"] = 5 * prm["TICK_PRICE"]
+        prm["BREAKING_RANGE_VALUE"] = 3 * prm["TICK_PRICE"]
+        prm["MIN_TRENDING_BREAK_VALUE"] = 2 * prm["TICK_PRICE"]
     elif ticker[0:3] == "EUR":
-        prms["TICK_PRICE"] = 0.00005
-        prms["MAX_RANGE_VALUE"] = 4 * prms["TICK_PRICE"]
-        prms["BREAKING_RANGE_VALUE"] = 2 * prms["TICK_PRICE"]
-        prms["MIN_TRENDING_BREAK_VALUE"] = 2 * prms["TICK_PRICE"]
+        prm["TICK_PRICE"] = 0.00005
+        prm["MAX_RANGE_VALUE"] = 4 * prm["TICK_PRICE"]
+        prm["BREAKING_RANGE_VALUE"] = 2 * prm["TICK_PRICE"]
+        prm["MIN_TRENDING_BREAK_VALUE"] = 2 * prm["TICK_PRICE"]
 
-    prms["MIN_RANGE_TIME"] = 450 # seconds
-    prms["MAX_TIME_OUTSIDE_OF RANGE"] = prms["MIN_RANGE_TIME"] / 20 # 5% of the time
+    prm["MIN_RANGE_TIME"] = 450 # seconds
+    # prm["MAX_TIME_OUTSIDE_OF RANGE"] = prm["MIN_RANGE_TIME"] / 20 # 5% of the time
     
-    prms["MIN_BREAKING_PRICE_CHANGES"] = 4 # times
-    prms["UP_DOWN_RATIO"] = 1.0
+    prm["MIN_BREAKING_PRICE_CHANGES"] = 4 # times
+    prm["UP_DOWN_RATIO"] = 1.0
 
-    prms["TRENDING_BREAK_TIME"] = 60 # secs
+    prm["TRENDING_BREAK_TIME"] = 60 # secs
 
-    return prms
+    return prm
