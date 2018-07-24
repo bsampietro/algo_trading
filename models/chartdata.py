@@ -15,7 +15,8 @@ from models.states.range import Range
 from models.states.trending import Trending
 from models.cycle import Cycle
 
-STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3, "trending_up": 4, "trending_down": 5}
+STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
+        "trending_up": 4, "trending_down": 5}
 HEIGHT = {"max": 1, "mid": 0, "min": -1}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
@@ -60,6 +61,8 @@ class ChartData:
         
         self.set_last_height_and_trend()
 
+        self.adjust_parameters()
+
         self.find_and_set_state()
 
 
@@ -90,9 +93,12 @@ class ChartData:
     
     def find_and_set_state(self):
 
+        if self.find_speeding():
+            return
+
         if self.state_is("random_walk"):
             
-            self.set_range()
+            self.find_and_set_range()
         
         elif self.state_is("in_range"):
 
@@ -177,7 +183,7 @@ class ChartData:
                 self.set_state("random_walk")
         
 
-    def set_range(self):
+    def find_and_set_range(self):
         min_price = self.last_price()
         max_price = self.last_price()
         max_range_value = self.prm["MAX_RANGE_VALUE"]
@@ -216,6 +222,29 @@ class ChartData:
             self.set_state("in_range")
 
 
+    def find_speeding(self):
+        if not self.state in (STATE['random_walk'], STATE['in_range']):
+            return False
+
+        data = self.data_since(self.prm["SPEEDING_TIME_CONSIDERED"])
+        if len(data) <= 2:
+            return False
+        if not all(map(lambda cdp: cdp.trend > 0, data)):
+            return False
+        if abs(data[-1].price - data[0].price) <= self.prm["MAX_RANGE_VALUE"]:
+            return False
+
+        if data[-1].price > data[0].price:
+            self.ls = Trending('up', self, speeding = True)
+            self.action = ("buy", self.last_price())
+            self.set_state('trending_up')
+        else:
+            self.ls = Trending('down', self, speeding = True)
+            self.action = ("sell", self.last_price())
+            self.set_state('trending_down')
+        return True
+
+
     def set_state(self, state):
         if self.state != STATE[state]:
             self.notification = ("state_changed", f"State changed from {self.state} to {STATE[state]}")
@@ -237,14 +266,13 @@ class ChartData:
     def last_time(self):
         return self.last_cdp().time
 
+    # ------ Cycles ------------
     @property
     def last_range(self):
         for state in reversed(self.cycles[-1].states):
             if type(state) is Range:
                 return state
 
-
-    # ------ Cycles ------------
     # Last State
     @property
     def ls(self):
@@ -271,7 +299,6 @@ class ChartData:
                 data_since.pop() # patch because of adding the element first
                 break
         data_since.reverse()
-        assert len(data_since) < len(self.data)
         return data_since
 
     
@@ -293,6 +320,31 @@ class ChartData:
         data_portion = self.data_since(time_ago)
         return (min(data_portion, key=lambda cdp: cdp.price),
                 max(data_portion, key=lambda cdp: cdp.price))
+
+
+    def adjust_parameters(self):
+        pass
+        # self.find_rallies()
+        # explore cycles and get statistics...
+
+
+    def find_rallies(self):
+        rallies = []
+        max_trend = 0
+        for cdp in reversed(self.data_since(7200)):
+            if max_trend == 0:
+                if cdp.trend > 5 or cdp.trend < -5:
+                    # Set begining of trend
+                    last_trend_time = cdp.time
+                    max_trend = cdp.trend
+            else:
+                if (cdp.trend < -1 and max_trend > 0) or (cdp.trend > 1 and max_trend < 0):
+                    # Set end of trend
+                    initial_trend_time = cdp.time
+                    rallies.append((last_trend_time, initial_trend_time, max_trend)) # temp code. need to see how to return data accordingly
+                    max_trend = 0
+        return rallies
+
 
 
     def timed_prices(self, time_ago=0):
@@ -409,5 +461,7 @@ def get_initial_parameters_for_ticker(ticker):
     prm["UP_DOWN_RATIO"] = 1.0
 
     prm["TRENDING_BREAK_TIME"] = 60 # secs
+
+    prm["SPEEDING_TIME_CONSIDERED"] = 60 # secs
 
     return prm

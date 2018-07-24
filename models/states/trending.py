@@ -1,7 +1,8 @@
 class Trending:
-    def __init__(self, direction, chart_data):
+    def __init__(self, direction, chart_data, speeding=False):
         self.direction = direction
         self.cd = chart_data
+        self.speeding = speeding
 
         self.transaction_price = self.cd.last_price()
         self.transaction_time = self.cd.last_time()
