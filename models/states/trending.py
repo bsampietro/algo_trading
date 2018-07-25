@@ -20,7 +20,7 @@ class Trending:
     
     def trending_stop(self):
         stop = False
-        min_max = self.cd.min_max_since(self.cd.prm["TRENDING_BREAK_TIME"])
+        min_max = self.cd.min_max_since(self.cd.prm.trending_break_time)
         if (abs(self.cd.last_price() - self.trending_price) >= self.trending_break_value() or
                     min_max[1].price - min_max[0].price <= self.trending_break_value()):
             stop = True
@@ -41,7 +41,7 @@ class Trending:
 
     def trending_break_value(self):
         possible_trending_break_value = (self.trending_price - self.transaction_price) / 3.0
-        if possible_trending_break_value > self.cd.prm["MIN_TRENDING_BREAK_VALUE"]:
+        if possible_trending_break_value > self.cd.prm.min_trending_break_value:
             return possible_trending_break_value
         else:
-            return self.cd.prm["MIN_TRENDING_BREAK_VALUE"]
+            return self.cd.prm.min_trending_break_value

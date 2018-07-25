@@ -38,7 +38,7 @@ class Breaking:
             if time_up_down[2] == 0:
                 self.duration_ok = True
             else:
-                if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > self.cd.prm["UP_DOWN_RATIO"]:
+                if (float(time_up_down[0] + time_up_down[1]) / time_up_down[2]) > self.cd.prm.up_down_ratio:
                     self.duration_ok = True
 
         else: # "down"
@@ -58,7 +58,7 @@ class Breaking:
             if time_up_down[0] == 0:
                 self.duration_ok = True
             else:
-                if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.cd.prm["UP_DOWN_RATIO"]:
+                if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.cd.prm.up_down_ratio:
                     self.duration_ok = True
 
         
