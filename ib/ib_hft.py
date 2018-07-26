@@ -13,7 +13,6 @@ from ibapi.common import *
 from ibapi.order import *
 
 from lib import util
-
 from models.monitor import Monitor
 
 
@@ -85,10 +84,10 @@ class IBHft(EClient, EWrapper):
     def start_monitoring(self, monitor):
         next_req_id = self.get_next_req_id()
         self.req_id_to_monitor_map[next_req_id] = monitor
-        self.request_market_data(next_req_id, monitor.contract)
+        self.request_market_data(next_req_id, monitor.ticker)
 
 
-    def request_market_data(self, req_id, contract):
+    def request_market_data(self, req_id, ticker):
         if self.test_mode:
             with open(self.input_file, "r") as f:
                 data = json.load(f)
@@ -99,11 +98,20 @@ class IBHft(EClient, EWrapper):
             for req_id, monitor in self.req_id_to_monitor_map.items():
                 monitor.close()
         else:
-            self.reqMktData(req_id, contract, "", False, False, [])
+            self.reqMktData(req_id, util.get_contract(ticker), "", False, False, [])
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
         super().tickPrice(reqId, tickType, price, attrib)
+
+        if price <= 0:
+            logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
+            return
+
+        # tickType:
+        # bid price = 1
+        # ask price = 2
+        # last traded price = 4
 
         if self.test_mode:
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
@@ -161,7 +169,7 @@ class IBHft(EClient, EWrapper):
             else:
                 order_id = orderId
 
-            self.placeOrder(order_id, monitor.contract, order)
+            self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
 
 
     def orderStatus(self, orderId, status, filled,
