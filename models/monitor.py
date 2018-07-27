@@ -28,12 +28,14 @@ class Monitor:
         self.ticker = ticker
         self.prm = Params(self)
         self.position = Position(self, remote)
+        self.remote = remote
         
         # Data
         self.data = []
         self.state = STATE["random_walk"]
 
         self.cycles = []
+        self.pending_exec = None
         
         # self.timed_prices = []
         # self.timer_active = True
@@ -55,6 +57,9 @@ class Monitor:
         self.data.append(cdp)
         
         self.set_last_height_and_trend()
+
+        self.position.price_change()
+        self.execute_after_confirmed_position()
 
         self.prm.adjust()
 
@@ -119,6 +124,10 @@ class Monitor:
 
             rng = self.last_range
 
+            if self.position.active_order():
+                # WORKING HERE!
+                return
+
             if ((self.last_price() > rng.max_price + self.prm.breaking_range_value) or
                             (self.last_price() < rng.min_price)):
                 self.set_state("random_walk")
@@ -132,10 +141,12 @@ class Monitor:
 
             if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
                             self.last_price() > self.ls.mid_price and self.ls.duration_ok):
-                # self.transaction_price = round(self.last_price() - 1 * self.prm.tick_price, 2)
-                self.ls = Trending('up', self)
-                self.position.buy(self.last_price())
-                self.set_state('trending_up')
+                self.position.buy(round(self.last_price() - 2 * self.prm.tick_price, 2))
+                code = (
+                    "self.ls = Trending('up', self);"
+                    "self.set_state('trending_up')"
+                )
+                self.execute_after_confirmed_position(code)
 
 
         elif self.state_is("breaking_down"):
@@ -155,10 +166,12 @@ class Monitor:
 
             if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
                             self.last_price() < self.ls.mid_price and self.ls.duration_ok):
-                # self.transaction_price = round(self.last_price() + 1 * self.prm.tick_price, 2)
-                self.ls = Trending('down', self)
-                self.position.sell(self.last_price())
-                self.set_state('trending_down')
+                self.position.sell(round(self.last_price() + 2 * self.prm.tick_price, 2))
+                code = (
+                    "self.ls = Trending('down', self);"
+                    "self.set_state('trending_down')"
+                )
+                self.execute_after_confirmed_position(code)
 
 
         elif self.state_is("trending_up"):
@@ -166,7 +179,7 @@ class Monitor:
             self.ls.price_changed()
 
             if self.ls.trending_stop():
-                self.position.close(self.last_price()) # CLOSE POSITION SIGNAL (SELL) # last_price is added for backtesting purposes
+                self.position.close()
                 self.cycles[-1].pnl = self.last_price() - self.ls.transaction_price
                 self.set_state("random_walk")
 
@@ -175,7 +188,7 @@ class Monitor:
             self.ls.price_changed()
 
             if self.ls.trending_stop():
-                self.position.close(self.last_price()) # CLOSE POSITION SIGNAL (BUY) # last_price is added for backtesting purposes
+                self.position.close()
                 self.cycles[-1].pnl = self.ls.transaction_price - self.last_price()
                 self.set_state("random_walk")
         
@@ -232,21 +245,21 @@ class Monitor:
             return False
 
         if data[-1].price > data[0].price:
-            self.ls = Trending('up', self, speeding = True)
             self.position.buy(self.last_price())
+            self.ls = Trending('up', self, speeding = True)
             self.set_state('trending_up')
         else:
-            self.ls = Trending('down', self, speeding = True)
             self.position.sell(self.last_price())
+            self.ls = Trending('down', self, speeding = True)
             self.set_state('trending_down')
         return True
 
 
     def set_state(self, state):
         if self.state != STATE[state]:
-            self.state = STATE[state]
             gvars.datalog[self.ticker].write(f"State changed from {self.state} to {STATE[state]}")
             gvars.datalog[self.ticker].write("\n\n\n")
+            self.state = STATE[state]
 
     
     def state_is(self, state):
@@ -285,6 +298,14 @@ class Monitor:
     # --------------------------
 
 
+    def execute_after_confirmed_position(self, code=None):
+        if code is None:
+            if not self.position.active_order() and self.pending_exec is not None:
+                exec(self.pending_exec)
+                self.pending_exec = None
+        else:
+            self.pending_exec = code
+
     # the_time could be a specific time or an amount of time since now
     def data_since(self, time_or_duration):
         data_since = []
@@ -317,7 +338,6 @@ class Monitor:
         data_portion = self.data_since(time_ago)
         return (min(data_portion, key=lambda cdp: cdp.price),
                 max(data_portion, key=lambda cdp: cdp.price))
-
 
 
     def timed_prices(self, time_ago=0):
@@ -365,7 +385,7 @@ class Monitor:
 
 
     def save_data(self):
-        if self.test_mode():
+        if not self.remote.live_mode:
             return
         mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
         file_name = f"{gvars.TEMP_DIR}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
@@ -384,10 +404,6 @@ class Monitor:
 
     def order_change(self, order_id, status, remaining):
         self.position.order_change(order_id, status, remaining)
-
-
-    def test_mode(self):
-        return util.contract_type(self.ticker) != "FUT"
 
 
     # def timed_work(self):

@@ -36,24 +36,19 @@ class IBHft(EClient, EWrapper):
         self.lock = Lock()
 
         # test variables
-        self.test_mode = False if input_file == "" else True
+        self.live_mode = True if input_file == "" else False
 
-        if self.test_mode:
+        if self.live_mode:
+            self.connect("127.0.0.1", 7497, 0)
+            self.run()
+            self.wait_for_readiness()
+        else:
             self.input_file = input_file
             self.tickers = [util.ticker_from_file(input_file)]
 
             self.test_thread = Thread(target = self.connectAck)
             self.test_thread.start()
             self.test_thread.join()
-        else:
-            self.connect("127.0.0.1", 7496, 2)
-
-            # Try without calling self.run() ??
-            # thread = Thread(target = self.run)
-            # thread.start()
-            self.run()
-
-            self.wait_for_readiness()
 
 
     def connectAck(self):
@@ -88,7 +83,9 @@ class IBHft(EClient, EWrapper):
 
 
     def request_market_data(self, req_id, ticker):
-        if self.test_mode:
+        if self.live_mode:
+            self.reqMktData(req_id, util.get_contract(ticker), "", False, False, [])
+        else:
             with open(self.input_file, "r") as f:
                 data = json.load(f)
 
@@ -97,8 +94,6 @@ class IBHft(EClient, EWrapper):
             
             for req_id, monitor in self.req_id_to_monitor_map.items():
                 monitor.close()
-        else:
-            self.reqMktData(req_id, util.get_contract(ticker), "", False, False, [])
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
@@ -113,10 +108,10 @@ class IBHft(EClient, EWrapper):
         # ask price = 2
         # last traded price = 4
 
-        if self.test_mode:
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
-        else:
+        if self.live_mode:
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
+        else:
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
     def is_ready(self):
@@ -153,6 +148,9 @@ class IBHft(EClient, EWrapper):
 
     # Orders
     def place_order(self, monitor, action, quantity, price=0, orderId=None):
+        if not self.live_mode:
+            return
+
         with self.lock:
             order = Order()
             if price == 0:
@@ -172,6 +170,10 @@ class IBHft(EClient, EWrapper):
             self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
 
 
+    def cancel_order(self, order_id):
+        self.cancelOrder(order_id)
+
+
     def orderStatus(self, orderId, status, filled,
                     remaining, avgFillPrice, permId,
                     parentId, lastFillPrice, clientId,
@@ -186,13 +188,3 @@ class IBHft(EClient, EWrapper):
         super().openOrder(orderId, contract, order, orderState)
 
         # self.order_id_to_monitor_map[orderId].order_change()
-
-
-    # # Overload methods for test mode
-    # def reqMktData(self, reqId, contract, genericTickList, snapshot, regulatorySnapshot, mktDataOptions):
-    #     if self.test_mode:
-    #         # manually call tickPrice
-    #         pass
-    #     else:
-    #         super().reqMktData(reqId, contract, genericTickList, snapshot, regulatorySnapshot, mktDataOptions)
-
