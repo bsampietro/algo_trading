@@ -62,10 +62,10 @@ class Breaking:
                     self.duration_ok = True
 
         
-        gvars.datalog[self.cd.ticker].write("1st: Inside decision methods:\n")
-        gvars.datalog[self.cd.ticker].write(f"mid_price: {self.mid_price}\n")
-        gvars.datalog[self.cd.ticker].write(f"time_up_down: {time_up_down}\n")
-        gvars.datalog[self.cd.ticker].write(f"duration_ok: {self.duration_ok}\n\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("1st: Inside decision methods:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"mid_price: {self.mid_price}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"time_up_down: {time_up_down}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"duration_ok: {self.duration_ok}\n\n")
 
 
     def state_str(self):

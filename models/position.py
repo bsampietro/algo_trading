@@ -43,10 +43,9 @@ class Position:
         # if self.remote.live_mode:
         #     self.remote.place_order(self, "BUY", CONTRACT_NR, price, self.active_order_id)
 
-        gvars.datalog[self.cd.ticker].write(f"3rd: Decision:\n")
-        gvars.datalog[self.cd.ticker].write(f"Order to buy at {price}\n")
-        gvars.datalog[self.cd.ticker].write("\n\n\n")
-        print(f"Order to buy {self.cd.ticker} at {price}")
+        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"Order to buy at {price}\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
 
 
     def sell(self, price):
@@ -60,10 +59,9 @@ class Position:
         # if self.remote.live_mode:
         #     self.remote.place_order(self, "SELL", CONTRACT_NR, price, self.active_order_id)
 
-        gvars.datalog[self.cd.ticker].write(f"3rd: Decision:\n")
-        gvars.datalog[self.cd.ticker].write(f"Order to sell at {price}\n")
-        gvars.datalog[self.cd.ticker].write("\n\n\n")
-        print(f"Order to sell {self.cd.ticker} at {price}")
+        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"Order to sell at {price}\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
 
 
     def close(self):
@@ -81,15 +79,12 @@ class Position:
             # self.remote.place_order(self, "BUY", CONTRACT_NR)
             self.pnl += self.last_order_price - self.cd.last_price()
 
-        gvars.datalog[self.cd.ticker].write(f"3rd: Decision:\n")
-        gvars.datalog[self.cd.ticker].write(f"Order to close at {self.cd.last_price()}\n")
-        gvars.datalog[self.cd.ticker].write(self.cd.state_str())
-        gvars.datalog[self.cd.ticker].write(f"P&L: {self.pnl}\n")
-        gvars.datalog[self.cd.ticker].write(f"Nr of trades {self.nr_of_trades}\n")
-        gvars.datalog[self.cd.ticker].write("\n\n\n")
-        print(f"Order to close {self.cd.ticker} at {self.cd.last_price()}")
-        print(f"P&L: {self.pnl}")
-        print(f"Nr of trades {self.nr_of_trades}")
+        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"Order to close at {self.cd.last_price()}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (self.cd.state_str())
+        gvars.datalog_buffer[self.cd.ticker] += (f"P&L: {self.pnl}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"Nr of trades {self.nr_of_trades}\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
 
 
     def cancel_active(self):
@@ -120,7 +115,7 @@ class Position:
             self.active_order_id = order_id
         self.position = remaining
 
-        gvars.datalog[self.cd.ticker].write(f"Remaining (current positions): {self.position}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"Remaining (current positions): {self.position}\n")
         self.security_check()
 
 
@@ -131,7 +126,7 @@ class Position:
 
     def security_check(self):
         if abs(self.position) > CONTRACT_NR:
-            gvars.datalog[self.cd.ticker].write("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
+            gvars.datalog_buffer[self.cd.ticker] += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.cd.ticker}\n")
             # self.sound_notify()
             assert False

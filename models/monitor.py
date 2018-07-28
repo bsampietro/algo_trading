@@ -58,10 +58,10 @@ class Monitor:
         
         self.set_last_height_and_trend()
 
+        self.prm.adjust()
+
         self.position.price_change()
         self.execute_after_confirmed_position()
-
-        self.prm.adjust()
 
         self.find_and_set_state()
 
@@ -399,7 +399,9 @@ class Monitor:
         if self.state in (1, 2, 3, 4, 5):
             gvars.datalog[self.ticker].write("2nd: Internal state data:\n")
             gvars.datalog[self.ticker].write(self.state_str())
-            gvars.datalog[self.ticker].write("\n\n\n")
+            gvars.datalog[self.ticker].write("\n")
+        gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
+        gvars.datalog_buffer[self.ticker] = ""
 
 
     def order_change(self, order_id, status, remaining):

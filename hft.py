@@ -15,11 +15,13 @@ if __name__ == "__main__":
         if util.contract_type(sys.argv[1]) == "FUT":
             for ticker in sys.argv[1:]:
                 gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
+                gvars.datalog_buffer[ticker] = ""
             
             ib_hft = IBHft(tickers = sys.argv[1:])
         else:
             ticker = util.ticker_from_file(sys.argv[1])
             gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
+            gvars.datalog_buffer[ticker] = ""
 
             ib_hft = IBHft(input_file = sys.argv[1])
 
