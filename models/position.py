@@ -9,7 +9,6 @@ class Position:
 
         self.last_order_price = 0
         self.last_order_time = 0
-        self.last_action = "" # "BUY", "SELL", "CLOSE", "CANCEL" # Only used in load mode
         
         self.pnl = 0
         self.nr_of_trades = 0
@@ -24,13 +23,7 @@ class Position:
     def price_change(self):
         # check for more than allowed positions
         self.security_check()
-        if not self.remote.live_mode:
-            if self.last_action == "BUY":
-                if self.cd.last_price() <= self.last_order_price:
-                    self.order_change(self.active_order_id, "Filled", CONTRACT_NR)
-            elif self.last_action == "SELL":
-                if self.cd.last_price() >= self.last_order_price:
-                    self.order_change(self.active_order_id, "Filled", -CONTRACT_NR)
+        
 
     def buy(self, price):
         if self.active_order('local'):
@@ -38,14 +31,12 @@ class Position:
         self.last_order_price = price
         self.last_order_time = self.cd.last_time()
         self.active_order_id = -1
-        self.last_action = "BUY"
 
-        # if self.remote.live_mode:
-        #     self.remote.place_order(self, "BUY", CONTRACT_NR, price, self.active_order_id)
+        self.remote.place_order(self.cd, "BUY", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Order to buy at {price}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def sell(self, price):
@@ -54,14 +45,12 @@ class Position:
         self.last_order_price = price
         self.last_order_time = self.cd.last_time()
         self.active_order_id = -1
-        self.last_action = "SELL"
 
-        # if self.remote.live_mode:
-        #     self.remote.place_order(self, "SELL", CONTRACT_NR, price, self.active_order_id)
+        self.remote.place_order(self.cd, "SELL", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Order to sell at {price}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def close(self):
@@ -71,12 +60,11 @@ class Position:
         if self.position == 0:
             return
 
-        self.last_action = "CLOSE"
         if self.position == CONTRACT_NR:
-            # self.remote.place_order(self, "SELL", CONTRACT_NR)
+            self.remote.place_order(self.cd, "SELL", CONTRACT_NR)
             self.pnl += self.cd.last_price() - self.last_order_price
         elif self.position == -CONTRACT_NR:
-            # self.remote.place_order(self, "BUY", CONTRACT_NR)
+            self.remote.place_order(self.cd, "BUY", CONTRACT_NR)
             self.pnl += self.last_order_price - self.cd.last_price()
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
@@ -84,13 +72,12 @@ class Position:
         gvars.datalog_buffer[self.cd.ticker] += (self.cd.state_str())
         gvars.datalog_buffer[self.cd.ticker] += (f"P&L: {self.pnl}\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Nr of trades {self.nr_of_trades}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n\n\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def cancel_active(self):
         if not self.active_order():
             return
-        self.last_action = "CANCEL"
         # self.remote.cancel_order(self.active_order_id)
 
 
@@ -117,6 +104,19 @@ class Position:
 
         gvars.datalog_buffer[self.cd.ticker] += (f"Remaining (current positions): {self.position}\n")
         self.security_check()
+
+
+    def state_str(self):
+        output = (
+            f"POSITION:\n"
+            f"last_order_price: {self.last_order_price}\n"
+            f"last_order_time: {self.last_order_time}\n"
+            f"pnl: {self.pnl}\n"
+            f"nr_of_trades: {self.nr_of_trades}\n"
+            f"position: {self.position}\n"
+            f"active_order_id: {self.active_order_id}\n"
+        )
+        return output
 
 
     # Private

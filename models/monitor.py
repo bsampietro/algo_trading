@@ -257,8 +257,7 @@ class Monitor:
 
     def set_state(self, state):
         if self.state != STATE[state]:
-            gvars.datalog[self.ticker].write(f"State changed from {self.state} to {STATE[state]}")
-            gvars.datalog[self.ticker].write("\n\n\n")
+            gvars.datalog_buffer[self.ticker] += (f"State changed from {self.state} to {STATE[state]}\n")
             self.state = STATE[state]
 
     
@@ -367,6 +366,8 @@ class Monitor:
         output = (
             f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
             f"state: {self.state}\n"
+            f"pending_exec: {self.pending_exec}\n"
+            f"{self.position.state_str()}\n"
         )
         if len(self.cycles) > 0:
             for state in self.cycles[-1].states:

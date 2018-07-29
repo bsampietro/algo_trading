@@ -35,9 +35,9 @@ class IBHft(EClient, EWrapper):
         # threading variables
         self.lock = Lock()
 
-        # test variables
-        self.live_mode = True if input_file == "" else False
+        self.active_order = None # Only used in load (not live) mode
 
+        self.live_mode = True if input_file == "" else False
         if self.live_mode:
             self.connect("127.0.0.1", 7497, 0)
             self.run()
@@ -45,6 +45,7 @@ class IBHft(EClient, EWrapper):
         else:
             self.input_file = input_file
             self.tickers = [util.ticker_from_file(input_file)]
+            self.wait_for_readiness()
 
             self.test_thread = Thread(target = self.connectAck)
             self.test_thread.start()
@@ -111,6 +112,19 @@ class IBHft(EClient, EWrapper):
         if self.live_mode:
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
         else:
+            if self.active_order:
+                if self.active_order.action == "BUY":
+                    if price <= self.active_order.lmtPrice:
+                        self.orderStatus(self.current_order_id, "Filled", 1,
+                            self.active_order.totalQuantity, price, 0,
+                            0, price, 0, "")
+                        self.active_order = None
+                elif self.active_order.action == "SELL":
+                    if price >= self.active_order.lmtPrice:
+                        self.orderStatus(self.current_order_id, "Filled", 1,
+                            -self.active_order.totalQuantity, price, 0,
+                            0, price, 0, "")
+                        self.active_order = None
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
@@ -119,22 +133,25 @@ class IBHft(EClient, EWrapper):
 
 
     def wait_for_readiness(self):
-        for i in range(120):
+        if self.live_mode:
+            for i in range(120):
+                if self.is_ready():
+                    break
+                else:
+                    time.sleep(1)
             if self.is_ready():
-                break
+                print("IB Ready")
             else:
-                time.sleep(1)
-        if self.is_ready():
-            print("IB Ready")
+                # raise exception ?
+                print("IB was not reported ready after 120 seconds")
         else:
-            # raise exception ?
-            print("IB was not reported ready after 120 seconds")
+            self.current_order_id = 0
 
 
     # callback to client.reqIds(-1)
-    def nextValidId(self, orderId:int):
-        super().nextValidId(orderId)
-        self.current_order_id = orderId
+    # def nextValidId(self, orderId:int):
+    #     super().nextValidId(orderId)
+    #     self.current_order_id = orderId
 
     # App functions
     def get_next_order_id(self):
@@ -148,9 +165,6 @@ class IBHft(EClient, EWrapper):
 
     # Orders
     def place_order(self, monitor, action, quantity, price=0, orderId=None):
-        if not self.live_mode:
-            return
-
         with self.lock:
             order = Order()
             if price == 0:
@@ -163,15 +177,22 @@ class IBHft(EClient, EWrapper):
 
             if orderId is None:
                 order_id = self.get_next_order_id()
-                self.order_id_to_monitor_map[next_order_id] = monitor
+                self.order_id_to_monitor_map[order_id] = monitor
             else:
                 order_id = orderId
 
-            self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+            if self.live_mode:
+                # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+                pass
+            else:
+                self.active_order = order
 
 
     def cancel_order(self, order_id):
-        self.cancelOrder(order_id)
+        if self.live_mode:
+            self.cancelOrder(order_id)
+        else:
+            self.active_order = None
 
 
     def orderStatus(self, orderId, status, filled,

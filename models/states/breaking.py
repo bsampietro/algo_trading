@@ -62,7 +62,7 @@ class Breaking:
                     self.duration_ok = True
 
         
-        gvars.datalog_buffer[self.cd.ticker] += ("1st: Inside decision methods:\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("1st: Inside breaking and price changed:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"mid_price: {self.mid_price}\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"time_up_down: {time_up_down}\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"duration_ok: {self.duration_ok}\n\n")
