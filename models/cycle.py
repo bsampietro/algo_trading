@@ -12,3 +12,10 @@ class Cycle:
 
     def closed(self):
     	return self.pnl is not None
+
+    def state_str(self):
+        output = (
+            f"CYCLE:\n"
+            f"self.pnl: {self.pnl}\n"
+        )
+        return output

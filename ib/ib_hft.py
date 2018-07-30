@@ -35,7 +35,9 @@ class IBHft(EClient, EWrapper):
         # threading variables
         self.lock = Lock()
 
-        self.active_order = None # Only used in load (not live) mode
+        # Only used in load (not live) mode
+        self.active_order = None
+        self.remaining = 0
 
         self.live_mode = True if input_file == "" else False
         if self.live_mode:
@@ -112,19 +114,7 @@ class IBHft(EClient, EWrapper):
         if self.live_mode:
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
         else:
-            if self.active_order:
-                if self.active_order.action == "BUY":
-                    if price <= self.active_order.lmtPrice:
-                        self.orderStatus(self.current_order_id, "Filled", 1,
-                            self.active_order.totalQuantity, price, 0,
-                            0, price, 0, "")
-                        self.active_order = None
-                elif self.active_order.action == "SELL":
-                    if price >= self.active_order.lmtPrice:
-                        self.orderStatus(self.current_order_id, "Filled", 1,
-                            -self.active_order.totalQuantity, price, 0,
-                            0, price, 0, "")
-                        self.active_order = None
+            self.transmit_order(price=price)
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
@@ -185,12 +175,13 @@ class IBHft(EClient, EWrapper):
                 # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
                 pass
             else:
-                self.active_order = order
+                self.transmit_order(order)
 
 
     def cancel_order(self, order_id):
         if self.live_mode:
-            self.cancelOrder(order_id)
+            # self.cancelOrder(order_id)
+            pass
         else:
             self.active_order = None
 
@@ -209,3 +200,31 @@ class IBHft(EClient, EWrapper):
         super().openOrder(orderId, contract, order, orderState)
 
         # self.order_id_to_monitor_map[orderId].order_change()
+
+    # PRIVATE
+
+    # Only for load mode
+    def transmit_order(self, order=None, price=0):
+        if order is None:
+            # lmt order created before, assigned to self.active_order and executing based on price
+            if self.active_order:
+                if self.active_order.action == "BUY":
+                    if price <= self.active_order.lmtPrice:
+                        self.remaining += self.active_order.totalQuantity
+                        self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                        self.active_order = None
+                elif self.active_order.action == "SELL":
+                    if price >= self.active_order.lmtPrice:
+                        self.remaining -= self.active_order.totalQuantity
+                        self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                        self.active_order = None
+        elif order.orderType == "MKT":
+            if order.action == "BUY":
+                self.remaining += order.totalQuantity
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+            elif order.action == "SELL":
+                self.remaining -= order.totalQuantity
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+        else:
+            # Order is lmt, so just assigning for later execution
+            self.active_order = order

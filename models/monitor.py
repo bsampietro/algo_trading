@@ -61,7 +61,6 @@ class Monitor:
         self.prm.adjust()
 
         self.position.price_change()
-        self.execute_after_confirmed_position()
 
         self.find_and_set_state()
 
@@ -125,8 +124,14 @@ class Monitor:
             rng = self.last_range
 
             if self.position.active_order():
-                # WORKING HERE!
-                return
+                if (self.last_price() > self.position.last_order_price + self.prm.breaking_range_value):
+                    self.position.cancel_active()
+                    self.execute_pending("")
+                    self.set_state("random_walk")
+                    return
+            else:
+                if self.execute_pending():
+                    return
 
             if ((self.last_price() > rng.max_price + self.prm.breaking_range_value) or
                             (self.last_price() < rng.min_price)):
@@ -146,12 +151,22 @@ class Monitor:
                     "self.ls = Trending('up', self);"
                     "self.set_state('trending_up')"
                 )
-                self.execute_after_confirmed_position(code)
+                self.execute_pending(code)
 
 
         elif self.state_is("breaking_down"):
 
             rng = self.last_range
+
+            if self.position.active_order():
+                if (self.last_price() < self.position.last_order_price - self.prm.breaking_range_value):
+                    self.position.cancel_active()
+                    self.execute_pending("")
+                    self.set_state("random_walk")
+                    return
+            else:
+                if self.execute_pending():
+                    return
 
             if ((self.last_price() < rng.min_price - self.prm.breaking_range_value) or
                             (self.last_price() > rng.max_price)):
@@ -171,7 +186,7 @@ class Monitor:
                     "self.ls = Trending('down', self);"
                     "self.set_state('trending_down')"
                 )
-                self.execute_after_confirmed_position(code)
+                self.execute_pending(code)
 
 
         elif self.state_is("trending_up"):
@@ -180,7 +195,7 @@ class Monitor:
 
             if self.ls.trending_stop():
                 self.position.close()
-                self.cycles[-1].pnl = self.last_price() - self.ls.transaction_price
+                self.cycles[-1].pnl = round(self.last_price() - self.ls.transaction_price, 2)
                 self.set_state("random_walk")
 
         elif self.state_is("trending_down"):
@@ -189,7 +204,7 @@ class Monitor:
 
             if self.ls.trending_stop():
                 self.position.close()
-                self.cycles[-1].pnl = self.ls.transaction_price - self.last_price()
+                self.cycles[-1].pnl = round(self.ls.transaction_price - self.last_price(), 2)
                 self.set_state("random_walk")
         
 
@@ -297,13 +312,17 @@ class Monitor:
     # --------------------------
 
 
-    def execute_after_confirmed_position(self, code=None):
+    def execute_pending(self, code=None):
         if code is None:
-            if not self.position.active_order() and self.pending_exec is not None:
+            if self.pending_exec is not None:
                 exec(self.pending_exec)
                 self.pending_exec = None
+                return True
+        elif code == "":
+            self.pending_exec = None
         else:
             self.pending_exec = code
+        return False
 
     # the_time could be a specific time or an amount of time since now
     def data_since(self, time_or_duration):
@@ -358,6 +377,7 @@ class Monitor:
         self.timer_active = False
         self.output_chart()
         self.save_data()
+        self.log_cycles()
 
 
     def state_str(self):
@@ -369,9 +389,11 @@ class Monitor:
             f"pending_exec: {self.pending_exec}\n"
             f"{self.position.state_str()}\n"
         )
-        if len(self.cycles) > 0:
-            for state in self.cycles[-1].states:
-                output += state.state_str()
+        if self.ls == self.last_range:
+            output += self.ls.state_str()
+        else:
+            output += self.last_range.state_str()
+            output += self.ls.state_str()
         return output
 
 
@@ -396,13 +418,22 @@ class Monitor:
 
     def log_data(self):
         print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}")
-        gvars.datalog[self.ticker].write(f"=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}\n")
+        gvars.datalog[self.ticker].write(f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}\n")
         if self.state in (1, 2, 3, 4, 5):
-            gvars.datalog[self.ticker].write("2nd: Internal state data:\n")
+            gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
             gvars.datalog[self.ticker].write(self.state_str())
-            gvars.datalog[self.ticker].write("\n")
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""
+
+
+    def log_cycles(self):
+        output = ""
+        for cycle in self.cycles:
+            output += cycle.state_str()
+            for state in cycle.states:
+                output += state.state_str()
+        gvars.datalog[self.ticker].write("\nCYCLES:\n")
+        gvars.datalog[self.ticker].write(output)
 
 
     def order_change(self, order_id, status, remaining):

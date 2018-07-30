@@ -36,7 +36,6 @@ class Position:
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Order to buy at {price}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def sell(self, price):
@@ -50,7 +49,6 @@ class Position:
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Order to sell at {price}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def close(self):
@@ -62,23 +60,21 @@ class Position:
 
         if self.position == CONTRACT_NR:
             self.remote.place_order(self.cd, "SELL", CONTRACT_NR)
-            self.pnl += self.cd.last_price() - self.last_order_price
+            self.pnl = round(self.pnl + self.cd.last_price() - self.last_order_price, 2)
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.cd, "BUY", CONTRACT_NR)
-            self.pnl += self.last_order_price - self.cd.last_price()
+            self.pnl = round(self.pnl + self.last_order_price - self.cd.last_price(), 2)
 
         gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
         gvars.datalog_buffer[self.cd.ticker] += (f"Order to close at {self.cd.last_price()}\n")
         gvars.datalog_buffer[self.cd.ticker] += (self.cd.state_str())
-        gvars.datalog_buffer[self.cd.ticker] += (f"P&L: {self.pnl}\n")
-        gvars.datalog_buffer[self.cd.ticker] += (f"Nr of trades {self.nr_of_trades}\n")
-        gvars.datalog_buffer[self.cd.ticker] += ("\n")
 
 
     def cancel_active(self):
         if not self.active_order():
             return
-        # self.remote.cancel_order(self.active_order_id)
+        self.remote.cancel_order(self.active_order_id)
+        self.active_order_id = None
 
 
     def active_order(self, where=""):
@@ -101,8 +97,6 @@ class Position:
             # it is managed only on remote
             self.active_order_id = order_id
         self.position = remaining
-
-        gvars.datalog_buffer[self.cd.ticker] += (f"Remaining (current positions): {self.position}\n")
         self.security_check()
 
 
@@ -129,4 +123,4 @@ class Position:
             gvars.datalog_buffer[self.cd.ticker] += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.cd.ticker}\n")
             # self.sound_notify()
-            assert False
+            # assert False # Not yet...
