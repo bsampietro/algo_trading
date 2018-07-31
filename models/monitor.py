@@ -5,7 +5,8 @@ import json
 import os
 
 import pygal
-from bokeh import plotting as bplot
+import bokeh.plotting
+import bokeh.models
 
 import gvars
 from lib import util
@@ -49,9 +50,7 @@ class Monitor:
     def price_change(self, tickType, price, price_time):
         if tickType != 4:
             return
-        cdp = ChartDataPoint()
-        cdp.price = price
-        cdp.time = price_time
+        cdp = ChartDataPoint(price, price_time)
         if len(self.data) > 0:
             if self.data[-1].price == price:
                 return
@@ -364,16 +363,16 @@ class Monitor:
                 max(data_portion, key=lambda cdp: cdp.price))
 
 
-    def timed_prices(self, time_ago=0):
+    def timed_prices(self, time_ago=0, interval=60):
         data = self.data if time_ago == 0 else self.data_since(time_ago)
         timed_prices = []
         initial_time = data[0].time
-        interval = 0
+        current_interval = 0
         i = 1
         while i < len(data):
-            if data[i].time - initial_time >= interval:
-                timed_prices.append(data[i-1].price)
-                interval += 60
+            if data[i].time - initial_time >= current_interval:
+                timed_prices.append(ChartDataPoint(data[i-1].price, current_interval))
+                current_interval += interval
             else:
                 i += 1
         return timed_prices
@@ -381,7 +380,8 @@ class Monitor:
     
     def close(self):
         self.timer_active = False
-        self.output_chart()
+        self.output_chart('timed')
+        self.output_chart('all')
         self.save_data()
         self.log_cycles()
 
@@ -403,54 +403,71 @@ class Monitor:
         return output
 
 
-    def output_chart(self):
+    def output_chart(self, kind):
         # Bokeh
-        x = list(map(lambda cdp: int(cdp.time) - self.initial_time, self.data))
-        y = list(map(lambda cdp: cdp.price, self.data))
+        x = None
+        y = None
+        if kind == 'timed':
+            timed_prices = self.timed_prices(interval=15)
+            x = list(map(lambda cdp: cdp.time, timed_prices))
+            y = list(map(lambda cdp: cdp.price, timed_prices))
+        else:
+            x = list(map(lambda cdp: cdp.time - self.initial_time, self.data))
+            y = list(map(lambda cdp: cdp.price, self.data))
 
-        bplot.output_file(f"{gvars.TEMP_DIR}/{self.ticker}_chart.html")
+        bokeh.plotting.output_file(f"{gvars.TEMP_DIR}/{self.ticker}_{kind}_chart.html", title=self.ticker)
+        
         TOOLTIPS = [
             ("index", "$index"),
-            ("price", "$y"),
-            ("time", "$x"),
+            ("price", "@y{0.00}"),
+            ("time", "@x{0.00}"),
+            ("hover (price,time)", "($y{0.00}, $x{0.00})")
         ]
-        p = bplot.figure(
-           tools="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,hover",
+        hover_tool = bokeh.models.HoverTool(
+            tooltips=TOOLTIPS,
+
+            # display a tooltip whenever the cursor is vertically in line with a glyph
+            mode='vline' # "mouse" (default) or "hline"
+        )
+        p = bokeh.plotting.figure(
+           #tools="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,hover",
+           # tooltips=TOOLTIPS,
+           title=self.ticker,
            width=1200,
-           tooltips=TOOLTIPS
+           tools=[hover_tool,"crosshair,pan,wheel_zoom,box_zoom,reset,box_select"]
         )
         p.circle(x, y, size=4, color='blue')
         p.line(x, y, color='blue')
 
-        bplot.save(p)
+        bokeh.plotting.save(p)
 
-        # Pygal
-        dir_path = f"{gvars.TEMP_DIR}/{self.ticker}_chart"
-        os.makedirs(dir_path, exist_ok=True)
-        chunks = []
-        chunk = []
-        chunk_nr = 1
-        for cdp in self.data:
-            if (int(cdp.time) - self.initial_time) > (3600 * chunk_nr):
-                chunks.append(chunk)
-                chunk = []
-                chunk_nr += 1
-            chunk.append(cdp)
-        chunks.append(chunk)
+        # # Pygal
+        # dir_path = f"{gvars.TEMP_DIR}/{self.ticker}_chart"
+        # os.makedirs(dir_path, exist_ok=True)
+        # chunks = []
+        # chunk = []
+        # chunk_nr = 1
+        # for cdp in self.data:
+        #     if (int(cdp.time) - self.initial_time) > (3600 * chunk_nr):
+        #         chunks.append(chunk)
+        #         chunk = []
+        #         chunk_nr += 1
+        #     chunk.append(cdp)
+        # chunks.append(chunk)
 
-        for chunk in chunks:
-            chart = pygal.XY(width=1200)
+        # for chunk in chunks:
+        #     chart = pygal.XY(width=1200)
             
-            mapped_data = list(map(lambda cdp: (int(cdp.time) - self.initial_time, cdp.price), chunk))
-            chart.add('',  mapped_data)
+        #     mapped_data = list(map(lambda cdp: (int(cdp.time) - self.initial_time, cdp.price), chunk))
+        #     chart.add('',  mapped_data)
 
-            initial_time = mapped_data[0][0]
-            final_time = mapped_data[-1][0]
-            chart.x_labels = range(initial_time, final_time, 200)
-            chart.y_labels = set(map(lambda cdp: cdp.price, chunk))
-            chart.show_dots = True
-            chart.dots_size = 2
-            chart.render_to_file(f"{dir_path}/{initial_time}_{final_time}.svg")
+        #     initial_time = mapped_data[0][0]
+        #     final_time = mapped_data[-1][0]
+        #     chart.x_labels = range(initial_time, final_time, 200)
+        #     chart.y_labels = set(map(lambda cdp: cdp.price, chunk))
+        #     chart.show_dots = True
+        #     chart.dots_size = 2
+        #     chart.render_to_file(f"{dir_path}/{initial_time}_{final_time}.svg")
 
 
     def save_data(self):
@@ -501,9 +518,9 @@ class Monitor:
 
 
 class ChartDataPoint:
-    def __init__(self):
-        self.price = 0
-        self.time = 0
+    def __init__(self, price=0, time=0):
+        self.price = price
+        self.time = time
         self.duration = 0
         self.height = 0 # min - mid - max
         self.trend = 0 # distance from min or max
