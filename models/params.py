@@ -10,6 +10,10 @@ class Params:
         # explore cycles and get statistics...
 
 
+    def ticks(self, price_difference):
+        return round(price_difference / self.tick_price)
+
+
     def find_rallies(self):
         rallies = []
         max_trend = 0
@@ -36,7 +40,7 @@ class Params:
             self.min_trending_break_value = 2 * self.tick_price
         elif self.cd.ticker[0:2] == "CL":
             self.tick_price = 0.01
-            self.max_range_value = 8 * self.tick_price
+            self.max_range_value = 6 * self.tick_price
             self.breaking_range_value = 4 * self.tick_price
             self.min_trending_break_value = 3 * self.tick_price
         elif self.cd.ticker[0:2] == "NG":

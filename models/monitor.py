@@ -2,8 +2,10 @@ import time
 from threading import Thread
 import logging
 import json
+import os
 
 import pygal
+from bokeh import plotting as bplot
 
 import gvars
 from lib import util
@@ -36,6 +38,7 @@ class Monitor:
 
         self.cycles = []
         self.pending_exec = None
+        self.initial_time = 0
         
         # self.timed_prices = []
         # self.timer_active = True
@@ -55,6 +58,9 @@ class Monitor:
             self.data[-1].duration = cdp.time - self.data[-1].time
 
         self.data.append(cdp)
+
+        if len(self.data) == 1:
+            self.initial_time = int(self.data[0].time)
         
         self.set_last_height_and_trend()
 
@@ -254,9 +260,9 @@ class Monitor:
         data = self.data_since(self.prm.speeding_time_considered)
         if len(data) <= 2:
             return False
-        if not all(map(lambda cdp: cdp.trend > 0, data)):
+        if not (all(map(lambda cdp: cdp.trend > 0, data)) or all(map(lambda cdp: cdp.trend < 0, data))):
             return False
-        if abs(data[-1].price - data[0].price) <= self.prm.max_range_value:
+        if self.prm.ticks(abs(data[-1].price - data[0].price)) / abs(data[-1].time - data[0].time) < 1:
             return False
 
         if data[-1].price > data[0].price:
@@ -398,13 +404,53 @@ class Monitor:
 
 
     def output_chart(self):
-        initial_time = self.data[0].time
+        # Bokeh
+        x = list(map(lambda cdp: int(cdp.time) - self.initial_time, self.data))
+        y = list(map(lambda cdp: cdp.price, self.data))
 
-        chart = pygal.XY()
-        chart.add('Prices',  list(map(lambda cdp: (cdp.time - initial_time, cdp.price), self.data)))
+        bplot.output_file(f"{gvars.TEMP_DIR}/{self.ticker}_chart.html")
+        TOOLTIPS = [
+            ("index", "$index"),
+            ("price", "$y"),
+            ("time", "$x"),
+        ]
+        p = bplot.figure(
+           tools="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,hover",
+           width=1200,
+           tooltips=TOOLTIPS
+        )
+        p.circle(x, y, size=4, color='blue')
+        p.line(x, y, color='blue')
 
-        chart.show_dots = True
-        chart.render_to_file(f"{gvars.TEMP_DIR}/{self.ticker}_timed_prices.svg")
+        bplot.save(p)
+
+        # Pygal
+        dir_path = f"{gvars.TEMP_DIR}/{self.ticker}_chart"
+        os.makedirs(dir_path, exist_ok=True)
+        chunks = []
+        chunk = []
+        chunk_nr = 1
+        for cdp in self.data:
+            if (int(cdp.time) - self.initial_time) > (3600 * chunk_nr):
+                chunks.append(chunk)
+                chunk = []
+                chunk_nr += 1
+            chunk.append(cdp)
+        chunks.append(chunk)
+
+        for chunk in chunks:
+            chart = pygal.XY(width=1200)
+            
+            mapped_data = list(map(lambda cdp: (int(cdp.time) - self.initial_time, cdp.price), chunk))
+            chart.add('',  mapped_data)
+
+            initial_time = mapped_data[0][0]
+            final_time = mapped_data[-1][0]
+            chart.x_labels = range(initial_time, final_time, 200)
+            chart.y_labels = set(map(lambda cdp: cdp.price, chunk))
+            chart.show_dots = True
+            chart.dots_size = 2
+            chart.render_to_file(f"{dir_path}/{initial_time}_{final_time}.svg")
 
 
     def save_data(self):
@@ -418,7 +464,10 @@ class Monitor:
 
     def log_data(self):
         print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}")
-        gvars.datalog[self.ticker].write(f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}\n")
+        gvars.datalog[self.ticker].write(
+            f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
+            f"({int(self.last_time()) - self.initial_time}): {self.last_price()}\n"
+        )
         if self.state in (1, 2, 3, 4, 5):
             gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
             gvars.datalog[self.ticker].write(self.state_str())
