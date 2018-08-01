@@ -19,6 +19,7 @@ from models.states.trending import Trending
 from models.cycle import Cycle
 from models.params import Params
 from models.position import Position
+from models.density import Density
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
@@ -29,9 +30,10 @@ class Monitor:
     def __init__(self, ticker, remote):
 
         self.ticker = ticker
+        self.remote = remote
         self.prm = Params(self)
         self.position = Position(self, remote)
-        self.remote = remote
+        self.density = Density(self)
         
         # Data
         self.data = []
@@ -60,6 +62,8 @@ class Monitor:
 
         if len(self.data) == 1:
             self.initial_time = int(self.data[0].time)
+
+        self.density.price_change()
         
         self.set_last_height_and_trend()
 
@@ -427,7 +431,7 @@ class Monitor:
             tooltips=TOOLTIPS,
 
             # display a tooltip whenever the cursor is vertically in line with a glyph
-            mode='vline' # "mouse" (default) or "hline"
+            mode='mouse' # "mouse" (default) | "vline" | "hline"
         )
         p = bokeh.plotting.figure(
            #tools="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,hover",
