@@ -20,6 +20,7 @@ from models.cycle import Cycle
 from models.params import Params
 from models.position import Position
 from models.density import Density
+from models.speeding import Speeding
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
@@ -34,6 +35,7 @@ class Monitor:
         self.prm = Params(self)
         self.position = Position(self, remote)
         self.density = Density(self)
+        self.speeding = Speeding(self)
         
         # Data
         self.data = []
@@ -71,7 +73,9 @@ class Monitor:
 
         self.position.price_change()
 
-        self.find_and_set_state()
+        # self.find_and_set_state()
+
+        self.find_and_set_state2()
 
         self.log_data()
 
@@ -102,9 +106,6 @@ class Monitor:
 
     
     def find_and_set_state(self):
-
-        if self.find_speeding():
-            return
 
         if self.state_is("random_walk"):
             
@@ -256,27 +257,22 @@ class Monitor:
             self.set_state("in_range")
 
 
-    def find_speeding(self):
-        if not self.state in (STATE['random_walk'], STATE['in_range']):
-            return False
-
-        data = self.data_since(self.prm.speeding_time_considered)
-        if len(data) <= 2:
-            return False
-        if not (all(map(lambda cdp: cdp.trend > 0, data)) or all(map(lambda cdp: cdp.trend < 0, data))):
-            return False
-        if self.prm.ticks(abs(data[-1].price - data[0].price)) / abs(data[-1].time - data[0].time) < 1:
-            return False
-
-        if data[-1].price > data[0].price:
+    def find_and_set_state2(self):
+        # Speeding
+        is_speeding = self.speeding.find()
+        if is_speeding == 'up':
             self.position.buy(self.last_price())
             self.ls = Trending('up', self, speeding = True)
             self.set_state('trending_up')
-        else:
+            return
+        elif is_speeding == 'down':
             self.position.sell(self.last_price())
             self.ls = Trending('down', self, speeding = True)
             self.set_state('trending_down')
-        return True
+            return
+
+        # Density
+        # ...
 
 
     def set_state(self, state):
@@ -380,6 +376,10 @@ class Monitor:
             else:
                 i += 1
         return timed_prices
+
+
+    def ticks(self, price_difference):
+        return round(price_difference / self.prm.tick_price)
 
     
     def close(self):

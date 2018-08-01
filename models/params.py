@@ -10,10 +10,6 @@ class Params:
         # explore cycles and get statistics...
 
 
-    def ticks(self, price_difference):
-        return round(price_difference / self.tick_price)
-
-
     def find_rallies(self):
         rallies = []
         max_trend = 0
