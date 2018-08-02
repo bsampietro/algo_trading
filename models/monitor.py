@@ -24,7 +24,6 @@ from models.speeding import Speeding
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
-HEIGHT = {"max": 1, "mid": 0, "min": -1}
 # ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
 class Monitor:
@@ -88,21 +87,21 @@ class Monitor:
             return
 
         if self.data[-1].price > self.data[-2].price:
-            new_trend = round((self.data[-1].price - self.data[-2].price) / self.prm.tick_price)
+            new_trend = self.ticks(self.data[-1].price - self.data[-2].price)
             if self.data[-2].trend > 0:
                 self.data[-1].trend = self.data[-2].trend + new_trend
-                self.data[-2].height = HEIGHT["mid"]
+                self.data[-2].height = gvars.HEIGHT["mid"]
             else:
                 self.data[-1].trend = new_trend
-                self.data[-2].height = HEIGHT["min"]
+                self.data[-2].height = gvars.HEIGHT["min"]
         else: # They can not be equal
-            new_trend = round((self.data[-2].price - self.data[-1].price) / self.prm.tick_price)
+            new_trend = self.ticks(self.data[-2].price - self.data[-1].price)
             if self.data[-2].trend < 0:
                 self.data[-1].trend = self.data[-2].trend - new_trend
-                self.data[-2].height = HEIGHT["mid"]
+                self.data[-2].height = gvars.HEIGHT["mid"]
             else:
                 self.data[-1].trend = -new_trend
-                self.data[-2].height = HEIGHT["max"]
+                self.data[-2].height = gvars.HEIGHT["max"]
 
     
     def find_and_set_state(self):

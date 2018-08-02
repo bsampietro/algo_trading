@@ -1,7 +1,8 @@
 class Params:
     def __init__(self, chart_data):
         self.cd = chart_data
-        self.set_initial_parameters()
+        # self.set_initial_parameters()
+        self.set_initial_parameters2()
 
 
     def adjust(self):
@@ -26,6 +27,30 @@ class Params:
                     rallies.append((last_trend_time, initial_trend_time, max_trend)) # temp code. need to see how to return data accordingly
                     max_trend = 0
         return rallies
+
+
+    def set_initial_parameters2(self):
+        if self.cd.ticker[0:2] == "GC":
+            self.tick_price = 0.10
+            self.min_trending_break_value = 2 * self.tick_price
+        elif self.cd.ticker[0:2] == "CL":
+            self.tick_price = 0.01
+            self.min_trending_break_value = 3 * self.tick_price
+        elif self.cd.ticker[0:2] == "NG":
+            self.tick_price = 0.001
+            self.min_trending_break_value = 3 * self.tick_price
+        elif self.cd.ticker[0:2] == "ES":
+            self.tick_price = 0.25
+            self.min_trending_break_value = 2 * self.tick_price
+        elif self.cd.ticker[0:3] == "EUR":
+            self.tick_price = 0.00005
+            self.min_trending_break_value = 2 * self.tick_price
+        
+        self.min_breaking_price_changes = 4 # times
+
+        self.trending_break_time = 60 # secs
+        
+        self.speeding_time_considered = 60 # secs
 
 
     def set_initial_parameters(self):
