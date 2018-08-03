@@ -5,20 +5,20 @@ class Density:
     def __init__(self, monitor):
         self.mtr = monitor
         self.data = []
-        self.current_dict_dps = {}
-        self.current_list_dps = []
+        self.dict_dps = {}
+        self.list_dps = []
 
         self.current_dp = None
-        self.close_dps = []
+        self.up_dps = []
+        self.down_dps = []
         self.density_direction = None
         self.action = None # "BUY" | "SELL" | or None
         
 
     def price_change(self):
         #self.update_all_data()
-        self.update_current_data()
-        self.get_state('up')
-        # self.prepare()
+        self.update_dps()
+        self.get_state()
 
 
     def update_all_data(self):
@@ -47,8 +47,8 @@ class Density:
         #     gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
 
 
-    def update_current_data(self):
-        self.current_dict_dps = {}
+    def update_dps(self):
+        self.dict_dps = {}
         if len(self.mtr.data) <= 2:
             return
         price_data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
@@ -56,11 +56,11 @@ class Density:
             return
         price_data = price_data[0:-1] # remove last element (doesn't have a duration)
         for cdp in price_data:
-            if cdp.price not in self.current_dict_dps:
-                self.current_dict_dps[cdp.price] = DensityPoint(cdp.price)
-            self.current_dict_dps[cdp.price].duration += cdp.duration
+            if cdp.price not in self.dict_dps:
+                self.dict_dps[cdp.price] = DensityPoint(cdp.price)
+            self.dict_dps[cdp.price].duration += cdp.duration
 
-        list_dps = list(self.current_dict_dps.values())
+        list_dps = list(self.dict_dps.values())
         list_dps.sort(key=lambda dp: dp.duration, reverse = True)
 
         # Set value
@@ -68,8 +68,8 @@ class Density:
             dp.value = index
         
         # Set "iles"
-        kintile_coefficient = 5.0 / self.current_max_value()
-        percentile_coefficient = 100.0 / self.current_max_value()
+        kintile_coefficient = 5.0 / self.max_value()
+        percentile_coefficient = 100.0 / self.max_value()
         for dp in list_dps:
             dp.kintile = round(dp.value * kintile_coefficient)
             dp.percentile = round(dp.value * percentile_coefficient)
@@ -91,10 +91,6 @@ class Density:
                             else:
                                 break
                         trend = 1
-                    elif trend == 1:
-                        list_dps[i-1].height = gvars.HEIGHT['mid']
-                if list_dps[i-1].kintile == list_dps[i].kintile:
-                    list_dps[i-1].height = gvars.HEIGHT['mid']
                 elif list_dps[i-1].kintile > list_dps[i].kintile:
                     if trend == 1:
                         list_dps[i-1].height = gvars.HEIGHT['max']
@@ -104,94 +100,66 @@ class Density:
                             else:
                                 break
                         trend = -1
-                    elif trend == -1:
-                        list_dps[i-1].height = gvars.HEIGHT['mid']
-
-        self.current_list_dps = list_dps
+        
+        self.list_dps = list_dps
 
         # +++++++++++++ Print ++++++++++++++++
-        # for key in sorted(self.current_dict_dps.keys(), reverse=True):
-        #     gvars.datalog_buffer[self.mtr.ticker] += f"{self.current_dict_dps[key].state_str()}\n"
-        for dp in reversed(self.current_list_dps):
+        # for key in sorted(self.dict_dps.keys(), reverse=True):
+        #     gvars.datalog_buffer[self.mtr.ticker] += f"{self.dict_dps[key].state_str()}\n"
+        for dp in reversed(self.list_dps):
             gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
         gvars.datalog_buffer[self.mtr.ticker] += "\n"
 
 
     # Need to work on this one
-    def get_state(self, price_direction):
+    def get_state(self):
         self.current_dp = None
-        self.close_dps = []
+        self.up_dps = []
         self.density_direction = None
 
-        current_price_index = core.index(lambda dp: dp.price == self.mtr.last_price(), self.current_list_dps)
-        if current_price_index is None:
+        current_dp_index = core.index(lambda dp: dp.price == self.mtr.last_price(), self.list_dps)
+        if current_dp_index is None:
             return # should NOT return. Is touching new ranges. NEED TO CONSIDER THIS CASE! working here!
             pass
-        if price_direction == 'up':
-            for i in range(current_price_index + 1, len(self.current_list_dps)): # up part
-                if self.current_list_dps[i].height == gvars.HEIGHT['max']:
-                    self.close_dps.append(self.current_list_dps[i])
-                elif self.current_list_dps[i].height == gvars.HEIGHT['min']:
-                    self.close_dps.append(self.current_list_dps[i])
-            if len(self.close_dps) > 0:
-                if self.close_dps[0].height == gvars.HEIGHT['max']:
-                    self.density_direction = 'out'
-                else:
-                    self.density_direction = 'in'
-
-            # for i in reversed(range(current_price_index)): # down part
-            #     pass
         else:
-            for i in reversed(range(current_price_index)): # down part
-                pass
-        
+            self.current_dp = self.list_dps[current_dp_index]
 
-    # def prepare(self):
-    #     cdp = self.mtr.data[-3:]
-    #     if cdp[-3].price < cdp[-2].price < cdp[-1].price:
-    #         # uptrend
-    #         if self.current_value(cdp[-3].price) < self.current_value(cdp[-2].price) < self.current_value(cdp[-1].price):
-    #             # going out of the range
-    #             current_price_index = core.index(lambda dp: dp.price == cdp[-1].price, self.current_list_dps)
-    #             for i in range(current_price_index, len(self.current_list_dps)):
-    #                 # do up part
-    #                 if self.current_list_dps[i].height == gvars.HEIGHT['max']:
-    #                     #do something
-    #                     pass
-    #             for i in reversed(range(current_price_index+1)):
-    #                 # do down part
-    #                 pass
+        # Up Part
+        for i in range(current_dp_index + 1, len(self.list_dps)): # up part
+            if self.list_dps[i].height == gvars.HEIGHT['max']:
+                self.up_dps.append(self.list_dps[i])
+            elif self.list_dps[i].height == gvars.HEIGHT['min']:
+                self.up_dps.append(self.list_dps[i])
+        if len(self.up_dps) > 0:
+            if self.up_dps[0].height == gvars.HEIGHT['max']:
+                self.density_direction = 'out'
+            else:
+                self.density_direction = 'in'
 
-    #             # up_part = self.current_list_dps[current_price_index:]
-    #             # down_part = self.current_list_dps[:current_price_index+1]
-
-    #             pass
-    #         elif self.current_value(cdp[-3].price) > self.current_value(cdp[-2].price) > self.current_value(cdp[-1].price):
-    #             # going into the range
-    #             pass
-    #         # buy (or not)
-    #     elif cdp[-1].price < cdp[-2].price < cdp[-3].price:
-    #         # downtrend
-    #         if self.current_value(cdp[-3].price) < self.current_value(cdp[-2].price) < self.current_value(cdp[-1].price):
-    #             # going out of the range
-    #             pass
-    #         elif self.current_value(cdp[-3].price) > self.current_value(cdp[-2].price) > self.current_value(cdp[-1].price):
-    #             # going into the range
-    #             pass
-    #         # sell (or not)
+        # Down Part
+        for i in reversed(range(current_dp_index)): # down part
+            if self.list_dps[i].height == gvars.HEIGHT['max']:
+                self.down_dps.append(self.list_dps[i])
+            elif self.list_dps[i].height == gvars.HEIGHT['min']:
+                self.down_dps.append(self.list_dps[i])
+        if len(self.down_dps) > 0:
+            if self.down_dps[0].height == gvars.HEIGHT['max']:
+                self.density_direction = 'out'
+            else:
+                self.density_direction = 'in'
         
 
     def all_max_value(self):
         return len(self.data)
 
-    def current_max_value(self):
-        return len(self.current_dict_dps)
+    def max_value(self):
+        return len(self.dict_dps)
 
     def current_value(self, price):
-        if price in self.current_dict_dps:
-            return self.current_dict_dps[price].value
+        if price in self.dict_dps:
+            return self.dict_dps[price].value
         else:
-            return self.current_max_value() + 1
+            return self.max_value() + 1
 
 
 class DensityPoint:
