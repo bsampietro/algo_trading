@@ -51,8 +51,8 @@ class Density:
         self.current_dict_dps = {}
         if len(self.mtr.data) <= 2:
             return
-        price_data = self.mtr.data_since(7200)
-        if price_data[-1].time - price_data[0].time < 7000:
+        price_data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
+        if price_data[-1].time - price_data[0].time < self.mtr.prm.primary_density_back_time - 200:
             return
         price_data = price_data[0:-1] # remove last element (doesn't have a duration)
         for cdp in price_data:
@@ -66,31 +66,46 @@ class Density:
         # Set value
         for index, dp in enumerate(list_dps):
             dp.value = index
+        
+        # Set "iles"
+        kintile_coefficient = 5.0 / self.current_max_value()
+        percentile_coefficient = 100.0 / self.current_max_value()
+        for dp in list_dps:
+            dp.kintile = round(dp.value * kintile_coefficient)
+            dp.percentile = round(dp.value * percentile_coefficient)
 
         list_dps.sort(key=lambda dp: dp.price)
 
         # Set height
+        trend = 1
         for i in range(len(list_dps)):
-            if i < 2:
-                continue
-            if list_dps[i-2].value < list_dps[i-1].value < list_dps[i].value:
-                list_dps[i-1].height = gvars.HEIGHT['mid']
-            elif list_dps[i-2].value > list_dps[i-1].value > list_dps[i].value:
-                list_dps[i-1].height = gvars.HEIGHT['mid']
-            elif list_dps[i-2].value < list_dps[i-1].value > list_dps[i].value:
-                list_dps[i-1].height = gvars.HEIGHT['max']
-            elif list_dps[i-2].value > list_dps[i-1].value < list_dps[i].value:
-                list_dps[i-1].height = gvars.HEIGHT['min']
-
-        # Set kintile
-        kintile_nr = self.current_max_value() / 5.0
-        for dp in list_dps:
-            for i in range(1, 6):
-                if i * kintile_nr >= dp.value:
-                    dp.kintile = i
-                    break
-            if dp.kintile == 0: # Never assigned
-                dp.kintile = 5
+            if i == 0:
+                list_dps[0].height = gvars.HEIGHT['mid']
+            else:
+                if list_dps[i-1].kintile < list_dps[i].kintile:
+                    if trend == -1:
+                        list_dps[i-1].height = gvars.HEIGHT['min']
+                        for j in range(2, i):
+                            if list_dps[i-j].kintile == list_dps[i-1].kintile:
+                                list_dps[i-j].height = gvars.HEIGHT['min']
+                            else:
+                                break
+                        trend = 1
+                    elif trend == 1:
+                        list_dps[i-1].height = gvars.HEIGHT['mid']
+                if list_dps[i-1].kintile == list_dps[i].kintile:
+                    list_dps[i-1].height = gvars.HEIGHT['mid']
+                elif list_dps[i-1].kintile > list_dps[i].kintile:
+                    if trend == 1:
+                        list_dps[i-1].height = gvars.HEIGHT['max']
+                        for j in range(2, i):
+                            if list_dps[i-j].kintile == list_dps[i-1].kintile:
+                                list_dps[i-j].height = gvars.HEIGHT['max']
+                            else:
+                                break
+                        trend = -1
+                    elif trend == -1:
+                        list_dps[i-1].height = gvars.HEIGHT['mid']
 
         self.current_list_dps = list_dps
 
@@ -186,6 +201,15 @@ class DensityPoint:
         self.value = 0
         self.height = gvars.HEIGHT['mid']
         self.kintile = 0
+        self.percentile = 0
 
     def state_str(self):
-        return f"'price': {self.price}, 'duration': {self.duration}, 'value': {self.value}, 'height': {self.height}, 'kintile': {self.kintile}"
+        output = (
+            f"'price': {self.price}, "
+            f"'duration': {self.duration}, "
+            f"'value': {self.value}, "
+            f"'height': {self.height}, "
+            f"'kintile': {self.kintile}, "
+            f"'percentile': {self.percentile}"
+        )
+        return output

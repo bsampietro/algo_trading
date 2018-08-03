@@ -52,6 +52,8 @@ class Params:
         
         self.speeding_time_considered = 60 # secs
 
+        self.primary_density_back_time = 1000 # secs
+
 
     def set_initial_parameters(self):
         if self.cd.ticker[0:2] == "GC":
