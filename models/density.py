@@ -68,10 +68,10 @@ class Density:
             dp.value = index
         
         # Set "iles"
-        kintile_coefficient = 5.0 / self.max_value()
-        percentile_coefficient = 100.0 / self.max_value()
+        tritile_coefficient = 3.0 / (self.max_value() - 1)
+        percentile_coefficient = 100.0 / (self.max_value() - 1)
         for dp in list_dps:
-            dp.kintile = round(dp.value * kintile_coefficient)
+            dp.tritile = round(dp.value * tritile_coefficient)
             dp.percentile = round(dp.value * percentile_coefficient)
 
         list_dps.sort(key=lambda dp: dp.price)
@@ -82,20 +82,20 @@ class Density:
             if i == 0:
                 list_dps[0].height = gvars.HEIGHT['mid']
             else:
-                if list_dps[i-1].kintile < list_dps[i].kintile:
+                if list_dps[i-1].tritile < list_dps[i].tritile:
                     if trend == -1:
                         list_dps[i-1].height = gvars.HEIGHT['min']
                         for j in range(2, i):
-                            if list_dps[i-j].kintile == list_dps[i-1].kintile:
+                            if list_dps[i-j].tritile == list_dps[i-1].tritile:
                                 list_dps[i-j].height = gvars.HEIGHT['min']
                             else:
                                 break
                         trend = 1
-                elif list_dps[i-1].kintile > list_dps[i].kintile:
+                elif list_dps[i-1].tritile > list_dps[i].tritile:
                     if trend == 1:
                         list_dps[i-1].height = gvars.HEIGHT['max']
                         for j in range(2, i):
-                            if list_dps[i-j].kintile == list_dps[i-1].kintile:
+                            if list_dps[i-j].tritile == list_dps[i-1].tritile:
                                 list_dps[i-j].height = gvars.HEIGHT['max']
                             else:
                                 break
@@ -104,17 +104,15 @@ class Density:
         self.list_dps = list_dps
 
         # +++++++++++++ Print ++++++++++++++++
-        # for key in sorted(self.dict_dps.keys(), reverse=True):
-        #     gvars.datalog_buffer[self.mtr.ticker] += f"{self.dict_dps[key].state_str()}\n"
         for dp in reversed(self.list_dps):
             gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
-        gvars.datalog_buffer[self.mtr.ticker] += "\n"
 
 
     # Need to work on this one
     def get_state(self):
         self.current_dp = None
         self.up_dps = []
+        self.down_dps = []
         self.density_direction = None
 
         current_dp_index = core.index(lambda dp: dp.price == self.mtr.last_price(), self.list_dps)
@@ -126,10 +124,17 @@ class Density:
 
         # Up Part
         for i in range(current_dp_index + 1, len(self.list_dps)): # up part
-            if self.list_dps[i].height == gvars.HEIGHT['max']:
-                self.up_dps.append(self.list_dps[i])
-            elif self.list_dps[i].height == gvars.HEIGHT['min']:
-                self.up_dps.append(self.list_dps[i])
+            if self.list_dps[i].height == gvars.HEIGHT['mid']:
+                continue
+            if len(self.up_dps) > 0:
+                if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
+                        self.up_dps[-1].height == gvars.HEIGHT['max']) or
+                            (self.list_dps[i].height == gvars.HEIGHT['min'] and 
+                                self.up_dps[-1].height == gvars.HEIGHT['min'])):
+                    self.up_dps[-1] = self.list_dps[i]
+                    continue
+            self.up_dps.append(self.list_dps[i])
+
         if len(self.up_dps) > 0:
             if self.up_dps[0].height == gvars.HEIGHT['max']:
                 self.density_direction = 'out'
@@ -138,15 +143,31 @@ class Density:
 
         # Down Part
         for i in reversed(range(current_dp_index)): # down part
-            if self.list_dps[i].height == gvars.HEIGHT['max']:
-                self.down_dps.append(self.list_dps[i])
-            elif self.list_dps[i].height == gvars.HEIGHT['min']:
-                self.down_dps.append(self.list_dps[i])
+            if self.list_dps[i].height == gvars.HEIGHT['mid']:
+                continue
+            if len(self.down_dps) > 0:
+                if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
+                        self.down_dps[-1].height == gvars.HEIGHT['max']) or
+                            (self.list_dps[i].height == gvars.HEIGHT['min'] and 
+                                self.down_dps[-1].height == gvars.HEIGHT['min'])):
+                    self.down_dps[-1] = self.list_dps[i]
+                    continue
+            self.down_dps.append(self.list_dps[i])
+
         if len(self.down_dps) > 0:
             if self.down_dps[0].height == gvars.HEIGHT['max']:
                 self.density_direction = 'out'
             else:
                 self.density_direction = 'in'
+
+        # +++++++++++++ Print ++++++++++++++++
+        gvars.datalog_buffer[self.mtr.ticker] += f"Up dps\n"
+        for dp in reversed(self.up_dps):
+            gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
+
+        gvars.datalog_buffer[self.mtr.ticker] += f"Down dps\n"
+        for dp in self.down_dps:
+            gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
         
 
     def all_max_value(self):
@@ -168,7 +189,7 @@ class DensityPoint:
         self.duration = 0
         self.value = 0
         self.height = gvars.HEIGHT['mid']
-        self.kintile = 0
+        self.tritile = 0
         self.percentile = 0
 
     def state_str(self):
@@ -177,7 +198,7 @@ class DensityPoint:
             f"'duration': {self.duration}, "
             f"'value': {self.value}, "
             f"'height': {self.height}, "
-            f"'kintile': {self.kintile}, "
+            f"'tritile': {self.tritile}, "
             f"'percentile': {self.percentile}"
         )
         return output
