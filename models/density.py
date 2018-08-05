@@ -25,8 +25,7 @@ class Density:
 
     def price_change(self):
         #self.update_all_data()
-        self.update_dps()
-        self.get_state()
+        self.update_state()
 
 
     def update_all_data(self):
@@ -53,6 +52,11 @@ class Density:
         # Print by price
         # for dp in self.data:
         #     gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
+
+
+    def update_state(self):
+        self.update_dps()
+        self.update_intervals()
 
 
     def update_dps(self):
@@ -84,8 +88,7 @@ class Density:
         self.list_dps = list_dps
 
 
-    # Need to work on this one
-    def get_state(self):
+    def update_intervals(self):
         if len(self.dict_dps) == 0:
             return
 
@@ -289,6 +292,7 @@ class Density:
         if self.current_dp is not None:
             output += (
                 f"in_position: {self.in_position}\n"
+                f"density_direction: {self.density_direction}\n"
                 f"{self.up_interval_max}\n"
                 f"{self.up_interval_min}\n"
                 f"{self.current_interval_max}\n"
