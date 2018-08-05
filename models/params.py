@@ -52,7 +52,10 @@ class Params:
         
         self.speeding_time_considered = 60 # secs
 
-        self.primary_density_back_time = 1800 # secs
+        self.primary_density_back_time = 3600 # secs
+        
+        self.max_low_percentile = 20
+        self.min_high_percentile = 80
 
 
     def set_initial_parameters(self):

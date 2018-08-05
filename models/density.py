@@ -9,10 +9,18 @@ class Density:
         self.list_dps = []
 
         self.current_dp = None
-        self.up_dps = []
-        self.down_dps = []
-        self.density_direction = None
-        self.action = None # "BUY" | "SELL" | or None
+        self.density_direction = ''
+
+        self.initialize_interval_variables()
+
+
+    def initialize_interval_variables(self):
+        self.up_interval_max = 0
+        self.up_interval_min = 0
+        self.current_interval_max = 0
+        self.current_interval_min = 0
+        self.down_interval_max = 0
+        self.down_interval_min = 0
         
 
     def price_change(self):
@@ -54,7 +62,7 @@ class Density:
         price_data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
         if price_data[-1].time - price_data[0].time < self.mtr.prm.primary_density_back_time - 200:
             return
-        price_data = price_data[0:-1] # remove last element (doesn't have a duration)
+        # price_data = price_data[0:-1] # remove last element (doesn't have a duration)
         for cdp in price_data:
             if cdp.price not in self.dict_dps:
                 self.dict_dps[cdp.price] = DensityPoint(cdp.price)
@@ -67,39 +75,12 @@ class Density:
         for index, dp in enumerate(list_dps):
             dp.value = index
         
-        # Set "iles"
-        tritile_coefficient = 3.0 / (self.max_value() - 1)
+        # Set percentile
         percentile_coefficient = 100.0 / (self.max_value() - 1)
         for dp in list_dps:
-            dp.tritile = round(dp.value * tritile_coefficient)
             dp.percentile = round(dp.value * percentile_coefficient)
 
         list_dps.sort(key=lambda dp: dp.price)
-
-        # Set height
-        trend = 1
-        for i in range(len(list_dps)):
-            if i == 0:
-                list_dps[0].height = gvars.HEIGHT['mid']
-            else:
-                if list_dps[i-1].tritile < list_dps[i].tritile:
-                    if trend == -1:
-                        list_dps[i-1].height = gvars.HEIGHT['min']
-                        for j in range(2, i):
-                            if list_dps[i-j].tritile == list_dps[i-1].tritile:
-                                list_dps[i-j].height = gvars.HEIGHT['min']
-                            else:
-                                break
-                        trend = 1
-                elif list_dps[i-1].tritile > list_dps[i].tritile:
-                    if trend == 1:
-                        list_dps[i-1].height = gvars.HEIGHT['max']
-                        for j in range(2, i):
-                            if list_dps[i-j].tritile == list_dps[i-1].tritile:
-                                list_dps[i-j].height = gvars.HEIGHT['max']
-                            else:
-                                break
-                        trend = -1
         
         self.list_dps = list_dps
 
@@ -111,63 +92,125 @@ class Density:
     # Need to work on this one
     def get_state(self):
         self.current_dp = None
-        self.up_dps = []
-        self.down_dps = []
-        self.density_direction = None
 
         current_dp_index = core.index(lambda dp: dp.price == self.mtr.last_price(), self.list_dps)
         if current_dp_index is None:
-            return # should NOT return. Is touching new ranges. NEED TO CONSIDER THIS CASE! working here!
-            pass
+            print(self.mtr.last_price())
+            # Should fix the minimum price data before working here
+            return
+        self.current_dp = self.list_dps[current_dp_index]
+
+        if self.current_dp.percentile <= 20:
+            self.density_direction = 'out'
+        elif self.current_dp.percentile >= 80:
+            self.density_direction = 'in'
         else:
-            self.current_dp = self.list_dps[current_dp_index]
+            return
 
-        # Up Part
-        for i in range(current_dp_index + 1, len(self.list_dps)): # up part
-            if self.list_dps[i].height == gvars.HEIGHT['mid']:
-                continue
-            if len(self.up_dps) > 0:
-                if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
-                        self.up_dps[-1].height == gvars.HEIGHT['max']) or
-                            (self.list_dps[i].height == gvars.HEIGHT['min'] and 
-                                self.up_dps[-1].height == gvars.HEIGHT['min'])):
-                    self.up_dps[-1] = self.list_dps[i]
-                    continue
-            self.up_dps.append(self.list_dps[i])
+        # Set interval variables
 
-        if len(self.up_dps) > 0:
-            if self.up_dps[0].height == gvars.HEIGHT['max']:
-                self.density_direction = 'out'
-            else:
-                self.density_direction = 'in'
+        self.initialize_interval_variables()
 
-        # Down Part
-        for i in reversed(range(current_dp_index)): # down part
-            if self.list_dps[i].height == gvars.HEIGHT['mid']:
-                continue
-            if len(self.down_dps) > 0:
-                if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
-                        self.down_dps[-1].height == gvars.HEIGHT['max']) or
-                            (self.list_dps[i].height == gvars.HEIGHT['min'] and 
-                                self.down_dps[-1].height == gvars.HEIGHT['min'])):
-                    self.down_dps[-1] = self.list_dps[i]
-                    continue
-            self.down_dps.append(self.list_dps[i])
+        if self.density_direction == 'out':
 
-        if len(self.down_dps) > 0:
-            if self.down_dps[0].height == gvars.HEIGHT['max']:
-                self.density_direction = 'out'
-            else:
-                self.density_direction = 'in'
+            filled = 0
+            # Up Part
+            for i in range(current_dp_index + 1, len(self.list_dps)): # up part
+                
+                if self.list_dps[i].percentile > 20 and filled == 0:
+                    self.current_interval_max = self.list_dps[i-1].price
+                    filled = 1
+                elif self.list_dps[i].percentile <= 20 and filled == 1:
+                    # Not smooth case
+                    self.initialize_interval_variables()
+                    return
+                elif self.list_dps[i].percentile >= 80 and filled == 1:
+                    self.up_interval_min = self.list_dps[i].price
+                    filled = 2
+                elif self.list_dps[i].percentile < 80 and filled == 2:
+                    self.up_interval_max = self.list_dps[i-1].price
+                    filled = 3
+                    break
 
-        # +++++++++++++ Print ++++++++++++++++
-        gvars.datalog_buffer[self.mtr.ticker] += f"Up dps\n"
-        for dp in reversed(self.up_dps):
-            gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
+            filled = 0
+            # Down Part
+            for i in reversed(range(current_dp_index)): # down part
+            
+                if self.list_dps[i].percentile > 20 and filled == 0:
+                    self.current_interval_min = self.list_dps[i+1].price
+                    filled = 1
+                elif self.list_dps[i].percentile <= 20 and filled == 1:
+                    # Not smooth case
+                    self.initialize_interval_variables()
+                    return
+                elif self.list_dps[i].percentile >= 80 and filled == 1:
+                    self.down_interval_max = self.list_dps[i].price
+                    filled = 2
+                elif self.list_dps[i].percentile < 80 and filled == 2:
+                    self.down_interval_min = self.list_dps[i+1].price
+                    filled = 3
+                    break
 
-        gvars.datalog_buffer[self.mtr.ticker] += f"Down dps\n"
-        for dp in self.down_dps:
-            gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
+        elif self.density_direction == 'in':
+
+            filled = 0
+            # Up Part
+            for i in range(current_dp_index + 1, len(self.list_dps)): # up part
+                
+                if self.list_dps[i].percentile < 80 and filled == 0:
+                    self.current_interval_max = self.list_dps[i-1].price
+                    filled = 1
+                elif self.list_dps[i].percentile >= 80 and filled == 1:
+                    # Not smooth case
+                    self.initialize_interval_variables()
+                    return
+                elif self.list_dps[i].percentile <= 20 and filled == 1:
+                    self.up_interval_min = self.list_dps[i].price
+                    filled = 2
+                elif self.list_dps[i].percentile > 20 and filled == 2:
+                    self.up_interval_max = self.list_dps[i-1].price
+                    filled = 3
+                    break
+
+            filled = 0
+            # Down Part
+            for i in reversed(range(current_dp_index)): # down part
+            
+                if self.list_dps[i].percentile < 80 and filled == 0:
+                    self.current_interval_min = self.list_dps[i+1].price
+                    filled = 1
+                elif self.list_dps[i].percentile >= 80 and filled == 1:
+                    # Not smooth case
+                    self.initialize_interval_variables()
+                    return
+                elif self.list_dps[i].percentile <= 20 and filled == 1:
+                    self.down_interval_max = self.list_dps[i].price
+                    filled = 2
+                elif self.list_dps[i].percentile > 20 and filled == 2:
+                    self.down_interval_min = self.list_dps[i+1].price
+                    filled = 3
+                    break
+
+        if self.up_interval_max == 0:
+            self.up_interval_max = self.list_dps[-1].price
+        if self.up_interval_min == 0:
+            self.up_interval_min = self.list_dps[-1].price
+        if self.current_interval_max == 0:
+            self.current_interval_max = self.list_dps[-1].price
+        if self.current_interval_min == 0:
+            self.current_interval_min = self.list_dps[0].price
+        if self.down_interval_max == 0:
+            self.down_interval_max = self.list_dps[0].price
+        if self.down_interval_min == 0:
+            self.down_interval_min = self.list_dps[0].price
+
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.up_interval_max}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.up_interval_min}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.current_interval_max}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"current_dp: {self.current_dp.state_str()}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.current_interval_min}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.down_interval_max}\n"
+        gvars.datalog_buffer[self.mtr.ticker] += f"{self.down_interval_min}\n"
         
 
     def all_max_value(self):
@@ -197,8 +240,6 @@ class DensityPoint:
             f"'price': {self.price}, "
             f"'duration': {self.duration}, "
             f"'value': {self.value}, "
-            f"'height': {self.height}, "
-            f"'tritile': {self.tritile}, "
             f"'percentile': {self.percentile}"
         )
         return output
