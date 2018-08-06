@@ -20,7 +20,7 @@ from models.cycle import Cycle
 from models.params import Params
 from models.position import Position
 from models.density import Density
-from models.speeding import Speeding
+from models.speed import Speed
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
@@ -34,7 +34,7 @@ class Monitor:
         self.prm = Params(self)
         self.position = Position(self, remote)
         self.density = Density(self)
-        self.speeding = Speeding(self)
+        self.speed = Speed(self)
         
         # Data
         self.data = []
@@ -64,9 +64,11 @@ class Monitor:
         if len(self.data) == 1:
             self.initial_time = int(self.data[0].time)
 
-        self.density.price_change()
-        
         self.set_last_height_and_trend()
+
+        self.density.price_change()
+
+        self.speed.price_change()
 
         self.prm.adjust()
 
@@ -258,17 +260,18 @@ class Monitor:
 
     def find_and_set_state2(self):
         # Speeding
-        is_speeding = self.speeding.find()
-        if is_speeding == 'up':
-            self.position.buy(self.last_price())
-            self.ls = Trending('up', self, speeding = True)
-            self.set_state('trending_up')
-            return
-        elif is_speeding == 'down':
-            self.position.sell(self.last_price())
-            self.ls = Trending('down', self, speeding = True)
-            self.set_state('trending_down')
-            return
+        if self.state_is("random_walk") or self.state_is("in_range"):
+            is_speeding = self.speed.find_criteria_speeding()
+            if is_speeding == 'up':
+                self.position.buy(self.last_price())
+                self.ls = Trending('up', self, speeding = True)
+                self.set_state('trending_up')
+                return
+            elif is_speeding == 'down':
+                self.position.sell(self.last_price())
+                self.ls = Trending('down', self, speeding = True)
+                self.set_state('trending_down')
+                return
 
         # Density
         # ...
@@ -492,6 +495,8 @@ class Monitor:
             gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
             gvars.datalog[self.ticker].write(self.state_str())
         gvars.datalog[self.ticker].write(self.density.state_str())
+        gvars.datalog[self.ticker].write(self.speed.state_str())
+        gvars.datalog[self.ticker].write(f"time_speeding: {self.speed.find_time_speeding(3, 2)}\n")
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""
 
