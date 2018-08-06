@@ -496,7 +496,6 @@ class Monitor:
             gvars.datalog[self.ticker].write(self.state_str())
         gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
-        gvars.datalog[self.ticker].write(f"time_speeding: {self.speed.find_time_speeding(3, 2)}\n")
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""
 
