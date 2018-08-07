@@ -1,8 +1,7 @@
 class Params:
     def __init__(self, chart_data):
         self.cd = chart_data
-        # self.set_initial_parameters()
-        self.set_initial_parameters2()
+        self.set_initial_parameters()
 
 
     def adjust(self):
@@ -29,7 +28,7 @@ class Params:
         return rallies
 
 
-    def set_initial_parameters2(self):
+    def set_initial_parameters(self):
         if self.cd.ticker[0:2] == "GC":
             self.tick_price = 0.10
             self.min_trending_break_value = 2 * self.tick_price
@@ -50,47 +49,46 @@ class Params:
 
         self.trending_break_time = 60 # secs
         
-        self.speeding_time_considered = 60 # secs
-
         self.primary_density_back_time = 3600 # secs
         self.primary_look_back_time = 3600 # secs
         
         self.max_low_percentile = 20
         self.min_high_percentile = 80
 
+        self.speeding_time = 10 # secs
 
-    def set_initial_parameters(self):
-        if self.cd.ticker[0:2] == "GC":
-            self.tick_price = 0.10
-            self.max_range_value = 5 * self.tick_price
-            self.breaking_range_value = 3 * self.tick_price
-            self.min_trending_break_value = 2 * self.tick_price
-        elif self.cd.ticker[0:2] == "CL":
-            self.tick_price = 0.01
-            self.max_range_value = 6 * self.tick_price
-            self.breaking_range_value = 4 * self.tick_price
-            self.min_trending_break_value = 3 * self.tick_price
-        elif self.cd.ticker[0:2] == "NG":
-            self.tick_price = 0.001
-            self.max_range_value = 8 * self.tick_price
-            self.breaking_range_value = 4 * self.tick_price
-            self.min_trending_break_value = 3 * self.tick_price
-        elif self.cd.ticker[0:2] == "ES":
-            self.tick_price = 0.25
-            self.max_range_value = 5 * self.tick_price
-            self.breaking_range_value = 3 * self.tick_price
-            self.min_trending_break_value = 2 * self.tick_price
-        elif self.cd.ticker[0:3] == "EUR":
-            self.tick_price = 0.00005
-            self.max_range_value = 4 * self.tick_price
-            self.breaking_range_value = 2 * self.tick_price
-            self.min_trending_break_value = 2 * self.tick_price
+    # def set_initial_parameters(self):
+    #     if self.cd.ticker[0:2] == "GC":
+    #         self.tick_price = 0.10
+    #         self.max_range_value = 5 * self.tick_price
+    #         self.breaking_range_value = 3 * self.tick_price
+    #         self.min_trending_break_value = 2 * self.tick_price
+    #     elif self.cd.ticker[0:2] == "CL":
+    #         self.tick_price = 0.01
+    #         self.max_range_value = 6 * self.tick_price
+    #         self.breaking_range_value = 4 * self.tick_price
+    #         self.min_trending_break_value = 3 * self.tick_price
+    #     elif self.cd.ticker[0:2] == "NG":
+    #         self.tick_price = 0.001
+    #         self.max_range_value = 8 * self.tick_price
+    #         self.breaking_range_value = 4 * self.tick_price
+    #         self.min_trending_break_value = 3 * self.tick_price
+    #     elif self.cd.ticker[0:2] == "ES":
+    #         self.tick_price = 0.25
+    #         self.max_range_value = 5 * self.tick_price
+    #         self.breaking_range_value = 3 * self.tick_price
+    #         self.min_trending_break_value = 2 * self.tick_price
+    #     elif self.cd.ticker[0:3] == "EUR":
+    #         self.tick_price = 0.00005
+    #         self.max_range_value = 4 * self.tick_price
+    #         self.breaking_range_value = 2 * self.tick_price
+    #         self.min_trending_break_value = 2 * self.tick_price
 
-        self.min_range_time = 450 # seconds
+    #     self.min_range_time = 450 # seconds
         
-        self.min_breaking_price_changes = 4 # times
-        self.up_down_ratio = 1.0
+    #     self.min_breaking_price_changes = 4 # times
+    #     self.up_down_ratio = 1.0
 
-        self.trending_break_time = 60 # secs
+    #     self.trending_break_time = 60 # secs
         
-        self.speeding_time_considered = 60 # secs
+    #     self.speeding_time_considered = 60 # secs
