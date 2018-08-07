@@ -7,7 +7,6 @@ class Density:
         
         self.data = []
 
-        self.dict_dps = {}
         self.list_dps = []
 
         self.current_dp = None
@@ -21,37 +20,13 @@ class Density:
         self.down_interval_min = 0
 
         self.in_position = False
+
+        # Private
+        self._previous_price_data = []
         
 
     def price_change(self):
-        #self.update_all_data()
         self.update_state()
-
-
-    def update_all_data(self):
-        if len(self.mtr.data) <= 2:
-            return
-        stl_cdp = self.mtr.data[-2]
-        dp = core.find(lambda dp: dp.price == stl_cdp.price, self.data)
-        if dp is None:
-            dp = DensityPoint(stl_cdp.price)
-            self.data.append(dp)
-        dp.duration += stl_cdp.duration
-        self.data.sort(key=lambda dp: dp.duration, reverse = True)
-
-        for index, dp in enumerate(self.data):
-            dp.value = index
-        
-        # Print by duration
-        # for dp in self.data:
-        #     gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
-        # gvars.datalog_buffer[self.mtr.ticker] += "---\n"
-
-        self.data.sort(key=lambda dp: dp.price)
-        
-        # Print by price
-        # for dp in self.data:
-        #     gvars.datalog_buffer[self.mtr.ticker] += f"{dp.state_str()}\n"
 
 
     def update_state(self):
@@ -60,36 +35,47 @@ class Density:
 
 
     def update_dps(self):
-        if len(self.mtr.data) <= 2:
+        data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
+        if len(data) < 2:
             return
-        price_data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
-        if price_data[-1].time - price_data[0].time < self.mtr.prm.primary_density_back_time - 200:
-            return
-        self.dict_dps = {}
-        for cdp in price_data:
-            if cdp.price not in self.dict_dps:
-                self.dict_dps[cdp.price] = DensityPoint(cdp.price)
-            self.dict_dps[cdp.price].duration += cdp.duration
 
-        list_dps = list(self.dict_dps.values())
-        list_dps.sort(key=lambda dp: dp.duration, reverse = True)
+        # Add 2 newest prices
+        for cdp in data[-2:]:
+            dp = core.find(lambda dp: dp.price == cdp.price, self.list_dps)
+            if dp is None:
+                dp = DensityPoint(cdp.price)
+                self.list_dps.append(dp)
+            dp.duration += cdp.duration
+
+        if (data[-1].time - data[0].time < self.mtr.prm.primary_density_back_time - 300 and 
+                len(self._previous_price_data) == 0):
+            return
+
+        # Remove old elements
+        for cdp in self._previous_price_data:
+            if cdp == data[0]: # Pointer comparison
+                break
+            dp_index = core.index(lambda dp: dp.price == cdp.price, self.list_dps)
+            self.list_dps[dp_index].duration -= cdp.duration
+            if self.list_dps[dp_index].duration < 0.001: # because of floating point errors
+                self.list_dps.pop(dp_index)
+        self._previous_price_data = data
 
         # Set value
-        for index, dp in enumerate(list_dps):
+        self.list_dps.sort(key=lambda dp: dp.duration, reverse = True)
+        for index, dp in enumerate(self.list_dps):
             dp.value = index
         
         # Set percentile
         percentile_coefficient = 100.0 / (self.max_value() - 1)
-        for dp in list_dps:
+        for dp in self.list_dps:
             dp.percentile = round(dp.value * percentile_coefficient)
 
-        list_dps.sort(key=lambda dp: dp.price)
-        
-        self.list_dps = list_dps
+        self.list_dps.sort(key=lambda dp: dp.price)
 
 
     def update_intervals(self):
-        if len(self.dict_dps) == 0:
+        if len(self.list_dps) == 0:
             return
 
         self.in_position = False
@@ -275,14 +261,7 @@ class Density:
 
     
     def max_value(self):
-        return len(self.dict_dps)
-
-    
-    def current_value(self, price):
-        if price in self.dict_dps:
-            return self.dict_dps[price].value
-        else:
-            return self.max_value() + 1
+        return len(self.list_dps)
 
 
     def state_str(self):
@@ -305,12 +284,10 @@ class Density:
 
 
 class DensityPoint:
-    def __init__(self, price=0):
+    def __init__(self, price):
         self.price = price
         self.duration = 0
         self.value = 0
-        self.height = gvars.HEIGHT['mid']
-        self.tritile = 0
         self.percentile = 0
 
     def state_str(self):
