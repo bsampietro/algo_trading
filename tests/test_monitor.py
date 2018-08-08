@@ -4,6 +4,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import unittest
 from unittest.mock import MagicMock
 
+import gvars
 from models.monitor import *
 
 class TestMonitor(unittest.TestCase):
@@ -13,19 +14,27 @@ class TestMonitor(unittest.TestCase):
 
     def test_height_and_trend(self):
         data = self.monitor.data
-        self.assertEqual(data[2].height, HEIGHT["mid"])
+        self.assertEqual(data[2].height, gvars.HEIGHT["mid"])
         self.assertEqual(data[2].trend, 4)
-        self.assertEqual(data[3].height, HEIGHT["max"])
+        self.assertEqual(data[3].height, gvars.HEIGHT["max"])
         self.assertEqual(data[3].trend, 5)
-        self.assertEqual(data[5].height, HEIGHT["min"])
+        self.assertEqual(data[5].height, gvars.HEIGHT["min"])
         self.assertEqual(data[5].trend, -2)
-        self.assertEqual(data[7].height, HEIGHT["max"])
+        self.assertEqual(data[7].height, gvars.HEIGHT["max"])
         self.assertEqual(data[7].trend, 4)
         self.assertEqual(data[8].trend, -1)
 
     def test_data_since(self):
-        self.assertEqual(self.monitor.data_since(1000100), self.monitor.data[-2:])
-        self.assertEqual(self.monitor.data_since(145), self.monitor.data[-4:])
+        data = self.monitor.data
+        self.assertEqual(self.monitor.data_since(1000100), data[-2:])
+        self.assertEqual(self.monitor.data_since(145), data[-4:])
+
+    def test_jump(self):
+        data = self.monitor.data
+        self.assertEqual(data[1].jump, 2)
+        self.assertEqual(data[2].jump, 1)
+        self.assertEqual(data[5].jump, -1)
+        self.assertEqual(data[8].jump, -1)
 
 
 def create_monitor():

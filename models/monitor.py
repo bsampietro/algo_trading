@@ -24,7 +24,6 @@ from models.speed import Speed
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
-# ACTION = {"buy": 1, "sell": 2, "close": 3, "notify": 4}
 
 class Monitor:
     def __init__(self, ticker, remote):
@@ -58,6 +57,7 @@ class Monitor:
             if self.data[-1].price == price:
                 return
             self.data[-1].duration = cdp.time - self.data[-1].time
+            cdp.jump = self.ticks(cdp.price - self.data[-1].price)
 
         self.data.append(cdp)
 
@@ -531,5 +531,6 @@ class ChartDataPoint:
         self.time = time
         self.duration = 0
         self.height = 0 # min - mid - max
-        self.trend = 0 # distance from min or max
+        self.trend = 0 # distance (in ticks) from min or max
+        self.jump = 0 # distance (in ticks) from previous price
         # self.slope = 0
