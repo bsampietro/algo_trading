@@ -489,12 +489,12 @@ class Monitor:
         print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}")
         gvars.datalog[self.ticker].write(
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
-            f"({int(self.last_time()) - self.initial_time}): {self.last_price()}\n"
+            f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price()}\n"
         )
         if self.state in (1, 2, 3, 4, 5):
             gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
             gvars.datalog[self.ticker].write(self.state_str())
-        gvars.datalog[self.ticker].write(self.density.state_str())
+        # gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""

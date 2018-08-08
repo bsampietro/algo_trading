@@ -55,7 +55,7 @@ class Params:
         self.max_low_percentile = 20
         self.min_high_percentile = 80
 
-        self.speeding_time = 10 # secs
+        self.speeding_time = 5 # secs
 
     # def set_initial_parameters(self):
     #     if self.cd.ticker[0:2] == "GC":

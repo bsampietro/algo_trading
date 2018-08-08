@@ -58,8 +58,9 @@ class Speed:
         # Create Speed point
         speed_point = SpeedPoint(
             ticks = max_ticks,
+            price = price_data[-1].price,
             time = price_data[-1].time,
-            changes = len(price_data),
+            changes = len(price_data) - 1, # -1 because it includes the change already counted before
             max_jump = max(price_data, key=lambda cdp: abs(cdp.jump)).jump
         )
 
@@ -147,19 +148,23 @@ class Speed:
 
 
 class SpeedPoint:
-    def __init__(self, ticks, time, max_jump, changes):
+    def __init__(self, ticks, price, time, max_jump, changes):
         self.ticks = ticks
+        self.price = price
         self.time = time
         self.max_jump = max_jump
         self.changes = changes
+        self.danger_index = abs((ticks*1.25 * max_jump*0.75) / changes)
         
 
     def state_str(self):
         output = (
             "'ticks': {:+d}, "
-            "'time': {}, "
-            "'max_jump': {}, "
-            "'changes': {}"
+            "'price': {:.2f}, "
+            "'time': {:.4f}, "
+            "'max_jump': {:+d}, "
+            "'changes': {}, "
+            "'danger_index': {:.2f}"
         )
-        output = output.format(self.ticks, self.time, self.max_jump, self.changes)
+        output = output.format(self.ticks, self.price, self.time, self.max_jump, self.changes, self.danger_index)
         return output
