@@ -154,7 +154,7 @@ class SpeedPoint:
         self.time = time
         self.max_jump = max_jump
         self.changes = changes
-        self.danger_index = abs((ticks*1.25 * max_jump*0.75) / changes)
+        self.danger_index = ticks * changes # changes acts as volume
         
 
     def state_str(self):

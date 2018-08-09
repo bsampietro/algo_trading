@@ -4,8 +4,6 @@ from lib import core
 class Density:
     def __init__(self, monitor):
         self.mtr = monitor
-        
-        self.data = []
 
         self.list_dps = []
 
@@ -61,21 +59,18 @@ class Density:
                 self.list_dps.pop(dp_index)
         self._previous_price_data = data
 
-        # Set value
-        self.list_dps.sort(key=lambda dp: dp.duration, reverse = True)
+        # Set value and percentile
+        self.list_dps.sort(key=lambda dp: dp.duration)
+        percentile_coefficient = 100.0 / (self.max_value() - 1)
         for index, dp in enumerate(self.list_dps):
             dp.value = index
-        
-        # Set percentile
-        percentile_coefficient = 100.0 / (self.max_value() - 1)
-        for dp in self.list_dps:
             dp.percentile = round(dp.value * percentile_coefficient)
 
         self.list_dps.sort(key=lambda dp: dp.price)
 
 
     def update_intervals(self):
-        if len(self.list_dps) == 0:
+        if len(self._previous_price_data) == 0:
             return
 
         self.in_position = False
@@ -84,20 +79,20 @@ class Density:
         self.current_dp = self.list_dps[current_dp_index]
 
         if self.current_dp.percentile <= 20:
-            self.density_direction = 'out'
-        elif self.current_dp.percentile >= 80:
             self.density_direction = 'in'
+        elif self.current_dp.percentile >= 80:
+            self.density_direction = 'out'
         else:
             return
 
         # Set interval variables
 
-        up_interval_max = 0
-        up_interval_min = 0
-        current_interval_max = 0
-        current_interval_min = 0
-        down_interval_max = 0
-        down_interval_min = 0
+        self.up_interval_max = 0
+        self.up_interval_min = 0
+        self.current_interval_max = 0
+        self.current_interval_min = 0
+        self.down_interval_max = 0
+        self.down_interval_min = 0
 
         if self.density_direction == 'out':
 
@@ -108,26 +103,28 @@ class Density:
 
                 if filled_position != 1:
                     j = i
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -30:
-                    return
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -10:
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 40:
+                    self.up_interval_min = self.up_interval_max = self.list_dps[j].price
+                    break
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 20:
                     wrong_consecutives += 1
                     if wrong_consecutives == 3:
-                        return
+                        self.up_interval_min = self.up_interval_max = self.list_dps[j].price
+                        break
                 else:
                     j = i
-
-                if self.list_dps[i].percentile <= 20 and filled_position == 1:
-                    return
                 
-                if self.list_dps[i].percentile > 20 and filled_position == 0:
-                    current_interval_max = self.list_dps[i-1].price
+                if self.list_dps[i].percentile < 80 and filled_position == 0:
+                    self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
                 elif self.list_dps[i].percentile >= 80 and filled_position == 1:
-                    up_interval_min = self.list_dps[i].price
+                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    break
+                elif self.list_dps[i].percentile <= 20 and filled_position == 1:
+                    self.up_interval_min = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].percentile < 80 and filled_position == 2:
-                    up_interval_max = self.list_dps[i-1].price
+                elif self.list_dps[i].percentile > 20 and filled_position == 2:
+                    self.up_interval_max = self.list_dps[i-1].price
                     filled_position = 3
                     break
 
@@ -138,26 +135,28 @@ class Density:
 
                 if filled_position != 1:
                     j = i
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -30:
-                    return
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -10:
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 40:
+                    self.down_interval_max = self.down_interval_min = self.list_dps[j].price
+                    break
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 20:
                     wrong_consecutives += 1
                     if wrong_consecutives == 3:
-                        return
+                        self.down_interval_max = self.down_interval_min = self.list_dps[j].price
+                        break
                 else:
                     j = i
-                
-                if self.list_dps[i].percentile <= 20 and filled_position == 1:
-                    return
             
-                if self.list_dps[i].percentile > 20 and filled_position == 0:
-                    current_interval_min = self.list_dps[i+1].price
+                if self.list_dps[i].percentile < 80 and filled_position == 0:
+                    self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
                 elif self.list_dps[i].percentile >= 80 and filled_position == 1:
-                    down_interval_max = self.list_dps[i].price
+                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    break
+                elif self.list_dps[i].percentile <= 20 and filled_position == 1:
+                    self.down_interval_max = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].percentile < 80 and filled_position == 2:
-                    down_interval_min = self.list_dps[i+1].price
+                elif self.list_dps[i].percentile > 20 and filled_position == 2:
+                    self.down_interval_min = self.list_dps[i+1].price
                     filled_position = 3
                     break
 
@@ -170,26 +169,28 @@ class Density:
 
                 if filled_position != 1:
                     j = i
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 30:
-                    return
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 10:
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -40:
+                    self.up_interval_min = self.up_interval_max = self.list_dps[j].price
+                    break
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -20:
                     wrong_consecutives += 1
                     if wrong_consecutives == 3:
-                        return
+                        self.up_interval_min = self.up_interval_max = self.list_dps[j].price
+                        break
                 else:
                     j = i
 
-                if self.list_dps[i].percentile >= 80 and filled_position == 1:
-                    return
-                
-                if self.list_dps[i].percentile < 80 and filled_position == 0:
-                    current_interval_max = self.list_dps[i-1].price
+                if self.list_dps[i].percentile > 20 and filled_position == 0:
+                    self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
                 elif self.list_dps[i].percentile <= 20 and filled_position == 1:
-                    up_interval_min = self.list_dps[i].price
+                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    break
+                elif self.list_dps[i].percentile >= 80 and filled_position == 1:
+                    self.up_interval_min = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].percentile > 20 and filled_position == 2:
-                    up_interval_max = self.list_dps[i-1].price
+                elif self.list_dps[i].percentile < 80 and filled_position == 2:
+                    self.up_interval_max = self.list_dps[i-1].price
                     filled_position = 3
                     break
 
@@ -200,64 +201,45 @@ class Density:
 
                 if filled_position != 1:
                     j = i
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 30:
-                    return
-                elif self.list_dps[i].percentile - self.list_dps[j].percentile > 10:
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -40:
+                    self.down_interval_max = self.down_interval_min = self.list_dps[j].price
+                    break
+                elif self.list_dps[i].percentile - self.list_dps[j].percentile < -20:
                     wrong_consecutives += 1
                     if wrong_consecutives == 3:
-                        return
+                        self.down_interval_max = self.down_interval_min = self.list_dps[j].price
+                        break
                 else:
                     j = i
 
-                if self.list_dps[i].percentile >= 80 and filled_position == 1:
-                    return
-            
-                if self.list_dps[i].percentile < 80 and filled_position == 0:
-                    current_interval_min = self.list_dps[i+1].price
+                if self.list_dps[i].percentile > 20 and filled_position == 0:
+                    self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
                 elif self.list_dps[i].percentile <= 20 and filled_position == 1:
-                    down_interval_max = self.list_dps[i].price
+                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    break
+                elif self.list_dps[i].percentile >= 80 and filled_position == 1:
+                    self.down_interval_max = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].percentile > 20 and filled_position == 2:
-                    down_interval_min = self.list_dps[i+1].price
+                elif self.list_dps[i].percentile < 80 and filled_position == 2:
+                    self.down_interval_min = self.list_dps[i+1].price
                     filled_position = 3
                     break
 
-        if up_interval_max == 0:
+        if self.up_interval_max == 0:
             self.up_interval_max = self.list_dps[-1].price
-        else:
-            self.up_interval_max = up_interval_max
-
-        if up_interval_min == 0:
+        if self.up_interval_min == 0:
             self.up_interval_min = self.list_dps[-1].price
-        else:
-            self.up_interval_min = up_interval_min
-
-        if current_interval_max == 0:
+        if self.current_interval_max == 0:
             self.current_interval_max = self.list_dps[-1].price
-        else:
-            self.current_interval_max = current_interval_max
-
-        if current_interval_min == 0:
+        if self.current_interval_min == 0:
             self.current_interval_min = self.list_dps[0].price
-        else:
-            self.current_interval_min = current_interval_min
-
-        if down_interval_max == 0:
+        if self.down_interval_max == 0:
             self.down_interval_max = self.list_dps[0].price
-        else:
-            self.down_interval_max = down_interval_max
-
-        if down_interval_min == 0:
+        if self.down_interval_min == 0:
             self.down_interval_min = self.list_dps[0].price
-        else:
-            self.down_interval_min = down_interval_min
 
         self.in_position = True
-        
-
-    def all_max_value(self):
-        return len(self.data)
 
     
     def max_value(self):
