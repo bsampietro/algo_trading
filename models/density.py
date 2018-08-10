@@ -59,14 +59,63 @@ class Density:
                 self.list_dps.pop(dp_index)
         self._previous_price_data = data
 
-        # Set value and percentile
+        # Set index, percentile and dpercentage
         self.list_dps.sort(key=lambda dp: dp.duration)
-        percentile_coefficient = 100.0 / (self.max_value() - 1)
+        total_duration = sum(map(lambda dp: dp.duration, self.list_dps))
+        percentile_coefficient = 100.0 / (len(self.list_dps) - 1)
         for index, dp in enumerate(self.list_dps):
-            dp.value = index
-            dp.percentile = round(dp.value * percentile_coefficient)
+            dp.index = index
+            dp.percentile = round(dp.index * percentile_coefficient)
+            dp.dpercentage = (dp.duration / total_duration) * 100
+
+        # set dpercentile 
+        dpercentile_coefficient = 100.0 / max(self.list_dps, key=lambda dp: dp.dpercentage).dpercentage
+        for dp in self.list_dps:
+            dp.dpercentile = round(dp.dpercentage * dpercentile_coefficient)
 
         self.list_dps.sort(key=lambda dp: dp.price)
+
+        # Set height
+        for i in range(len(self.list_dps)):
+            self.list_dps[i].height = gvars.HEIGHT['mid']
+        unreal_consecutives = 0
+        trend = 1
+        for i in range(len(self.list_dps)):
+            if i == 0:
+                j = i
+            else:
+                if self.list_dps[j].dpercentile < self.list_dps[i].dpercentile:
+                    if trend == -1:
+                        if (0 < self.list_dps[i].dpercentile - self.list_dps[j].dpercentile < 10) and unreal_consecutives < 3:
+                            # Unreal change
+                            unreal_consecutives += 1
+                        else:
+                            # Real change
+                            self.list_dps[i-1].height = gvars.HEIGHT['min']
+                            for k in range(j, i-1):
+                                self.list_dps[k].height = gvars.HEIGHT['min']
+                            unreal_consecutives = 0
+                            j = i
+                            trend = 1
+                    else:
+                        unreal_consecutives = 0
+                        j = i
+                elif self.list_dps[j].dpercentile > self.list_dps[i].dpercentile:
+                    if trend == 1:
+                        if (0 < self.list_dps[j].dpercentile - self.list_dps[i].dpercentile < 10) and unreal_consecutives < 3:
+                            # Unreal change
+                            unreal_consecutives += 1
+                        else:
+                            # Real change
+                            self.list_dps[i-1].height = gvars.HEIGHT['max']
+                            for k in range(j, i-1):
+                                self.list_dps[k].height = gvars.HEIGHT['max']
+                            unreal_consecutives = 0
+                            j = i
+                            trend = -1
+                    else:
+                        unreal_consecutives = 0
+                        j = i
 
 
     def update_intervals(self):
@@ -241,9 +290,45 @@ class Density:
 
         self.in_position = True
 
-    
-    def max_value(self):
-        return len(self.list_dps)
+
+    # def update_indexes_for_extremes(self):
+    #     # Up Part
+    #     for i in range(current_dp_index + 1, len(self.list_dps)): # up part
+    #         if self.list_dps[i].height == gvars.HEIGHT['mid']:
+    #             continue
+    #         if len(self.up_dps) > 0:
+    #             if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
+    #                     self.up_dps[-1].height == gvars.HEIGHT['max']) or
+    #                         (self.list_dps[i].height == gvars.HEIGHT['min'] and 
+    #                             self.up_dps[-1].height == gvars.HEIGHT['min'])):
+    #                 self.up_dps[-1] = self.list_dps[i]
+    #                 continue
+    #         self.up_dps.append(self.list_dps[i])
+
+    #     if len(self.up_dps) > 0:
+    #         if self.up_dps[0].height == gvars.HEIGHT['max']:
+    #             self.density_direction = 'out'
+    #         else:
+    #             self.density_direction = 'in'
+
+    #     # Down Part
+    #     for i in reversed(range(current_dp_index)): # down part
+    #         if self.list_dps[i].height == gvars.HEIGHT['mid']:
+    #             continue
+    #         if len(self.down_dps) > 0:
+    #             if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
+    #                     self.down_dps[-1].height == gvars.HEIGHT['max']) or
+    #                         (self.list_dps[i].height == gvars.HEIGHT['min'] and 
+    #                             self.down_dps[-1].height == gvars.HEIGHT['min'])):
+    #                 self.down_dps[-1] = self.list_dps[i]
+    #                 continue
+    #         self.down_dps.append(self.list_dps[i])
+
+    #     if len(self.down_dps) > 0:
+    #         if self.down_dps[0].height == gvars.HEIGHT['max']:
+    #             self.density_direction = 'out'
+    #         else:
+    #             self.density_direction = 'in'
 
 
     def state_str(self):
@@ -269,14 +354,22 @@ class DensityPoint:
     def __init__(self, price):
         self.price = price
         self.duration = 0
-        self.value = 0
+        self.index = 0
         self.percentile = 0
+        self.dpercentage = 0
+        self.dpercentile = 0
+        self.height = gvars.HEIGHT['mid']
 
     def state_str(self):
         output = (
-            f"'price': {self.price}, "
-            f"'duration': {self.duration}, "
-            f"'value': {self.value}, "
-            f"'percentile': {self.percentile}"
+            "'price': {:.2f}, "
+            "'duration': {:.2f}, "
+            "'index': {}, "
+            "'percentile': {}, "
+            "'dpercentage': {:.2f}, "
+            "'dpercentile': {}, "
+            "'height': {}"
         )
+        output = output.format(self.price, self.duration, self.index, 
+            self.percentile, self.dpercentage, self.dpercentile, self.height)
         return output
