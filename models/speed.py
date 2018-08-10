@@ -48,16 +48,10 @@ class Speed:
             self.time_speeding_points = []
             return
 
-        # Process latest price data
-        max_ticks = 0
-        for cdp in reversed(price_data):
-            ticks = self.mtr.ticks((price_data[-1].price - cdp.price))
-            if abs(ticks) > abs(max_ticks):
-                max_ticks = ticks
-
         # Create Speed point
         speed_point = SpeedPoint(
-            ticks = max_ticks,
+            ticks = self.mtr.ticks(price_data[-1].price - price_data[0].price),
+            max_ticks = self.mtr.ticks(max(price_data, key=lambda cdp: cdp.price).price - min(price_data, key=lambda cdp: cdp.price).price),
             price = price_data[-1].price,
             time = price_data[-1].time,
             changes = len(price_data) - 1, # -1 because it includes the change already counted before
@@ -137,9 +131,9 @@ class Speed:
     def state_str(self):
         output = ""
         if len(self.time_speeding_points) > 0:
-            output += "time_speed:\n"
-            for sp in self.time_speed:
-                output += f"{sp.state_str()}\n"
+            # output += "time_speed:\n"
+            # for sp in self.time_speed:
+            #     output += f"{sp.state_str()}\n"
 
             output += "time_speeding_points:\n"
             for sp in self.time_speeding_points:
@@ -148,8 +142,9 @@ class Speed:
 
 
 class SpeedPoint:
-    def __init__(self, ticks, price, time, max_jump, changes):
+    def __init__(self, ticks, max_ticks, price, time, max_jump, changes):
         self.ticks = ticks
+        self.max_ticks = max_ticks
         self.price = price
         self.time = time
         self.max_jump = max_jump
@@ -160,11 +155,13 @@ class SpeedPoint:
     def state_str(self):
         output = (
             "'ticks': {:+d}, "
+            "'max_ticks': {}, "
             "'price': {:.2f}, "
             "'time': {:.4f}, "
             "'max_jump': {:+d}, "
             "'changes': {}, "
             "'danger_index': {:.2f}"
         )
-        output = output.format(self.ticks, self.price, self.time, self.max_jump, self.changes, self.danger_index)
+        output = output.format(self.ticks, self.max_ticks, self.price, self.time,
+            self.max_jump, self.changes, self.danger_index)
         return output

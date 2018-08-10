@@ -175,7 +175,7 @@ class Density:
                     self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
                 elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
-                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    self.up_interval_min = self.up_interval_max = self.current_interval_max
                     break
                 elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
                     self.up_interval_min = self.list_dps[i].price
@@ -207,7 +207,7 @@ class Density:
                     self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
                 elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
-                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    self.down_interval_max = self.down_interval_min = self.current_interval_min
                     break
                 elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
                     self.down_interval_max = self.list_dps[i].price
@@ -241,7 +241,7 @@ class Density:
                     self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
                 elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
-                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    self.up_interval_min = self.up_interval_max = self.current_interval_max
                     break
                 elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
                     self.up_interval_min = self.list_dps[i].price
@@ -273,7 +273,7 @@ class Density:
                     self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
                 elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
-                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    self.down_interval_max = self.down_interval_min = self.current_interval_min
                     break
                 elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
                     self.down_interval_max = self.list_dps[i].price
@@ -341,8 +341,8 @@ class Density:
 
     def state_str(self):
         output = ""
-        for dp in reversed(self.list_dps):
-            output += f"{dp.state_str()}\n"
+        # for dp in reversed(self.list_dps):
+        #     output += f"{dp.state_str()}\n"
         if self.current_dp is not None:
             output += (
                 f"in_position: {self.in_position}\n"

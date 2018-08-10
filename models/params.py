@@ -51,9 +51,6 @@ class Params:
         
         self.primary_density_back_time = 3600 # secs
         self.primary_look_back_time = 3600 # secs
-        
-        self.max_low_percentile = 20
-        self.min_high_percentile = 80
 
         self.speeding_time = 5 # secs
 

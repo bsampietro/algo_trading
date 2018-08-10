@@ -100,22 +100,23 @@ class IBHft(EClient, EWrapper):
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
-        super().tickPrice(reqId, tickType, price, attrib)
+        with self.lock:
+            super().tickPrice(reqId, tickType, price, attrib)
 
-        if price <= 0:
-            logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
-            return
+            if price <= 0:
+                logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
+                return
 
-        # tickType:
-        # bid price = 1
-        # ask price = 2
-        # last traded price = 4
+            # tickType:
+            # bid price = 1
+            # ask price = 2
+            # last traded price = 4
 
-        if self.live_mode:
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
-        else:
-            self.transmit_order(price=price)
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
+            if self.live_mode:
+                self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
+            else:
+                self.transmit_order(price=price)
+                self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
     def is_ready(self):

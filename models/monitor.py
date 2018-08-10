@@ -495,7 +495,7 @@ class Monitor:
             gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
             gvars.datalog[self.ticker].write(self.state_str())
         gvars.datalog[self.ticker].write(self.density.state_str())
-        # gvars.datalog[self.ticker].write(self.speed.state_str())
+        gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""
 
