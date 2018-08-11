@@ -8,7 +8,8 @@ class Density:
         self.list_dps = []
 
         self.current_dp = None
-        self.density_direction = ''
+        self.up_density_direction = None
+        self.down_density_direction = None
 
         self.up_interval_max = 0
         self.up_interval_min = 0
@@ -136,9 +137,9 @@ class Density:
         self.current_dp = self.list_dps[current_dp_index]
 
         if self.current_dp.dpercentile <= self.max_lower_area:
-            self.density_direction = 'in'
+            self.up_density_direction = self.down_density_direction = gvars.DENSITY_DIRECTION['in']
         elif self.current_dp.dpercentile >= self.min_higher_area:
-            self.density_direction = 'out'
+            self.up_density_direction = self.down_density_direction = gvars.DENSITY_DIRECTION['out']
         else:
             return
 
@@ -151,134 +152,78 @@ class Density:
         self.down_interval_max = 0
         self.down_interval_min = 0
 
-        if self.density_direction == 'out':
+        if self.up_density_direction == gvars.DENSITY_DIRECTION['out']:
 
-            wrong_consecutives = 0
             filled_position = 0
-            # Up Part
             for i in range(current_dp_index + 1, len(self.list_dps)): # up part
-
-                # if filled_position != 1:
-                #     j = i
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile > -2 * self.max_lower_area:
-                #     self.up_interval_min = self.up_interval_max = self.list_dps[j].price
-                #     break
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile > self.max_lower_area:
-                #     wrong_consecutives += 1
-                #     if wrong_consecutives == 3:
-                #         self.up_interval_min = self.up_interval_max = self.list_dps[j].price
-                #         break
-                # else:
-                #     j = i
                 
                 if self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 0:
                     self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
-                elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
-                    self.up_interval_min = self.up_interval_max = self.current_interval_max
+                if self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
+                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    self.up_density_direction = gvars.DENSITY_DIRECTION['out-in']
                     break
-                elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
+                if self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
                     self.up_interval_min = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 2:
+                if self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 2:
                     self.up_interval_max = self.list_dps[i-1].price
                     filled_position = 3
                     break
 
-            wrong_consecutives = 0
             filled_position = 0
-            # Down Part
             for i in reversed(range(current_dp_index)): # down part
-
-                # if filled_position != 1:
-                #     j = i
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile > -2 * self.max_lower_area:
-                #     self.down_interval_max = self.down_interval_min = self.list_dps[j].price
-                #     break
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile > self.max_lower_area:
-                #     wrong_consecutives += 1
-                #     if wrong_consecutives == 3:
-                #         self.down_interval_max = self.down_interval_min = self.list_dps[j].price
-                #         break
-                # else:
-                #     j = i
             
                 if self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 0:
                     self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
-                elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
-                    self.down_interval_max = self.down_interval_min = self.current_interval_min
+                if self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
+                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    self.down_density_direction = gvars.DENSITY_DIRECTION['out-in']
                     break
-                elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
+                if self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
                     self.down_interval_max = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 2:
+                if self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 2:
                     self.down_interval_min = self.list_dps[i+1].price
                     filled_position = 3
                     break
 
-        elif self.density_direction == 'in':
+        elif self.up_density_direction == gvars.DENSITY_DIRECTION['in']:
 
-            wrong_consecutives = 0
             filled_position = 0
-            # Up Part
             for i in range(current_dp_index + 1, len(self.list_dps)): # up part
-
-                # if filled_position != 1:
-                #     j = i
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile < -2 * self.max_lower_area:
-                #     self.up_interval_min = self.up_interval_max = self.list_dps[j].price
-                #     break
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile < -self.max_lower_area:
-                #     wrong_consecutives += 1
-                #     if wrong_consecutives == 3:
-                #         self.up_interval_min = self.up_interval_max = self.list_dps[j].price
-                #         break
-                # else:
-                #     j = i
 
                 if self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 0:
                     self.current_interval_max = self.list_dps[i-1].price
                     filled_position = 1
-                elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
-                    self.up_interval_min = self.up_interval_max = self.current_interval_max
+                if self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
+                    self.up_interval_min = self.up_interval_max = self.list_dps[i].price
+                    self.up_density_direction = gvars.DENSITY_DIRECTION['in-out']
                     break
-                elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
+                if self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
                     self.up_interval_min = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 2:
+                if self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 2:
                     self.up_interval_max = self.list_dps[i-1].price
                     filled_position = 3
                     break
 
-            wrong_consecutives = 0
             filled_position = 0
-            # Down Part
             for i in reversed(range(current_dp_index)): # down part
-
-                # if filled_position != 1:
-                #     j = i
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile < -2 * self.max_lower_area:
-                #     self.down_interval_max = self.down_interval_min = self.list_dps[j].price
-                #     break
-                # elif self.list_dps[i].dpercentile - self.list_dps[j].dpercentile < -self.max_lower_area:
-                #     wrong_consecutives += 1
-                #     if wrong_consecutives == 3:
-                #         self.down_interval_max = self.down_interval_min = self.list_dps[j].price
-                #         break
-                # else:
-                #     j = i
 
                 if self.list_dps[i].dpercentile > self.max_lower_area and filled_position == 0:
                     self.current_interval_min = self.list_dps[i+1].price
                     filled_position = 1
-                elif self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
-                    self.down_interval_max = self.down_interval_min = self.current_interval_min
+                if self.list_dps[i].dpercentile <= self.max_lower_area and filled_position == 1:
+                    self.down_interval_max = self.down_interval_min = self.list_dps[i].price
+                    self.down_density_direction = gvars.DENSITY_DIRECTION['in-out']
                     break
-                elif self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
+                if self.list_dps[i].dpercentile >= self.min_higher_area and filled_position == 1:
                     self.down_interval_max = self.list_dps[i].price
                     filled_position = 2
-                elif self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 2:
+                if self.list_dps[i].dpercentile < self.min_higher_area and filled_position == 2:
                     self.down_interval_min = self.list_dps[i+1].price
                     filled_position = 3
                     break
@@ -341,12 +286,14 @@ class Density:
 
     def state_str(self):
         output = ""
-        # for dp in reversed(self.list_dps):
-        #     output += f"{dp.state_str()}\n"
+        if self.in_position:
+            for dp in reversed(self.list_dps):
+                output += f"{dp.state_str()}\n"
         if self.current_dp is not None:
             output += (
                 f"in_position: {self.in_position}\n"
-                f"density_direction: {self.density_direction}\n"
+                f"up_density_direction: {self.up_density_direction}\n"
+                f"down_density_direction: {self.down_density_direction}\n"
                 f"min_higher_area: {self.min_higher_area}\n"
                 f"max_lower_area: {self.max_lower_area}\n"
                 f"{self.up_interval_max}\n"

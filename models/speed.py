@@ -71,7 +71,7 @@ class Speed:
         self._speed_min_time_passed = True
 
         # Remove old data
-        while price_data[-1].time - self.time_speed[0].time > self.mtr.prm.primary_look_back_time:
+        while len(self.time_speed) > 0 and price_data[-1].time - self.time_speed[0].time > self.mtr.prm.primary_look_back_time:
             self.time_speed.pop(0)
 
         # Current decision
@@ -130,11 +130,11 @@ class Speed:
 
     def state_str(self):
         output = ""
+        if len(self.time_speeding_points) == 1:
+            output += "time_speed:\n"
+            for sp in self.time_speed:
+                output += f"{sp.state_str()}\n"
         if len(self.time_speeding_points) > 0:
-            # output += "time_speed:\n"
-            # for sp in self.time_speed:
-            #     output += f"{sp.state_str()}\n"
-
             output += "time_speeding_points:\n"
             for sp in self.time_speeding_points:
                 output += f"{sp.state_str()}\n"
