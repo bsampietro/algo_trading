@@ -14,7 +14,6 @@ from lib import util
 # State objects can be used to return data and decide in this class whether to change state
 # or just return direct information and get this class to ask if should change or not
 from models.states.breaking import Breaking
-from models.states.range import Range
 from models.states.trending import Trending
 from models.cycle import Cycle
 from models.params import Params
@@ -34,6 +33,10 @@ class Monitor:
         self.position = Position(self, remote)
         self.density = Density(self)
         self.speed = Speed(self)
+
+        # State managers
+        self.breaking = Breaking(self)
+        self.trending = Trending(self)
         
         # Data
         self.data = []
@@ -70,13 +73,15 @@ class Monitor:
 
         self.speed.price_change()
 
-        self.prm.adjust()
+        self.breaking.price_change()
 
         self.position.price_change()
+        
+        self.trending.price_change()
 
-        # self.find_and_set_state()
+        # self.prm.adjust()
 
-        self.find_and_set_state2()
+        self.query_and_decision()
 
         self.log_data()
 
@@ -105,176 +110,115 @@ class Monitor:
                 self.data[-1].trend = -new_trend
                 self.data[-2].height = gvars.HEIGHT["max"]
 
-    
-    def find_and_set_state(self):
 
-        if self.state_is("random_walk"):
-            
-            self.find_and_set_range()
-        
-        elif self.state_is("in_range"):
+    # def find_and_set_state(self):
+    #     # # Speeding
+    #     # if self.state_is("random_walk") or self.state_is("in_range"):
+    #     #     is_speeding = self.speed.find_criteria_speeding()
+    #     #     if is_speeding == 'up':
+    #     #         self.position.buy(self.last_price())
+    #     #         self.ls = Trending('up', self, speeding = True)
+    #     #         self.set_state('trending_up')
+    #     #         return
+    #     #     elif is_speeding == 'down':
+    #     #         self.position.sell(self.last_price())
+    #     #         self.ls = Trending('down', self, speeding = True)
+    #     #         self.set_state('trending_down')
+    #     #         return
 
-            self.last_range.price_changed()
-            rng = self.last_range
-            
-            if rng.max_price < self.last_price() <= rng.max_price + self.prm.breaking_range_value:
-                self.ls = Breaking("up", self)
-                self.set_state("breaking_up")
+    #     # Density
+    #     if self.state_is('random_walk'):
 
-            elif rng.min_price - self.prm.breaking_range_value <= self.last_price() < rng.min_price:
-                self.ls = Breaking("down", self)
-                self.set_state("breaking_down")
+    #         if self.density.in_position:
+    #             if 0 < self.ticks(self.last_price() - self.density.current_interval_max) < self.prm.breaking_range_value:
+    #                 self.ls = Breaking('up', self)
+    #                 self.set_state('breaking_up')
+    #             elif 0 < self.ticks(self.density.current_interval_min - self.last_price()) < self.prm.breaking_range_value:
+    #                 self.ls = Breaking('down', self)
+    #                 self.set_state('breaking_down')
 
-            elif ((self.last_price() > rng.max_price + self.prm.breaking_range_value) or 
-                            (self.last_price() < rng.min_price - self.prm.breaking_range_value)):
-                self.set_state("random_walk")
+    #     elif self.state_is("breaking_up"):
 
+    #         if self.position.is_active_order():
+    #             if self.ticks(self.last_price() - self.density.current_interval_max) > self.prm.breaking_range_value:
+    #                 self.position.cancel_active()
+    #                 self.execute_pending("")
+    #                 self.set_state("random_walk")
+    #                 return
+    #         else:
+    #             if self.execute_pending():
+    #                 return
 
-        elif self.state_is("breaking_up"):
+    #         if (self.ticks(self.last_price() - self.density.current_interval_max) > self.prm.breaking_range_value or
+    #                         (self.last_price() < self.density.current_interval_min)):
+    #             self.set_state("random_walk")
+    #             return
 
-            rng = self.last_range
+    #         self.ls.price_changed()
 
-            if self.position.active_order():
-                if (self.last_price() > self.position.last_order_price + self.prm.breaking_range_value):
-                    self.position.cancel_active()
-                    self.execute_pending("")
-                    self.set_state("random_walk")
-                    return
-            else:
-                if self.execute_pending():
-                    return
-
-            if ((self.last_price() > rng.max_price + self.prm.breaking_range_value) or
-                            (self.last_price() < rng.min_price)):
-                self.set_state("random_walk")
-                return
-
-            if rng.min_price <= self.last_price() <= (rng.max_price - self.prm.tick_price):
-                self.set_state("in_range")
-                return
-
-            self.ls.price_changed()
-
-            if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
-                            self.last_price() > self.ls.mid_price and self.ls.duration_ok):
-                self.position.buy(round(self.last_price() - 2 * self.prm.tick_price, 2))
-                code = (
-                    "self.ls = Trending('up', self);"
-                    "self.set_state('trending_up')"
-                )
-                self.execute_pending(code)
+    #         if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
+    #                         self.last_price() > self.ls.mid_price and self.ls.duration_ok):
+    #             self.position.buy(round(self.last_price() - 2 * self.prm.tick_price, 2))
+    #             code = (
+    #                 "self.ls = Trending('up', self);"
+    #                 "self.set_state('trending_up')"
+    #             )
+    #             self.execute_pending(code)
 
 
-        elif self.state_is("breaking_down"):
+    #     elif self.state_is("breaking_down"):
 
-            rng = self.last_range
+    #         if self.position.is_active_order():
+    #             if self.ticks(self.density.current_interval_min - self.last_price()) > self.prm.breaking_range_value:
+    #                 self.position.cancel_active()
+    #                 self.execute_pending("")
+    #                 self.set_state("random_walk")
+    #                 return
+    #         else:
+    #             if self.execute_pending():
+    #                 return
 
-            if self.position.active_order():
-                if (self.last_price() < self.position.last_order_price - self.prm.breaking_range_value):
-                    self.position.cancel_active()
-                    self.execute_pending("")
-                    self.set_state("random_walk")
-                    return
-            else:
-                if self.execute_pending():
-                    return
+    #         if (self.ticks(self.density.current_interval_min - self.last_price()) > self.prm.breaking_range_value or
+    #                         (self.last_price() > self.density.current_interval_max)):
+    #             self.set_state("random_walk")
+    #             return
 
-            if ((self.last_price() < rng.min_price - self.prm.breaking_range_value) or
-                            (self.last_price() > rng.max_price)):
-                self.set_state("random_walk")
-                return
+    #         self.ls.price_changed()
 
-            elif (rng.min_price + self.prm.tick_price) <= self.last_price() <= rng.max_price:
-                self.set_state("in_range")
-                return
+    #         if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
+    #                         self.last_price() < self.ls.mid_price and self.ls.duration_ok):
+    #             self.position.sell(round(self.last_price() + 2 * self.prm.tick_price, 2))
+    #             code = (
+    #                 "self.ls = Trending('down', self);"
+    #                 "self.set_state('trending_down')"
+    #             )
+    #             self.execute_pending(code)
 
-            self.ls.price_changed()
+    #     elif self.state_is("trending_up"):
 
-            if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
-                            self.last_price() < self.ls.mid_price and self.ls.duration_ok):
-                self.position.sell(round(self.last_price() + 2 * self.prm.tick_price, 2))
-                code = (
-                    "self.ls = Trending('down', self);"
-                    "self.set_state('trending_down')"
-                )
-                self.execute_pending(code)
+    #         self.ls.price_changed()
 
+    #         if self.ls.trending_stop():
+    #             self.position.close()
+    #             self.cycles[-1].pnl = round(self.last_price() - self.ls.transaction_price, 2)
+    #             self.set_state("random_walk")
 
-        elif self.state_is("trending_up"):
+    #     elif self.state_is("trending_down"):
 
-            self.ls.price_changed()
+    #         self.ls.price_changed()
 
-            if self.ls.trending_stop():
-                self.position.close()
-                self.cycles[-1].pnl = round(self.last_price() - self.ls.transaction_price, 2)
-                self.set_state("random_walk")
-
-        elif self.state_is("trending_down"):
-
-            self.ls.price_changed()
-
-            if self.ls.trending_stop():
-                self.position.close()
-                self.cycles[-1].pnl = round(self.ls.transaction_price - self.last_price(), 2)
-                self.set_state("random_walk")
-        
-
-    def find_and_set_range(self):
-        min_price = self.last_price()
-        max_price = self.last_price()
-        max_range_value = self.prm.max_range_value
-        outside_duration = 0
-        start_time = 0
-        for cdp in reversed(self.data):
-            if cdp.price > max_price:
-
-                if cdp.price - min_price <= max_range_value:
-                    max_price = cdp.price
-                    outside_duration = 0
-                else:
-                    outside_duration += cdp.duration
-                    if outside_duration > self.prm.min_range_time / 20.0:
-                        break
-
-            elif cdp.price < min_price:
-
-                if max_price - cdp.price <= max_range_value:
-                    min_price = cdp.price
-                    outside_duration = 0
-                else:
-                    outside_duration += cdp.duration
-                    if outside_duration > self.prm.min_range_time / 20.0:
-                        break
-
-            else: # Inside max and min
-                outside_duration = 0
-            
-            if self.last_time() - cdp.time > self.prm.min_range_time:
-                start_time = cdp.time
-                # max_range_value = max_price - min_price # in the case we want to consider thiner ranges
-
-        if start_time > 0:
-            self.ls = Range(self, min_price, max_price, start_time)
-            self.set_state("in_range")
+    #         if self.ls.trending_stop():
+    #             self.position.close()
+    #             self.cycles[-1].pnl = round(self.ls.transaction_price - self.last_price(), 2)
+    #             self.set_state("random_walk")
 
 
-    def find_and_set_state2(self):
-        # Speeding
-        if self.state_is("random_walk") or self.state_is("in_range"):
-            is_speeding = self.speed.find_criteria_speeding()
-            if is_speeding == 'up':
-                self.position.buy(self.last_price())
-                self.ls = Trending('up', self, speeding = True)
-                self.set_state('trending_up')
-                return
-            elif is_speeding == 'down':
-                self.position.sell(self.last_price())
-                self.ls = Trending('down', self, speeding = True)
-                self.set_state('trending_down')
-                return
-
-        # Density
-        # ...
+    def query_and_decision(self):
+        # Query (if not active position):
+        # 4 in line
+        # speed
+        # breaking
+        pass
 
 
     def set_state(self, state):

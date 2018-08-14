@@ -31,28 +31,28 @@ class Params:
     def set_initial_parameters(self):
         if self.cd.ticker[0:2] == "GC":
             self.tick_price = 0.10
-            self.min_trending_break_value = 2 * self.tick_price
         elif self.cd.ticker[0:2] == "CL":
             self.tick_price = 0.01
-            self.min_trending_break_value = 3 * self.tick_price
         elif self.cd.ticker[0:2] == "NG":
             self.tick_price = 0.001
-            self.min_trending_break_value = 3 * self.tick_price
         elif self.cd.ticker[0:2] == "ES":
             self.tick_price = 0.25
-            self.min_trending_break_value = 2 * self.tick_price
         elif self.cd.ticker[0:3] == "EUR":
             self.tick_price = 0.00005
-            self.min_trending_break_value = 2 * self.tick_price
-        
-        self.min_breaking_price_changes = 4 # times
 
         self.trending_break_time = 60 # secs
+        self.min_trending_break_value = 5 # ticks
+
+        self.breaking_range_value = 2 # ticks
+        self.min_breaking_price_changes = 4 # times
+        self.breaking_up_down_ratio = 1.0
         
-        self.primary_density_back_time = 3600 # secs
         self.primary_look_back_time = 3600 # secs
 
         self.speeding_time = 5 # secs
+
+
+    
 
     # def set_initial_parameters(self):
     #     if self.cd.ticker[0:2] == "GC":

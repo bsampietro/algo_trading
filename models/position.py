@@ -17,7 +17,6 @@ class Position:
         self.position = 0
         # set manually and by IB
         self.active_order_id = None
-        
 
 
     def price_change(self):
@@ -26,7 +25,7 @@ class Position:
         
 
     def buy(self, price):
-        if self.active_order('local'):
+        if self.is_active_order('local'):
             return # Means internally already called buy or sell
         self.last_order_price = price
         self.last_order_time = self.cd.last_time()
@@ -39,7 +38,7 @@ class Position:
 
 
     def sell(self, price):
-        if self.active_order('local'):
+        if self.is_active_order('local'):
             return # Means internally already called buy or sell
         self.last_order_price = price
         self.last_order_time = self.cd.last_time()
@@ -52,9 +51,6 @@ class Position:
 
 
     def close(self):
-        if self.active_order():
-            return
-
         if self.position == 0:
             return
 
@@ -71,19 +67,18 @@ class Position:
 
 
     def cancel_active(self):
-        if not self.active_order():
+        if not self.is_active_order():
             return
         self.remote.cancel_order(self.active_order_id)
         self.active_order_id = None
 
 
-    def active_order(self, where=""):
+    def is_active_order(self, where=""):
         if where == "":
             return self.active_order_id is not None
         else:
             # where == "local"
             return self.active_order_id == -1
-
 
 
     def order_change(self, order_id, status, remaining):

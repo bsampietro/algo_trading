@@ -36,7 +36,7 @@ class Density:
 
 
     def update_dps(self):
-        data = self.mtr.data_since(self.mtr.prm.primary_density_back_time)
+        data = self.mtr.data_since(self.mtr.prm.primary_look_back_time)
         if len(data) < 2:
             return
 
@@ -48,7 +48,7 @@ class Density:
                 self.list_dps.append(dp)
             dp.duration += cdp.duration
 
-        if (data[-1].time - data[0].time < self.mtr.prm.primary_density_back_time - 300 and 
+        if (data[-1].time - data[0].time < self.mtr.prm.primary_look_back_time - 300 and 
                 len(self._previous_price_data) == 0):
             return
 
