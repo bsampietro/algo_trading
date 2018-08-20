@@ -90,44 +90,6 @@ class Speed:
             self.time_speeding_points = []
 
 
-
-
-    # def update_trend_speed(self):
-    #     self.trend_speeding_ticks = 0
-    #     price_data = self.mtr.data_since(5)
-    #     if len(price_data) < 2:
-    #         return
-    #     ticks = 0
-    #     complete_iteration = True
-    #     for i in reversed(range(len(price_data) - 1)):
-    #         if (price_data[-1].trend > 0 and price_data[i].trend < 0 or 
-    #                 price_data[-1].trend < 0 and price_data[i].trend > 0):
-    #             ticks = price_data[-1].trend - price_data[i+1].trend
-    #             complete_iteration = False
-    #             break
-    #     if complete_iteration:
-    #         ticks = price_data[-1].trend - price_data[0].trend
-
-    #     if ticks <= -5 or ticks >= 5:
-    #         self.trend_speed.append(SpeedPoint(ticks, price_data[-1].time))
-        
-    #     if len(self.trend_speed) == 0:
-    #         return
-
-    #     if (price_data[-1].time - self.time_speed[0].time < self.mtr.prm.primary_look_back_time - 300 and
-    #             not self._speed_min_time_passed):
-    #         return
-    #     self._speed_min_time_passed = True
-            
-    #     while price_data[-1].time - self.trend_speed[0].time > self.mtr.prm.primary_look_back_time:
-    #         self.trend_speed.pop(0)
-
-    #     if 5 <= ticks >= max(self.trend_speed, key=lambda sp: sp.ticks).ticks * 0.75:
-    #         self.trend_speeding_ticks = ticks
-    #     elif -5 >= ticks <= min(self.trend_speed, key=lambda sp: sp.ticks).ticks * 0.75:
-    #         self.trend_speeding_ticks = ticks
-
-
     def state_str(self):
         output = ""
         if len(self.time_speeding_points) == 1:

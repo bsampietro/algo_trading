@@ -4,9 +4,9 @@ import logging
 import json
 import os
 
-import pygal
-import bokeh.plotting
-import bokeh.models
+# import pygal
+# import bokeh.plotting
+# import bokeh.models
 
 import gvars
 from lib import util
@@ -119,28 +119,36 @@ class Monitor:
         elif self.position.is_active_order():
             pass
         else:
-            trigger_values = []
+            trigger_values = {}
+
             # Breaking
             if self.breaking.price_changes > self.prm.min_breaking_price_changes and self.breaking.duration_ok:
                 if self.breaking.direction == 1:
-                    trigger_values.append(1)
+                    trigger_values['breaking'] = 5
                 elif self.breaking.direction == -1:
-                    trigger_values.append(-1)
+                    trigger_values['breaking'] = -5
 
             # 4 in line
             if self.data[-1].trend > 3:
-                trigger_values.append(1)
+                trigger_values['in_line'] = 5
             elif self.data[-1].trend < -3:
-                trigger_values.append(-1)
+                trigger_values['in_line'] = -5
 
             # Density
-            trigger_values.append(self.density.up_down_diff())
+            # trigger_values.append(self.density.up_down_diff())
+
+            # Printing
+            if len(trigger_values) > 0:
+                gvars.datalog_buffer[self.ticker] += "Trigger values:\n"
+                gvars.datalog_buffer[self.ticker] += str(trigger_values)
+                gvars.datalog_buffer[self.ticker] += "\n"
 
             # Action
-            if all(map(lambda nr: nr > 0, trigger_values)) and sum(trigger_values) >= 1:
+            trigger_values_list = trigger_values.values()
+            if all(map(lambda nr: nr > 0, trigger_values_list)) and sum(trigger_values_list) >= 6:
                 # self.position.buy(self.price_plus_ticks(-1))
                 pass
-            elif all(map(lambda nr: nr < 0, trigger_values)) and sum(trigger_values) <= 1:
+            elif all(map(lambda nr: nr < 0, trigger_values_list)) and sum(trigger_values_list) <= -6:
                 # self.position.sell(self.price_plus_ticks(+1))
                 pass
 
@@ -235,8 +243,8 @@ class Monitor:
 
     
     def close(self):
-        self.output_chart('timed')
-        self.output_chart('all')
+        #self.output_chart('timed')
+        #self.output_chart('all')
         self.save_data()
         self.log_cycles()
 
@@ -345,6 +353,8 @@ class Monitor:
             gvars.datalog[self.ticker].write(self.state_str())
         gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
+        gvars.datalog[self.ticker].write(self.breaking.state_str())
+        gvars.datalog[self.ticker].write(self.trending.state_str())
         gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
         gvars.datalog_buffer[self.ticker] = ""
 

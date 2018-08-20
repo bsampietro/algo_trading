@@ -44,14 +44,15 @@ class Trending:
         return False
 
 
-
     def state_str(self):
-        output = (
-            f"TRENDING {self.direction}:\n"
-            f"transaction_price: {self.transaction_price}\n"
-            f"transaction_time: {self.transaction_time}\n"
-            f"trending_price: {self.trending_price}\n"
-        )
+        output = ""
+        if self.direction != 0:
+            output += (
+                f"TRENDING {self.direction}:\n"
+                f"transaction_price: {self.transaction_price}\n"
+                f"transaction_time: {self.transaction_time}\n"
+                f"trending_price: {self.trending_price}\n"
+            )
         return output
 
     # Private
