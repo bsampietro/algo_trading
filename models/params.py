@@ -31,14 +31,19 @@ class Params:
     def set_initial_parameters(self):
         if self.cd.ticker[0:2] == "GC":
             self.tick_price = 0.10
+            self.price_precision = 2
         elif self.cd.ticker[0:2] == "CL":
             self.tick_price = 0.01
+            self.price_precision = 2
         elif self.cd.ticker[0:2] == "NG":
             self.tick_price = 0.001
+            self.price_precision = 3
         elif self.cd.ticker[0:2] == "ES":
             self.tick_price = 0.25
+            self.price_precision = 2
         elif self.cd.ticker[0:3] == "EUR":
             self.tick_price = 0.00005
+            self.price_precision = 5
 
         self.trending_break_time = 60 # secs
         self.min_trending_break_value = 5 # ticks
@@ -50,42 +55,3 @@ class Params:
         self.primary_look_back_time = 3600 # secs
 
         self.speeding_time = 5 # secs
-
-
-    
-
-    # def set_initial_parameters(self):
-    #     if self.cd.ticker[0:2] == "GC":
-    #         self.tick_price = 0.10
-    #         self.max_range_value = 5 * self.tick_price
-    #         self.breaking_range_value = 3 * self.tick_price
-    #         self.min_trending_break_value = 2 * self.tick_price
-    #     elif self.cd.ticker[0:2] == "CL":
-    #         self.tick_price = 0.01
-    #         self.max_range_value = 6 * self.tick_price
-    #         self.breaking_range_value = 4 * self.tick_price
-    #         self.min_trending_break_value = 3 * self.tick_price
-    #     elif self.cd.ticker[0:2] == "NG":
-    #         self.tick_price = 0.001
-    #         self.max_range_value = 8 * self.tick_price
-    #         self.breaking_range_value = 4 * self.tick_price
-    #         self.min_trending_break_value = 3 * self.tick_price
-    #     elif self.cd.ticker[0:2] == "ES":
-    #         self.tick_price = 0.25
-    #         self.max_range_value = 5 * self.tick_price
-    #         self.breaking_range_value = 3 * self.tick_price
-    #         self.min_trending_break_value = 2 * self.tick_price
-    #     elif self.cd.ticker[0:3] == "EUR":
-    #         self.tick_price = 0.00005
-    #         self.max_range_value = 4 * self.tick_price
-    #         self.breaking_range_value = 2 * self.tick_price
-    #         self.min_trending_break_value = 2 * self.tick_price
-
-    #     self.min_range_time = 450 # seconds
-        
-    #     self.min_breaking_price_changes = 4 # times
-    #     self.up_down_ratio = 1.0
-
-    #     self.trending_break_time = 60 # secs
-        
-    #     self.speeding_time_considered = 60 # secs

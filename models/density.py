@@ -232,56 +232,27 @@ class Density:
             self.up_interval_max = self.list_dps[-1].price
         if self.up_interval_min == 0:
             self.up_interval_min = self.list_dps[-1].price
+            self.up_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.current_interval_max == 0:
             self.current_interval_max = self.list_dps[-1].price
         if self.current_interval_min == 0:
             self.current_interval_min = self.list_dps[0].price
         if self.down_interval_max == 0:
             self.down_interval_max = self.list_dps[0].price
+            self.down_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.down_interval_min == 0:
             self.down_interval_min = self.list_dps[0].price
 
         self.in_position = True
 
 
-    # def update_indexes_for_extremes(self):
-    #     # Up Part
-    #     for i in range(current_dp_index + 1, len(self.list_dps)): # up part
-    #         if self.list_dps[i].height == gvars.HEIGHT['mid']:
-    #             continue
-    #         if len(self.up_dps) > 0:
-    #             if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
-    #                     self.up_dps[-1].height == gvars.HEIGHT['max']) or
-    #                         (self.list_dps[i].height == gvars.HEIGHT['min'] and 
-    #                             self.up_dps[-1].height == gvars.HEIGHT['min'])):
-    #                 self.up_dps[-1] = self.list_dps[i]
-    #                 continue
-    #         self.up_dps.append(self.list_dps[i])
+    def max_gain(self):
+        return max((self.up_interval_min - self.mtr.last_price()), 
+            (self.mtr.last_price() - self.down_interval_max))
 
-    #     if len(self.up_dps) > 0:
-    #         if self.up_dps[0].height == gvars.HEIGHT['max']:
-    #             self.density_direction = 'out'
-    #         else:
-    #             self.density_direction = 'in'
 
-    #     # Down Part
-    #     for i in reversed(range(current_dp_index)): # down part
-    #         if self.list_dps[i].height == gvars.HEIGHT['mid']:
-    #             continue
-    #         if len(self.down_dps) > 0:
-    #             if ((self.list_dps[i].height == gvars.HEIGHT['max'] and 
-    #                     self.down_dps[-1].height == gvars.HEIGHT['max']) or
-    #                         (self.list_dps[i].height == gvars.HEIGHT['min'] and 
-    #                             self.down_dps[-1].height == gvars.HEIGHT['min'])):
-    #                 self.down_dps[-1] = self.list_dps[i]
-    #                 continue
-    #         self.down_dps.append(self.list_dps[i])
-
-    #     if len(self.down_dps) > 0:
-    #         if self.down_dps[0].height == gvars.HEIGHT['max']:
-    #             self.density_direction = 'out'
-    #         else:
-    #             self.density_direction = 'in'
+    def up_down_diff(self):
+        return (self.up_interval_min - self.mtr.last_price()) - (self.mtr.last_price() - self.down_interval_max)
 
 
     def state_str(self):

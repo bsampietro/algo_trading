@@ -81,6 +81,10 @@ class Position:
             return self.active_order_id == -1
 
 
+    def is_running(self):
+        return self.position != 0
+
+
     def order_change(self, order_id, status, remaining):
         if status == "Filled":
             self.active_order_id = None

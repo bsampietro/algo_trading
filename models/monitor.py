@@ -45,11 +45,6 @@ class Monitor:
         self.cycles = []
         self.pending_exec = None
         self.initial_time = 0
-        
-        # self.timed_prices = []
-        # self.timer_active = True
-        # self.timer = Thread(target = self.timed_work)
-        # self.timer.start()
 
 
     def price_change(self, tickType, price, price_time):
@@ -111,124 +106,43 @@ class Monitor:
                 self.data[-2].height = gvars.HEIGHT["max"]
 
 
-    # def find_and_set_state(self):
-    #     # # Speeding
-    #     # if self.state_is("random_walk") or self.state_is("in_range"):
-    #     #     is_speeding = self.speed.find_criteria_speeding()
-    #     #     if is_speeding == 'up':
-    #     #         self.position.buy(self.last_price())
-    #     #         self.ls = Trending('up', self, speeding = True)
-    #     #         self.set_state('trending_up')
-    #     #         return
-    #     #     elif is_speeding == 'down':
-    #     #         self.position.sell(self.last_price())
-    #     #         self.ls = Trending('down', self, speeding = True)
-    #     #         self.set_state('trending_down')
-    #     #         return
-
-    #     # Density
-    #     if self.state_is('random_walk'):
-
-    #         if self.density.in_position:
-    #             if 0 < self.ticks(self.last_price() - self.density.current_interval_max) < self.prm.breaking_range_value:
-    #                 self.ls = Breaking('up', self)
-    #                 self.set_state('breaking_up')
-    #             elif 0 < self.ticks(self.density.current_interval_min - self.last_price()) < self.prm.breaking_range_value:
-    #                 self.ls = Breaking('down', self)
-    #                 self.set_state('breaking_down')
-
-    #     elif self.state_is("breaking_up"):
-
-    #         if self.position.is_active_order():
-    #             if self.ticks(self.last_price() - self.density.current_interval_max) > self.prm.breaking_range_value:
-    #                 self.position.cancel_active()
-    #                 self.execute_pending("")
-    #                 self.set_state("random_walk")
-    #                 return
-    #         else:
-    #             if self.execute_pending():
-    #                 return
-
-    #         if (self.ticks(self.last_price() - self.density.current_interval_max) > self.prm.breaking_range_value or
-    #                         (self.last_price() < self.density.current_interval_min)):
-    #             self.set_state("random_walk")
-    #             return
-
-    #         self.ls.price_changed()
-
-    #         if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
-    #                         self.last_price() > self.ls.mid_price and self.ls.duration_ok):
-    #             self.position.buy(round(self.last_price() - 2 * self.prm.tick_price, 2))
-    #             code = (
-    #                 "self.ls = Trending('up', self);"
-    #                 "self.set_state('trending_up')"
-    #             )
-    #             self.execute_pending(code)
-
-
-    #     elif self.state_is("breaking_down"):
-
-    #         if self.position.is_active_order():
-    #             if self.ticks(self.density.current_interval_min - self.last_price()) > self.prm.breaking_range_value:
-    #                 self.position.cancel_active()
-    #                 self.execute_pending("")
-    #                 self.set_state("random_walk")
-    #                 return
-    #         else:
-    #             if self.execute_pending():
-    #                 return
-
-    #         if (self.ticks(self.density.current_interval_min - self.last_price()) > self.prm.breaking_range_value or
-    #                         (self.last_price() > self.density.current_interval_max)):
-    #             self.set_state("random_walk")
-    #             return
-
-    #         self.ls.price_changed()
-
-    #         if (self.ls.breaking_price_changes >= self.prm.min_breaking_price_changes and
-    #                         self.last_price() < self.ls.mid_price and self.ls.duration_ok):
-    #             self.position.sell(round(self.last_price() + 2 * self.prm.tick_price, 2))
-    #             code = (
-    #                 "self.ls = Trending('down', self);"
-    #                 "self.set_state('trending_down')"
-    #             )
-    #             self.execute_pending(code)
-
-    #     elif self.state_is("trending_up"):
-
-    #         self.ls.price_changed()
-
-    #         if self.ls.trending_stop():
-    #             self.position.close()
-    #             self.cycles[-1].pnl = round(self.last_price() - self.ls.transaction_price, 2)
-    #             self.set_state("random_walk")
-
-    #     elif self.state_is("trending_down"):
-
-    #         self.ls.price_changed()
-
-    #         if self.ls.trending_stop():
-    #             self.position.close()
-    #             self.cycles[-1].pnl = round(self.ls.transaction_price - self.last_price(), 2)
-    #             self.set_state("random_walk")
-
-
     def query_and_decision(self):
         # Query (if not active position):
-        # 4 in line
-        # speed
-        # breaking
-        pass
+        # -4 in line
+        # -speed
+        # -breaking
+        # -Density percentile movement (to start or stop a trade)
+        if self.position.is_running():
+            if self.trending.stopped():
+                # Close position
+                pass
+        elif self.position.is_active_order():
+            pass
+        else:
+            trigger_values = []
+            # Breaking
+            if self.breaking.price_changes > self.prm.min_breaking_price_changes and self.breaking.duration_ok:
+                if self.breaking.direction == 1:
+                    trigger_values.append(1)
+                elif self.breaking.direction == -1:
+                    trigger_values.append(-1)
 
+            # 4 in line
+            if self.data[-1].trend > 3:
+                trigger_values.append(1)
+            elif self.data[-1].trend < -3:
+                trigger_values.append(-1)
 
-    def set_state(self, state):
-        if self.state != STATE[state]:
-            gvars.datalog_buffer[self.ticker] += (f"State changed from {self.state} to {STATE[state]}\n")
-            self.state = STATE[state]
+            # Density
+            trigger_values.append(self.density.up_down_diff())
 
-    
-    def state_is(self, state):
-        return self.state == STATE[state]
+            # Action
+            if all(map(lambda nr: nr > 0, trigger_values)) and sum(trigger_values) >= 1:
+                # self.position.buy(self.price_plus_ticks(-1))
+                pass
+            elif all(map(lambda nr: nr < 0, trigger_values)) and sum(trigger_values) <= 1:
+                # self.position.sell(self.price_plus_ticks(+1))
+                pass
 
 
     def last_cdp(self):
@@ -262,18 +176,6 @@ class Monitor:
         self.cycles[-1].add_state(value)
     # --------------------------
 
-
-    def execute_pending(self, code=None):
-        if code is None:
-            if self.pending_exec is not None:
-                exec(self.pending_exec)
-                self.pending_exec = None
-                return True
-        elif code == "":
-            self.pending_exec = None
-        else:
-            self.pending_exec = code
-        return False
 
     # the_time could be a specific time or an amount of time since now
     def data_since(self, time_or_duration):
@@ -327,9 +229,12 @@ class Monitor:
     def ticks(self, price_difference):
         return round(price_difference / self.prm.tick_price)
 
+
+    def price_plus_ticks(self, ticks):
+        return round(self.last_price() + ticks * self.prm.tick_price, self.prm.price_precision)
+
     
     def close(self):
-        self.timer_active = False
         self.output_chart('timed')
         self.output_chart('all')
         self.save_data()
@@ -456,17 +361,6 @@ class Monitor:
 
     def order_change(self, order_id, status, remaining):
         self.position.order_change(order_id, status, remaining)
-
-
-    # def timed_work(self):
-    #     sec = 0
-    #     while self.timer_active:
-    #         if len(self.data) > 0 and sec % 60 == 0:
-    #             if len(self.timed_prices) > 120:
-    #                 self.timed_prices.pop(0)
-    #             self.timed_prices.append(self.last_price())
-    #         sec += 1
-    #         time.sleep(1)
 
 
 class ChartDataPoint:

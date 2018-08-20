@@ -29,7 +29,7 @@ class Trending:
                     self.trending_price = self.m.last_price()
 
     
-    def trending_stop(self):
+    def stopped(self):
         time_since_transaction = self.m.last_time() - self.transaction_time
         if time_since_transaction > self.m.prm.trending_break_time:
             min_max = self.m.min_max_since(self.m.prm.trending_break_time)
