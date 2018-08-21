@@ -78,20 +78,20 @@ class Breaking:
             else:
                 self.initialize_state()
 
-        gvars.datalog_buffer[self.m.ticker] += (f"current_interval_mid_price: {current_interval_mid_price}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"mid_price: {mid_price}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"time_up_down: {time_up_down}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    current_interval_mid_price: {current_interval_mid_price}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    mid_price: {mid_price}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    time_up_down: {time_up_down}\n")
 
 
     def state_str(self):
         output = ""
         if self.direction != 0:
             output += (
-                f"BREAKING {self.direction}:\n"
-                f"min_price: {self.min_price}\n"
-                f"max_price: {self.max_price}\n"
-                f"start_time: {self.start_time}\n"
-                f"price_changes: {self.price_changes}\n"
-                f"duration_ok: {self.duration_ok}\n"
+                f"  BREAKING {self.direction}:\n"
+                f"    min_price: {self.min_price}\n"
+                f"    max_price: {self.max_price}\n"
+                f"    start_time: {self.start_time}\n"
+                f"    price_changes: {self.price_changes}\n"
+                f"    duration_ok: {self.duration_ok}\n"
             )
         return output

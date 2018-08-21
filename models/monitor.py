@@ -139,9 +139,7 @@ class Monitor:
 
             # Printing
             if len(trigger_values) > 0:
-                gvars.datalog_buffer[self.ticker] += "Trigger values:\n"
-                gvars.datalog_buffer[self.ticker] += str(trigger_values)
-                gvars.datalog_buffer[self.ticker] += "\n"
+                gvars.datalog_buffer[self.ticker] += f"    Trigger values: {str(trigger_values)}\n"
 
             # Action
             trigger_values_list = trigger_values.values()
@@ -249,23 +247,6 @@ class Monitor:
         self.log_cycles()
 
 
-    def state_str(self):
-        if len(self.data) < 2:
-            return ""
-        output = (
-            f"Prev =>  P: {self.data[-2].price} - D: {self.data[-2].duration} | Current: P {self.data[-1].price}\n"
-            f"state: {self.state}\n"
-            f"pending_exec: {self.pending_exec}\n"
-            f"{self.position.state_str()}\n"
-        )
-        if self.ls == self.last_range:
-            output += self.ls.state_str()
-        else:
-            output += self.last_range.state_str()
-            output += self.ls.state_str()
-        return output
-
-
     def output_chart(self, kind):
         # Bokeh
         x = None
@@ -348,15 +329,15 @@ class Monitor:
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
             f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price()}\n"
         )
-        if self.state in (1, 2, 3, 4, 5):
-            gvars.datalog[self.ticker].write("2nd: MONITOR:\n")
-            gvars.datalog[self.ticker].write(self.state_str())
         gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(self.breaking.state_str())
         gvars.datalog[self.ticker].write(self.trending.state_str())
-        gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
-        gvars.datalog_buffer[self.ticker] = ""
+        
+        if gvars.datalog_buffer[self.ticker] != "":
+            gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")
+            gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
+            gvars.datalog_buffer[self.ticker] = ""
 
 
     def log_cycles(self):

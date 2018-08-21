@@ -266,25 +266,27 @@ class Density:
 
 
     def state_str(self):
-        output = ""
+        if self.current_dp is None:
+            return ""
+        output = "  DENSITY:\n"
         if self.in_position:
             for dp in reversed(self.list_dps):
-                output += f"{dp.state_str()}\n"
-        if self.current_dp is not None:
-            output += (
-                f"in_position: {self.in_position}\n"
-                f"up_density_direction: {self.up_density_direction}\n"
-                f"down_density_direction: {self.down_density_direction}\n"
-                f"min_higher_area: {self.min_higher_area}\n"
-                f"max_lower_area: {self.max_lower_area}\n"
-                f"{self.up_interval_max}\n"
-                f"{self.up_interval_min}\n"
-                f"{self.current_interval_max}\n"
-                f"current_dp: {self.current_dp.state_str()}\n"
-                f"{self.current_interval_min}\n"
-                f"{self.down_interval_max}\n"
-                f"{self.down_interval_min}\n"
-            )
+                if self.down_interval_min <= dp.price <= self.up_interval_max:
+                    output += f"    {dp.state_str()}\n"
+        output += (
+            f"    in_position: {self.in_position}\n"
+            f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.up_density_direction)}\n"
+            f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.down_density_direction)}\n"
+            f"    min_higher_area: {self.min_higher_area}\n"
+            f"    max_lower_area: {self.max_lower_area}\n"
+            f"    {self.up_interval_max}\n"
+            f"    {self.up_interval_min}\n"
+            f"    {self.current_interval_max}\n"
+            f"    current_dp: {self.current_dp.state_str()}\n"
+            f"    {self.current_interval_min}\n"
+            f"    {self.down_interval_max}\n"
+            f"    {self.down_interval_min}\n"
+        )
         return output
 
 
@@ -300,13 +302,13 @@ class DensityPoint:
 
     def state_str(self):
         output = (
-            "'price': {:.2f}, "
-            "'duration': {:.2f}, "
-            "'index': {}, "
-            "'ipercentile': {}, "
-            "'dpercentage': {:.2f}, "
-            "'dpercentile': {}, "
-            "'height': {}"
+            "price: {:.2f}, "
+            "duration: {:.2f}, "
+            "index: {}, "
+            "ipercentile: {}, "
+            "dpercentage: {:.2f}, "
+            "dpercentile: {}, "
+            "height: {}"
         )
         output = output.format(self.price, self.duration, self.index, 
             self.ipercentile, self.dpercentage, self.dpercentile, self.height)

@@ -33,8 +33,8 @@ class Position:
 
         self.remote.place_order(self.cd, "BUY", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
-        gvars.datalog_buffer[self.cd.ticker] += (f"Order to buy at {price}\n")
+        gvars.datalog_buffer[self.cd.ticker] += ("    3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"      Order to buy at {price}\n")
 
 
     def sell(self, price):
@@ -46,8 +46,8 @@ class Position:
 
         self.remote.place_order(self.cd, "SELL", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
-        gvars.datalog_buffer[self.cd.ticker] += (f"Order to sell at {price}\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"    3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"      Order to sell at {price}\n")
 
 
     def close(self):
@@ -61,9 +61,8 @@ class Position:
             self.remote.place_order(self.cd, "BUY", CONTRACT_NR)
             self.pnl = round(self.pnl + self.last_order_price - self.cd.last_price(), 2)
 
-        gvars.datalog_buffer[self.cd.ticker] += (f"3rd: Decision:\n")
-        gvars.datalog_buffer[self.cd.ticker] += (f"Order to close at {self.cd.last_price()}\n")
-        gvars.datalog_buffer[self.cd.ticker] += (self.cd.state_str())
+        gvars.datalog_buffer[self.cd.ticker] += (f"    3rd: Decision:\n")
+        gvars.datalog_buffer[self.cd.ticker] += (f"      Order to close at {self.cd.last_price()}\n")
 
 
     def cancel_active(self):
@@ -101,13 +100,13 @@ class Position:
 
     def state_str(self):
         output = (
-            f"POSITION:\n"
-            f"last_order_price: {self.last_order_price}\n"
-            f"last_order_time: {self.last_order_time}\n"
-            f"pnl: {self.pnl}\n"
-            f"nr_of_trades: {self.nr_of_trades}\n"
-            f"position: {self.position}\n"
-            f"active_order_id: {self.active_order_id}\n"
+            f"  POSITION:\n"
+            f"    last_order_price: {self.last_order_price}\n"
+            f"    last_order_time: {self.last_order_time}\n"
+            f"    pnl: {self.pnl}\n"
+            f"    nr_of_trades: {self.nr_of_trades}\n"
+            f"    position: {self.position}\n"
+            f"    active_order_id: {self.active_order_id}\n"
         )
         return output
 

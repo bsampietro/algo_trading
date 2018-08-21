@@ -33,10 +33,10 @@ class Trending:
         time_since_transaction = self.m.last_time() - self.transaction_time
         if time_since_transaction > self.m.prm.trending_break_time:
             min_max = self.m.min_max_since(self.m.prm.trending_break_time)
-            gvars.datalog_buffer[self.m.ticker] += ("1st: Inside trending_stop:\n")
-            gvars.datalog_buffer[self.m.ticker] += (f"min_max_1: {min_max[1].price}\n")
-            gvars.datalog_buffer[self.m.ticker] += (f"min_max_0: {min_max[0].price}\n")
-            gvars.datalog_buffer[self.m.ticker] += (f"trending_break_value: {self.trending_break_value()}\n\n")
+            gvars.datalog_buffer[self.m.ticker] += ("    1st: Inside trending_stop:\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"      min_max_1: {min_max[1].price}\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"      min_max_0: {min_max[0].price}\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"      trending_break_value: {self.trending_break_value()}\n\n")
             if self.m.ticks(min_max[1].price - min_max[0].price) <= self.trending_break_value():
                 return True
         if self.m.ticks(abs(self.m.last_price() - self.trending_price)) >= self.trending_break_value():
@@ -48,10 +48,10 @@ class Trending:
         output = ""
         if self.direction != 0:
             output += (
-                f"TRENDING {self.direction}:\n"
-                f"transaction_price: {self.transaction_price}\n"
-                f"transaction_time: {self.transaction_time}\n"
-                f"trending_price: {self.trending_price}\n"
+                f"  TRENDING {self.direction}:\n"
+                f"    transaction_price: {self.transaction_price}\n"
+                f"    transaction_time: {self.transaction_time}\n"
+                f"    trending_price: {self.trending_price}\n"
             )
         return output
 

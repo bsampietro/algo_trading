@@ -92,14 +92,15 @@ class Speed:
 
     def state_str(self):
         output = ""
-        if len(self.time_speeding_points) == 1:
-            output += "time_speed:\n"
-            for sp in self.time_speed:
-                output += f"{sp.state_str()}\n"
         if len(self.time_speeding_points) > 0:
-            output += "time_speeding_points:\n"
+            output += "  SPEED:\n"
+            # if len(self.time_speeding_points) == 1:
+            #     output += "time_speed:\n"
+            #     for sp in self.time_speed:
+            #         output += f"{sp.state_str()}\n"
+            output += "    time_speeding_points:\n"
             for sp in self.time_speeding_points:
-                output += f"{sp.state_str()}\n"
+                output += f"      {sp.state_str()}\n"
         return output
 
 
@@ -116,13 +117,13 @@ class SpeedPoint:
 
     def state_str(self):
         output = (
-            "'ticks': {:+d}, "
-            "'max_ticks': {}, "
-            "'price': {:.2f}, "
-            "'time': {:.4f}, "
-            "'max_jump': {:+d}, "
-            "'changes': {}, "
-            "'danger_index': {:.2f}"
+            "ticks: {:+d}, "
+            "max_ticks: {}, "
+            "price: {:.2f}, "
+            "time: {:.4f}, "
+            "max_jump: {:+d}, "
+            "changes: {}, "
+            "danger_index: {:.2f}"
         )
         output = output.format(self.ticks, self.max_ticks, self.price, self.time,
             self.max_jump, self.changes, self.danger_index)
