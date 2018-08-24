@@ -1,3 +1,4 @@
+import os, sys
 import gvars
 
 CONTRACT_NR = 1
@@ -7,8 +8,8 @@ class Position:
         self.m = monitor
         self.remote = remote
 
-        self.last_order_price = 0
-        self.last_order_time = 0
+        self.order_price = 0
+        self.order_time = 0
         
         self.pnl = 0
         self.nr_of_trades = 0
@@ -16,7 +17,7 @@ class Position:
         # set by IB
         self.position = 0
         # set manually and by IB
-        self.pending_order_id = None
+        self.pending_order_id = -2 # -2 is no order; -1 is local order; >= 0 is server approved order
 
 
     def price_change(self):
@@ -25,12 +26,12 @@ class Position:
         
 
     def buy(self, price):
-        if self.is_pending('local'):
-            return # Means internally already called buy or sell
-        self.last_order_price = price
-        self.last_order_time = self.m.last_time()
+        if self.is_pending():
+            return
+        self.order_price = price
+        self.order_time = self.m.last_time()
+        
         self.pending_order_id = -1
-
         self.remote.place_order(self.m, "BUY", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.m.ticker] += ("    3rd: Decision:\n")
@@ -38,12 +39,12 @@ class Position:
 
 
     def sell(self, price):
-        if self.is_pending('local'):
-            return # Means internally already called buy or sell
-        self.last_order_price = price
-        self.last_order_time = self.m.last_time()
+        if self.is_pending():
+            return
+        self.order_price = price
+        self.order_time = self.m.last_time()
+        
         self.pending_order_id = -1
-
         self.remote.place_order(self.m, "SELL", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.m.ticker] += (f"    3rd: Decision:\n")
@@ -53,31 +54,31 @@ class Position:
     def close(self):
         if self.position == 0:
             return
+        if self.is_pending():
+            return
 
+        self.pending_order_id = -1
         if self.position == CONTRACT_NR:
             self.remote.place_order(self.m, "SELL", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.m.last_price() - self.last_order_price, 2)
+            self.pnl = round(self.pnl + self.m.last_price() - self.order_price, 2)
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.m, "BUY", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.last_order_price - self.m.last_price(), 2)
+            self.pnl = round(self.pnl + self.order_price - self.m.last_price(), 2)
+        else:
+            self.security_check()
 
         gvars.datalog_buffer[self.m.ticker] += (f"    3rd: Decision:\n")
         gvars.datalog_buffer[self.m.ticker] += (f"      Order to close at {self.m.last_price()}\n")
 
 
     def cancel_pending(self):
-        if not self.is_pending():
-            return
-        self.remote.cancel_order(self.pending_order_id)
-        self.pending_order_id = None
+        if self.pending_order_id >= 0:
+            self.remote.cancel_order(self.pending_order_id)
+            self.pending_order_id = -1
 
 
-    def is_pending(self, where=""):
-        if where == "":
-            return self.pending_order_id is not None
-        else:
-            # where == "local"
-            return self.pending_order_id == -1
+    def is_pending(self):
+        return self.pending_order_id != -2
 
 
     def is_active(self):
@@ -91,10 +92,10 @@ class Position:
         gvars.datalog_buffer[self.m.ticker] += (f"      remaining: {remaining}\n")
         
         if status == "Filled":
-            self.pending_order_id = None
+            self.pending_order_id = -2
             self.nr_of_trades += 1
         elif status == "Cancelled":
-            self.pending_order_id = None
+            self.pending_order_id = -2
         else:
             # get the order id after placing the order so
             # it is managed only on remote
@@ -107,8 +108,8 @@ class Position:
         if self.is_active() or self.is_pending():
             output += (
                 f"  POSITION:\n"
-                f"    last_order_price: {self.last_order_price}\n"
-                f"    last_order_time: {self.last_order_time}\n"
+                f"    order_price: {self.order_price}\n"
+                f"    order_time: {self.order_time}\n"
                 f"    pnl: {self.pnl}\n"
                 f"    nr_of_trades: {self.nr_of_trades}\n"
                 f"    position: {self.position}\n"
@@ -127,4 +128,5 @@ class Position:
             gvars.datalog_buffer[self.m.ticker] += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.m.ticker}\n")
             # self.sound_notify()
-            # assert False # Not yet...
+            os._exit(1)
+            # sys.exit(1)

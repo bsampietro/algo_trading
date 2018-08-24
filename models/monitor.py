@@ -146,9 +146,9 @@ class Monitor:
 
             # Action
             trigger_values_list = trigger_values.values()
-            if all(map(lambda nr: nr > 0, trigger_values_list)) and sum(trigger_values_list) >= 6:
+            if all(map(lambda nr: nr > 0, trigger_values_list)) and sum(trigger_values_list) >= 5:
                 self.position.buy(self.price_plus_ticks(-1))
-            elif all(map(lambda nr: nr < 0, trigger_values_list)) and sum(trigger_values_list) <= -6:
+            elif all(map(lambda nr: nr < 0, trigger_values_list)) and sum(trigger_values_list) <= -5:
                 self.position.sell(self.price_plus_ticks(+1))
 
 
@@ -333,8 +333,8 @@ class Monitor:
         gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(self.breaking.state_str())
-        gvars.datalog[self.ticker].write(self.trending.state_str())
         gvars.datalog[self.ticker].write(self.position.state_str())
+        gvars.datalog[self.ticker].write(self.trending.state_str())
         
         if gvars.datalog_buffer[self.ticker] != "":
             gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")
