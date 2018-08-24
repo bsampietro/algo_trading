@@ -33,7 +33,9 @@ class IBHft(EClient, EWrapper):
         self.current_order_id = None
 
         # threading variables
-        self.lock = Lock()
+        self.tick_price_lock = Lock()
+        self.place_order_lock = Lock()
+
 
         # Only used in load (not live) mode
         self.active_order = None
@@ -100,7 +102,7 @@ class IBHft(EClient, EWrapper):
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
-        with self.lock:
+        with self.tick_price_lock:
             super().tickPrice(reqId, tickType, price, attrib)
 
             if price <= 0:
@@ -119,18 +121,15 @@ class IBHft(EClient, EWrapper):
                 self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
-    def is_ready(self):
-        return self.current_order_id is not None
-
-
     def wait_for_readiness(self):
         if self.live_mode:
             for i in range(120):
-                if self.is_ready():
+                if self.current_order_id is not None:
                     break
                 else:
                     time.sleep(1)
-            if self.is_ready():
+
+            if self.current_order_id is not None:
                 print("IB Ready")
             else:
                 # raise exception ?
@@ -155,22 +154,20 @@ class IBHft(EClient, EWrapper):
 
 
     # Orders
-    def place_order(self, monitor, action, quantity, price=0, orderId=None):
-        with self.lock:
+    def place_order(self, monitor, action, quantity, price=0, order_id=None):
+        with self.place_order_lock:
             order = Order()
             if price == 0:
                 order.orderType = "MKT"
             else:    
                 order.orderType = "LMT"
+                order.lmtPrice = price
             order.totalQuantity = quantity
             order.action = action # "BUY"|"SELL"
-            order.lmtPrice = price
 
-            if orderId is None:
+            if order_id is None:
                 order_id = self.get_next_order_id()
                 self.order_id_to_monitor_map[order_id] = monitor
-            else:
-                order_id = orderId
 
             if self.live_mode:
                 # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
@@ -196,29 +193,32 @@ class IBHft(EClient, EWrapper):
 
         self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining)
 
+    
     def openOrder(self, orderId, contract, order,
                   orderState):
         super().openOrder(orderId, contract, order, orderState)
 
         # self.order_id_to_monitor_map[orderId].order_change()
 
-    # PRIVATE
+    
+    # ++++++++++++++ PRIVATE +++++++++++++++++++
 
     # Only for load mode
     def transmit_order(self, order=None, price=0):
         if order is None:
-            # lmt order created before, assigned to self.active_order and executing based on price
-            if self.active_order:
-                if self.active_order.action == "BUY":
-                    if price <= self.active_order.lmtPrice:
-                        self.remaining += self.active_order.totalQuantity
-                        self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
-                        self.active_order = None
-                elif self.active_order.action == "SELL":
-                    if price >= self.active_order.lmtPrice:
-                        self.remaining -= self.active_order.totalQuantity
-                        self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
-                        self.active_order = None
+            # lmt order created before, assigned to self.active_order and executing based on price parameter
+            if self.active_order is None:
+                return
+            if self.active_order.action == "BUY":
+                if price <= self.active_order.lmtPrice:
+                    self.remaining += self.active_order.totalQuantity
+                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                    self.active_order = None
+            elif self.active_order.action == "SELL":
+                if price >= self.active_order.lmtPrice:
+                    self.remaining -= self.active_order.totalQuantity
+                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                    self.active_order = None
         elif order.orderType == "MKT":
             if order.action == "BUY":
                 self.remaining += order.totalQuantity

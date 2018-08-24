@@ -112,12 +112,15 @@ class Monitor:
         # -speed
         # -breaking
         # -Density percentile movement (to start or stop a trade)
-        if self.position.is_running():
+        
+        if self.position.is_active():
+
             if self.trending.stopped():
-                # Close position
-                pass
-        elif self.position.is_active_order():
+                self.position.close()
+
+        elif self.position.is_pending():
             pass
+
         else:
             trigger_values = {}
 
@@ -144,11 +147,9 @@ class Monitor:
             # Action
             trigger_values_list = trigger_values.values()
             if all(map(lambda nr: nr > 0, trigger_values_list)) and sum(trigger_values_list) >= 6:
-                # self.position.buy(self.price_plus_ticks(-1))
-                pass
+                self.position.buy(self.price_plus_ticks(-1))
             elif all(map(lambda nr: nr < 0, trigger_values_list)) and sum(trigger_values_list) <= -6:
-                # self.position.sell(self.price_plus_ticks(+1))
-                pass
+                self.position.sell(self.price_plus_ticks(+1))
 
 
     def last_cdp(self):
@@ -333,6 +334,7 @@ class Monitor:
         gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(self.breaking.state_str())
         gvars.datalog[self.ticker].write(self.trending.state_str())
+        gvars.datalog[self.ticker].write(self.position.state_str())
         
         if gvars.datalog_buffer[self.ticker] != "":
             gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")

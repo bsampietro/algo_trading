@@ -3,7 +3,10 @@ import gvars
 class Trending:
     def __init__(self, monitor):
         self.m = monitor
+        self.initialize_state()
 
+
+    def initialize_state(self):
         self.direction = 0
         self.transaction_price = 0
         self.transaction_time = 0
@@ -13,8 +16,7 @@ class Trending:
     def price_change(self):
         position = self.m.position.position
         if position == 0:
-            self.direction = 0
-            return
+            self.initialize_state()
         else:
             if self.direction == 0:
                 self.direction = position
@@ -33,7 +35,7 @@ class Trending:
         time_since_transaction = self.m.last_time() - self.transaction_time
         if time_since_transaction > self.m.prm.trending_break_time:
             min_max = self.m.min_max_since(self.m.prm.trending_break_time)
-            gvars.datalog_buffer[self.m.ticker] += ("    1st: Inside trending_stop:\n")
+            gvars.datalog_buffer[self.m.ticker] += ("    1st: Inside trending.stopped:\n")
             gvars.datalog_buffer[self.m.ticker] += (f"      min_max_1: {min_max[1].price}\n")
             gvars.datalog_buffer[self.m.ticker] += (f"      min_max_0: {min_max[0].price}\n")
             gvars.datalog_buffer[self.m.ticker] += (f"      trending_break_value: {self.trending_break_value()}\n\n")
@@ -58,7 +60,7 @@ class Trending:
     # Private
 
     def trending_break_value(self):
-        possible_trending_break_value = round(self.m.ticks(self.trending_price - self.transaction_price) / 3.0)
+        possible_trending_break_value = self.m.ticks(abs(self.trending_price - self.transaction_price)) / 3.0
         if possible_trending_break_value > self.m.prm.min_trending_break_value:
             return possible_trending_break_value
         else:
