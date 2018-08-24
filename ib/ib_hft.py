@@ -48,7 +48,7 @@ class IBHft(EClient, EWrapper):
             self.wait_for_readiness()
         else:
             self.input_file = input_file
-            self.tickers = [util.ticker_from_file(input_file)]
+            self.tickers = [util.file_from_path(input_file)]
             self.wait_for_readiness()
 
             self.test_thread = Thread(target = self.connectAck)

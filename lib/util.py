@@ -66,8 +66,8 @@ def calculate_hv(closes):
 def calculate_percentage_hv(percentage_changes):
     return statistics.stdev(percentage_changes) * math.sqrt(252/len(percentage_changes))
 
-def ticker_from_file(file_):
-    return file_.replace("data/", "")
+def file_from_path(file_):
+    return file_.split("/")[-1]
 
 
 # ------ Private ------
