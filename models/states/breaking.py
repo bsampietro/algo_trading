@@ -38,13 +38,13 @@ class Breaking:
         self.duration_ok = False
         self.price_changes += 1
         
-        current_interval_mid_price = round((density.current_interval_max + density.current_interval_min) / 2.0, 2)
+        density_interval_mid_price = round((density.current_interval_max + density.current_interval_min) / 2.0, 2)
         
         mid_price = round((self.max_price + self.min_price) / 2.0, 2)
         time_up_down = self.m.time_up_down_since(self.start_time, mid_price)
 
         if self.direction == 1:
-            if current_interval_mid_price < self.m.last_price() < density.up_interval_min:
+            if density_interval_mid_price <= self.m.last_price() < density.up_interval_min:
                 if self.m.last_price() < self.min_price:
                     self.min_price = self.m.last_price()
                     self.start_time = self.m.last_time()
@@ -61,7 +61,7 @@ class Breaking:
             else:
                 self.initialize_state()
         elif self.direction == -1:
-            if current_interval_mid_price > self.m.last_price() > density.down_interval_max:
+            if density_interval_mid_price >= self.m.last_price() > density.down_interval_max:
                 if self.m.last_price() < self.min_price:
                     self.min_price = self.m.last_price()
                     self.start_time = self.m.last_time()
@@ -78,7 +78,7 @@ class Breaking:
             else:
                 self.initialize_state()
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    current_interval_mid_price: {current_interval_mid_price}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    density_interval_mid_price: {density_interval_mid_price}\n")
         gvars.datalog_buffer[self.m.ticker] += (f"    mid_price: {mid_price}\n")
         gvars.datalog_buffer[self.m.ticker] += (f"    time_up_down: {time_up_down}\n")
 

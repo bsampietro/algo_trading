@@ -7,6 +7,7 @@ class Speed:
 
         self._speed_min_time_passed = False
         self._last_time_speeding_time = 0
+        self._show_full_list_in_state_str = True
 
 
     def price_change(self):
@@ -46,6 +47,7 @@ class Speed:
         if len(price_data) <= 1:
             self._last_time_speeding_time = 0
             self.time_speeding_points = []
+            self._show_full_list_in_state_str = True
             return
 
         # Create Speed point
@@ -88,16 +90,21 @@ class Speed:
         else:
             self._last_time_speeding_time = 0
             self.time_speeding_points = []
+            self._show_full_list_in_state_str = True
 
 
     def state_str(self):
         output = ""
         if len(self.time_speeding_points) > 0:
             output += "  SPEED:\n"
-            # if len(self.time_speeding_points) == 1:
-            #     output += "time_speed:\n"
-            #     for sp in self.time_speed:
-            #         output += f"{sp.state_str()}\n"
+            if self._show_full_list_in_state_str:
+                self._show_full_list_in_state_str = False
+                high_percentile = max(self.time_speed, key=lambda sp: sp.ticks).ticks * 0.75
+                min_percentile = min(self.time_speed, key=lambda sp: sp.ticks).ticks * 0.75
+                output += "    time_speed:\n"
+                for sp in self.time_speed:
+                    if sp.ticks <= min_percentile or sp.ticks >= high_percentile:
+                        output += f"      {sp.state_str()}\n"
             output += "    time_speeding_points:\n"
             for sp in self.time_speeding_points:
                 output += f"      {sp.state_str()}\n"

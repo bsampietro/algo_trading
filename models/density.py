@@ -246,23 +246,16 @@ class Density:
         self.in_position = True
 
 
-    def max_gain(self):
-        up_part = self.mtr.ticks(self.up_interval_min - self.mtr.last_price())
-        down_part = self.mtr.ticks(self.mtr.last_price() - self.down_interval_max)
-        assert up_part > 0
-        assert down_part > 0
-        return max(up_part, down_part)
-
-
-    def up_down_ratio(self):
-        up_part = self.up_interval_min - self.mtr.last_price()
-        down_part = self.mtr.last_price() - self.down_interval_max
-        assert up_part > 0
-        assert down_part > 0
-        if up_part >= down_part:
-            return up_part / down_part
+    def up_down_ratio(self, direction):
+        mid_part = self.current_interval_max - self.current_interval_min
+        if mid_part == 0:
+            mid_part = self.mtr.prm.tick_price
+        if direction == 1:
+            up_part = self.up_interval_min - self.current_interval_max
+            return up_part / mid_part
         else:
-            return -(down_part / up_part)
+            down_part = self.current_interval_min - self.down_interval_max
+            return down_part / mid_part
 
 
     def state_str(self):
