@@ -51,6 +51,7 @@ class Params:
         self.breaking_range_value = 2 # ticks
         self.min_breaking_price_changes = 4 # times
         self.breaking_up_down_ratio = 1.0
+        self.max_breaking_price_changes_list = 20 # times
         
         self.primary_look_back_time = 3600 # secs
 

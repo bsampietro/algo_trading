@@ -125,7 +125,7 @@ class Monitor:
             trigger_values = {}
 
             # Breaking
-            if self.breaking.price_changes > self.prm.min_breaking_price_changes and self.breaking.duration_ok:
+            if self.breaking.price_changes_ok() and self.breaking.duration_ok():
                 if self.breaking.direction == 1:
                     trigger_values['breaking'] = 5
                 elif self.breaking.direction == -1:

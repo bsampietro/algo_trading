@@ -2,6 +2,7 @@ import os, sys
 import gvars
 
 CONTRACT_NR = 1
+POI = {'none': -2, 'local': -1} # 'none' is no order; 'local' is local order; >= 0 is server approved order
 
 class Position:
     def __init__(self, monitor, remote):
@@ -17,7 +18,7 @@ class Position:
         # set by IB
         self.position = 0
         # set manually and by IB
-        self.pending_order_id = -2 # -2 is no order; -1 is local order; >= 0 is server approved order
+        self.pending_order_id = POI['none']
 
 
     def price_change(self):
@@ -31,7 +32,7 @@ class Position:
         self.order_price = price
         self.order_time = self.m.last_time()
         
-        self.pending_order_id = -1
+        self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "BUY", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.m.ticker] += ("    3rd: Decision:\n")
@@ -44,7 +45,7 @@ class Position:
         self.order_price = price
         self.order_time = self.m.last_time()
         
-        self.pending_order_id = -1
+        self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "SELL", CONTRACT_NR, price)
 
         gvars.datalog_buffer[self.m.ticker] += (f"    3rd: Decision:\n")
@@ -57,7 +58,7 @@ class Position:
         if self.is_pending():
             return
 
-        self.pending_order_id = -1
+        self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
             self.remote.place_order(self.m, "SELL", CONTRACT_NR)
             self.pnl = round(self.pnl + self.m.last_price() - self.order_price, 2)
@@ -74,11 +75,11 @@ class Position:
     def cancel_pending(self):
         if self.pending_order_id >= 0:
             self.remote.cancel_order(self.pending_order_id)
-            self.pending_order_id = -1
+            self.pending_order_id = POI['local']
 
 
     def is_pending(self):
-        return self.pending_order_id != -2
+        return self.pending_order_id != POI['none']
 
 
     def is_active(self):
@@ -92,10 +93,10 @@ class Position:
         gvars.datalog_buffer[self.m.ticker] += (f"      remaining: {remaining}\n")
         
         if status == "Filled":
-            self.pending_order_id = -2
+            self.pending_order_id = POI['none']
             self.nr_of_trades += 1
         elif status == "Cancelled":
-            self.pending_order_id = -2
+            self.pending_order_id = POI['none']
         else:
             # get the order id after placing the order so
             # it is managed only on remote
