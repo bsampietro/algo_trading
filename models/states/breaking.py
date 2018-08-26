@@ -35,7 +35,10 @@ class Breaking:
 
         self.price_changes += 1
         
-        density_interval_mid_price = round((density.current_interval_max + density.current_interval_min) / 2.0, 2)
+        density_interval_mid_price = round(
+            (density.current_interval_max + density.current_interval_min) / 2.0,
+            self.m.prm.price_precision
+        )
         if self.direction == 1:
             if density_interval_mid_price <= self.m.last_price() < density.up_interval_min:
                 if self.m.last_price() < self.min_price:
@@ -66,7 +69,7 @@ class Breaking:
 
     def duration_ok(self):
         duration_ok = False
-        mid_price = round((self.max_price + self.min_price) / 2.0, 2)
+        mid_price = round((self.max_price + self.min_price) / 2.0, self.m.prm.price_precision)
         time_up_down = self.m.time_up_down_since(self.start_time, mid_price)
 
         if self.direction == 1:

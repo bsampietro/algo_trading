@@ -61,10 +61,10 @@ class Position:
         self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
             self.remote.place_order(self.m, "SELL", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.m.last_price() - self.order_price, 2)
+            self.pnl = round(self.pnl + self.m.last_price() - self.order_price, self.m.prm.price_precision)
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.m, "BUY", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.order_price - self.m.last_price(), 2)
+            self.pnl = round(self.pnl + self.order_price - self.m.last_price(), self.m.prm.price_precision)
         else:
             self.security_check()
 

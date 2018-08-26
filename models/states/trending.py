@@ -4,6 +4,8 @@ class Trending:
     def __init__(self, monitor):
         self.m = monitor
         self.initialize_state()
+        self.fantasy_pnl = []
+        self.pnl = []
 
 
     def initialize_state(self):
@@ -16,7 +18,9 @@ class Trending:
     def price_change(self):
         position = self.m.position.position
         if position == 0:
-            self.initialize_state()
+            if self.direction != 0:
+                self.append_pnls()
+                self.initialize_state()
         else:
             if self.direction == 0:
                 self.direction = position
@@ -46,6 +50,15 @@ class Trending:
         return False
 
 
+    def append_pnls(self):
+        if self.direction == 1:
+            self.fantasy_pnl.append(round(self.trending_price - self.transaction_price, self.m.prm.price_precision))
+            self.pnl.append(round(self.m.last_price() - self.transaction_price, self.m.prm.price_precision))
+        elif self.direction == -1:
+            self.fantasy_pnl.append(round(self.transaction_price - self.trending_price, self.m.prm.price_precision))
+            self.pnl.append(round(self.transaction_price - self.m.last_price(), self.m.prm.price_precision))
+
+
     def state_str(self):
         output = ""
         if self.direction != 0:
@@ -55,6 +68,16 @@ class Trending:
                 f"    transaction_time: {self.transaction_time}\n"
                 f"    trending_price: {self.trending_price}\n"
             )
+            output += "    fantasy_pnl: "
+            for pnl in self.fantasy_pnl:
+                output += "{:+.2f}, ".format(pnl)
+            output += "\n"
+            output += "    pnl:         "
+            for pnl in self.pnl:
+                output += "{:+.2f}, ".format(pnl)
+            output += "\n"
+            output += "    fantasy_pnl_sum: {:+.2f}\n".format(sum(self.fantasy_pnl))
+            output += "    ___real_pnl_sum: {:+.2f}\n".format(sum(self.pnl))
         return output
 
     # Private
