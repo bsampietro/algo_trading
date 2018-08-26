@@ -1,5 +1,6 @@
 import os, sys
 import gvars
+from models.active_position import ActivePosition
 
 CONTRACT_NR = 1
 POI = {'none': -2, 'local': -1} # 'none' is no order; 'local' is local order; >= 0 is server approved order
@@ -11,6 +12,8 @@ class Position:
 
         self.order_price = 0
         self.order_time = 0
+
+        self.ap = ActivePosition(self, self.m)
         
         self.pnl = 0
         self.nr_of_trades = 0
@@ -22,8 +25,8 @@ class Position:
 
 
     def price_change(self):
-        # check for more than allowed positions
         self.security_check()
+        self.ap.price_change()
         
 
     def buy(self, price):
@@ -116,6 +119,7 @@ class Position:
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
             )
+            output += self.ap.state_str()
         return output
 
 
