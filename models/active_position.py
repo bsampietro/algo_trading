@@ -6,7 +6,7 @@ class ActivePosition:
         self.fantasy_pnl = []
         self.pnl = []
         self.max_fluctuations = []
-        self.optimal_trending_breaks = []
+        self.max_reversals = []
         self.initialize_state()
 
 
@@ -66,15 +66,18 @@ class ActivePosition:
             round(self.up_trending_price - self.down_trending_price, self.m.prm.price_precision)
         )
         # max_fluctuation - fantasy_pnl
-        self.optimal_trending_breaks.append(
-            round((self.up_trending_price - self.down_trending_price) - (self.direction * (self.trending_price() - self.transaction_price)), 
+        self.max_reversals.append(
+            round(abs(self.transaction_price - self.trending_price(False)),
                 self.m.prm.price_precision)
         )
 
 
-    def trending_price(self):
+    def trending_price(self, straight=True):
         assert self.direction != 0
-        return self.up_trending_price if self.direction == 1 else self.down_trending_price
+        if straight:
+            return self.up_trending_price if self.direction == 1 else self.down_trending_price
+        else:
+            return self.down_trending_price if self.direction == 1 else self.up_trending_price
 
 
     @property
@@ -103,9 +106,9 @@ class ActivePosition:
             for fluctuation in self.max_fluctuations:
                 output += " {:.2f}, ".format(fluctuation)
             output += "\n"
-            output += "            otbs: "
-            for otb in self.optimal_trending_breaks:
-                output += " {:.2f}, ".format(otb)
+            output += "       reversals: "
+            for rev in self.max_reversals:
+                output += " {:.2f}, ".format(rev)
             output += "\n"
             output += "    fantasy_pnl_sum: {:+.2f}\n".format(sum(self.fantasy_pnl))
             output += "    ___real_pnl_sum: {:+.2f}\n".format(sum(self.pnl))
