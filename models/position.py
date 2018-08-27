@@ -119,7 +119,7 @@ class Position:
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
             )
-            output += self.ap.state_str()
+        output += self.ap.state_str()
         return output
 
 
