@@ -20,6 +20,7 @@ from models.params import Params
 from models.position import Position
 from models.density import Density
 from models.speed import Speed
+from models.results import Results
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
@@ -33,6 +34,7 @@ class Monitor:
         self.position = Position(self, remote)
         self.density = Density(self)
         self.speed = Speed(self)
+        self.results = Results(self)
 
         # State managers
         self.breaking = Breaking(self)
@@ -338,6 +340,7 @@ class Monitor:
         gvars.datalog[self.ticker].write(self.speed.state_str())
         gvars.datalog[self.ticker].write(self.breaking.state_str())
         gvars.datalog[self.ticker].write(self.position.state_str())
+        gvars.datalog[self.ticker].write(self.results.state_str())
         # gvars.datalog[self.ticker].write(self.trending.state_str())
         
         if gvars.datalog_buffer[self.ticker] != "":

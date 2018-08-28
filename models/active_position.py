@@ -3,8 +3,6 @@ class ActivePosition:
     def __init__(self, position, monitor):
         self.m = monitor
         self.p = position
-        self.results = []
-        self.show_results_history = False
         self.initialize_state()
 
 
@@ -19,9 +17,8 @@ class ActivePosition:
         if self.p.position == 0:
             if self.direction != 0:
                 # Just got out of position
-                self.append_pnls()
+                self.append_results()
                 self.initialize_state()
-                self.show_results_history = True
         else:
             if self.direction == 0:
                 # Just got into new position
@@ -54,19 +51,17 @@ class ActivePosition:
     # +++++++ Private +++++++++
 
 
-    def append_pnls(self):
+    def append_results(self):
         assert self.direction != 0
-        self.results.append(
-            Result(
-                pnl = round(self.direction * (self.m.data[-2].price - self.transaction_price),
-                    self.m.prm.price_precision),
-                fantasy_pnl = round(self.direction * (self.trending_price() - self.transaction_price),
-                    self.m.prm.price_precision),
-                fluctuation = round(self.up_trending_price - self.down_trending_price,
-                    self.m.prm.price_precision),
-                reversal = round(abs(self.transaction_price - self.trending_price(False)),
-                    self.m.prm.price_precision)
-            )
+        self.m.results.append(
+            pnl = round(self.direction * (self.m.data[-2].price - self.transaction_price),
+                self.m.prm.price_precision),
+            fantasy_pnl = round(self.direction * (self.trending_price() - self.transaction_price),
+                self.m.prm.price_precision),
+            fluctuation = round(self.up_trending_price - self.down_trending_price,
+                self.m.prm.price_precision),
+            reversal = round(abs(self.transaction_price - self.trending_price(False)),
+                self.m.prm.price_precision)
         )
 
 
@@ -92,13 +87,6 @@ class ActivePosition:
                 f"    up_trending_price: {self.up_trending_price}\n"
                 f"    down_trending_price: {self.down_trending_price}\n"
             )
-        if self.show_results_history:
-            self.show_results_history = False
-            output += "  RESULTS (ACTIVE_POSITION):\n"
-            for result in self.results:
-                output += f"    {result.state_str()}\n"
-            output += "    ___real_pnl: {:+.2f}\n".format(sum(map(lambda r: r.pnl, self.results)))
-            output += "    fantasy_pnl: {:+.2f}\n".format(sum(map(lambda r: r.fantasy_pnl, self.results)))
         return output
 
 
@@ -108,23 +96,3 @@ class ActivePosition:
             return possible_trending_break_value
         else:
             return self.m.prm.min_trending_break_value
-
-
-
-class Result:
-    def __init__(self, pnl=0, fantasy_pnl=0, fluctuation=0, reversal=0):
-        self.pnl = pnl
-        self.fantasy_pnl = fantasy_pnl
-        self.fluctuation = fluctuation
-        self.reversal = reversal
-
-
-    def state_str(self):
-        output = (
-            "pnl: {:+.2f}, "
-            "fantasy_pnl: {:+.2f}, "
-            "fluctuation: {:.2f}, "
-            "reversal: {:.2f}"
-        )
-        output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal)
-        return output

@@ -15,7 +15,6 @@ class Position:
 
         self.ap = ActivePosition(self, self.m)
         
-        self.pnl = 0
         self.nr_of_trades = 0
 
         self.position = 0 # set by IB
@@ -62,10 +61,8 @@ class Position:
         self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
             self.remote.place_order(self.m, "SELL", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.m.last_price() - self.order_price, self.m.prm.price_precision)
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.m, "BUY", CONTRACT_NR)
-            self.pnl = round(self.pnl + self.order_price - self.m.last_price(), self.m.prm.price_precision)
         else:
             self.security_check()
 
@@ -121,7 +118,6 @@ class Position:
                 f"  POSITION:\n"
                 f"    order_price: {self.order_price}\n"
                 f"    order_time: {self.order_time}\n"
-                f"    pnl: {self.pnl}\n"
                 f"    nr_of_trades: {self.nr_of_trades}\n"
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
