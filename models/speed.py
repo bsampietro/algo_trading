@@ -11,7 +11,7 @@ class Speed:
 
 
     def price_change(self):
-        self.update_speeds()
+        self.update_time_speed()
 
 
     def find_criteria_speeding(self):
@@ -28,10 +28,6 @@ class Speed:
         #     return 'up'
         # else:
         #     return 'down'
-
-
-    def update_speeds(self):
-        self.update_time_speed()
 
 
     def update_time_speed(self):
@@ -91,6 +87,10 @@ class Speed:
             self._last_time_speeding_time = 0
             self.time_speeding_points = []
             self._show_full_list_in_state_str = True
+
+
+    def is_speeding(self):
+        return len(self.time_speeding_points) > 0
 
 
     def state_str(self):

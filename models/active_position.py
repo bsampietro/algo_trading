@@ -25,7 +25,7 @@ class ActivePosition:
         else:
             if self.direction == 0:
                 # Just got into new position
-                self.direction = self.p.position
+                self.direction = self.p.direction()
                 self.up_trending_price = self.down_trending_price = self.m.last_price()
                 self.transaction_time = self.m.last_time()
             else:
@@ -49,6 +49,9 @@ class ActivePosition:
         if self.m.ticks(abs(self.m.last_price() - self.trending_price())) >= self.trending_break_value():
             return True
         return False
+
+
+    # +++++++ Private +++++++++
 
 
     def append_pnls(self):
@@ -98,7 +101,6 @@ class ActivePosition:
             output += "    fantasy_pnl: {:+.2f}\n".format(sum(map(lambda r: r.fantasy_pnl, self.results)))
         return output
 
-    # Private
 
     def trending_break_value(self):
         possible_trending_break_value = self.m.ticks(abs(self.trending_price() - self.transaction_price)) / 3.0

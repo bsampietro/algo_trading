@@ -258,6 +258,13 @@ class Density:
             return down_part / mid_part
 
 
+    def interval_tuple(self, direction):
+        if direction == 1:
+            return (self.current_interval_max, self.up_interval_min, self.up_interval_max)
+        elif direction == -1:
+            return (self.current_interval_min, self.down_interval_max, self.down_interval_min)
+
+
     def state_str(self):
         if self.current_dp is None:
             return ""

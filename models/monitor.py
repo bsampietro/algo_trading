@@ -115,7 +115,11 @@ class Monitor:
         
         if self.position.is_active():
 
-            if self.trending.stopped():
+            if self.position.ap.trending_stopped():
+                self.position.close()
+                return
+            anti_trend_tuple = self.density.interval_tuple(-1 * self.position.direction())
+            if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
                 self.position.close()
 
         elif self.position.is_pending():

@@ -18,10 +18,8 @@ class Position:
         self.pnl = 0
         self.nr_of_trades = 0
 
-        # set by IB
-        self.position = 0
-        # set manually and by IB
-        self.pending_order_id = POI['none']
+        self.position = 0 # set by IB
+        self.pending_order_id = POI['none'] # set manually and by IB
 
 
     def price_change(self):
@@ -87,6 +85,15 @@ class Position:
 
     def is_active(self):
         return self.position != 0
+
+
+    def direction(self):
+        if self.position > 0:
+            return 1
+        elif self.position < 0:
+            return -1
+        else:
+            return 0
 
 
     def order_change(self, order_id, status, remaining):
