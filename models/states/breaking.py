@@ -117,6 +117,10 @@ class Breaking:
         self.price_changes_list.append(price_changes)
 
 
+    def in_range(self):
+        return self.direction != 0
+
+
     def state_str(self):
         output = ""
         if self.direction != 0:

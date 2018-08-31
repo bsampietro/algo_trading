@@ -72,8 +72,9 @@ class Position:
 
     def cancel_pending(self):
         if self.pending_order_id >= 0:
-            self.remote.cancel_order(self.pending_order_id)
+            pending_order_id = self.pending_order_id
             self.pending_order_id = POI['local']
+            self.remote.cancel_order(pending_order_id)
 
 
     def is_pending(self):

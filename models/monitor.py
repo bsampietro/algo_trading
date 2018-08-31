@@ -21,6 +21,7 @@ from models.position import Position
 from models.density import Density
 from models.speed import Speed
 from models.results import Results
+from models.decision import Decision
 
 STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
         "trending_up": 4, "trending_down": 5}
@@ -35,14 +36,13 @@ class Monitor:
         self.density = Density(self)
         self.speed = Speed(self)
         self.results = Results(self)
-
-        # State managers
         self.breaking = Breaking(self)
-        self.trending = Trending(self)
+
+        self.trending = Trending(self) # legacy
         
-        # Data
         self.data = []
         self.state = STATE["random_walk"]
+        self.last_decision = None
 
         self.cycles = []
         self.pending_exec = None
@@ -120,42 +120,51 @@ class Monitor:
             if self.position.ap.trending_stopped():
                 self.position.close()
                 return
-            anti_trend_tuple = self.density.interval_tuple(-1 * self.position.direction())
-            if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
-                self.position.close()
+
+            if self.last_decision.breaking_reason():
+                anti_trend_tuple = self.density.interval_tuple(-1 * self.position.direction())
+                if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
+                    self.position.close()
+                return
 
         elif self.position.is_pending():
-            pass
+
+            if self.last_decision.breaking_reason():
+                if not self.breaking.in_range():
+                    self.position.cancel_pending()
 
         else:
-            trigger_values = {}
+            decision = Decision(self)
 
-            # Breaking
-            if self.breaking.price_changes_ok() and self.breaking.duration_ok():
-                if self.breaking.direction == 1:
-                    trigger_values['breaking'] = 5
-                elif self.breaking.direction == -1:
-                    trigger_values['breaking'] = -5
+            if self.density.is_ready() and self.breaking.in_range():
+            
+                # Breaking
+                if self.breaking.price_changes_ok() and self.breaking.duration_ok():
+                    if self.breaking.direction == 1:
+                        decision.breaking = 5
+                    elif self.breaking.direction == -1:
+                        decision.breaking = -5
 
-            # 4 in line
-            if self.data[-1].trend > 3:
-                trigger_values['in_line'] = 5
-            elif self.data[-1].trend < -3:
-                trigger_values['in_line'] = -5
+                # 4 in line
+                if abs(self.data[-1].trend) > 3:
+                    decision.in_line = self.data[-1].trend
 
-            # Density
-            # trigger_values.append(self.density.up_down_diff())
+                decision.density_direction = self.density.density_direction(self.breaking.direction)
 
-            # Printing
-            if len(trigger_values) > 0:
-                gvars.datalog_buffer[self.ticker] += f"    Trigger values: {str(trigger_values)}\n"
+            # Need to implement speeding
+            if self.speed.is_speeding():
+                # decision.xxx = xxx
+                pass
 
             # Action
-            trigger_values_list = trigger_values.values()
-            if all(map(lambda nr: nr > 0, trigger_values_list)) and sum(trigger_values_list) >= 5:
+            if decision.should() == 'buy':
                 self.position.buy(self.price_plus_ticks(-1))
-            elif all(map(lambda nr: nr < 0, trigger_values_list)) and sum(trigger_values_list) <= -5:
+                self.last_decision = decision
+                gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
+            elif decision.should() == 'sell':
                 self.position.sell(self.price_plus_ticks(+1))
+                self.last_decision = decision
+                gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
 
 
     def last_cdp(self):

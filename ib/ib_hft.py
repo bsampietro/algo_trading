@@ -181,6 +181,7 @@ class IBHft(EClient, EWrapper):
             # self.cancelOrder(order_id)
             pass
         else:
+            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, price, 0, 0, price, 0, "")
             self.active_order = None
 
 

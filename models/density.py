@@ -259,10 +259,23 @@ class Density:
 
 
     def interval_tuple(self, direction):
+        assert direction in (1, -1)
         if direction == 1:
             return (self.current_interval_max, self.up_interval_min, self.up_interval_max)
-        elif direction == -1:
+        else:
             return (self.current_interval_min, self.down_interval_max, self.down_interval_min)
+
+
+    def density_direction(self, direction):
+        assert direction in (1, -1)
+        if direction == 1:
+            return self.up_density_direction
+        else:
+            return self.down_density_direction
+
+
+    def is_ready(self):
+        return len(self._previous_price_data) > 0
 
 
     def state_str(self):

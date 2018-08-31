@@ -5,9 +5,9 @@ class Results:
         self.show_results_history = False
 
 
-    def append(self, pnl=0, fantasy_pnl=0, fluctuation=0, reversal=0):
+    def append(self, pnl, fantasy_pnl, fluctuation, reversal):
     	self.show_results_history = True
-    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal))
+    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, self.m.last_decision))
 
 
     def state_str(self):
@@ -24,11 +24,12 @@ class Results:
 
 
 class Result:
-    def __init__(self, pnl=0, fantasy_pnl=0, fluctuation=0, reversal=0):
+    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, decision):
         self.pnl = pnl
         self.fantasy_pnl = fantasy_pnl
         self.fluctuation = fluctuation
         self.reversal = reversal
+        self.decision = decision
 
 
     def state_str(self):
