@@ -173,6 +173,7 @@ class IBHft(EClient, EWrapper):
                 # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
                 pass
             else:
+                self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining, 0, 0, 0, 0, 0, "")
                 self.transmit_order(order)
 
 
@@ -181,7 +182,7 @@ class IBHft(EClient, EWrapper):
             # self.cancelOrder(order_id)
             pass
         else:
-            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, price, 0, 0, price, 0, "")
+            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, 0, 0, 0, 0, 0, "")
             self.active_order = None
 
 

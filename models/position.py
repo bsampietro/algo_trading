@@ -35,8 +35,7 @@ class Position:
         self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "BUY", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.m.ticker] += ("    3rd: Decision:\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      Order to buy at {price}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    Order to BUY at {price}\n")
 
 
     def sell(self, price):
@@ -48,8 +47,7 @@ class Position:
         self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "SELL", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    3rd: Decision:\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      Order to sell at {price}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    Order to SELL at {price}\n")
 
 
     def close(self):
@@ -66,8 +64,7 @@ class Position:
         else:
             self.security_check()
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    3rd: Decision:\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      Order to close at {self.m.last_price()}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    Order to close at {self.m.last_price()}\n")
 
 
     def cancel_pending(self):
@@ -106,6 +103,7 @@ class Position:
         elif status == "Cancelled":
             self.pending_order_id = POI['none']
         else:
+            # status == "Submitted" or other
             # get the order id after placing the order so
             # it is managed only on remote
             self.pending_order_id = order_id

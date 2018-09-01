@@ -121,7 +121,7 @@ class Monitor:
                 self.position.close()
                 return
 
-            if self.last_decision.breaking_reason():
+            if self.last_decision.breaking_in_range:
                 anti_trend_tuple = self.density.interval_tuple(-1 * self.position.direction())
                 if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
                     self.position.close()
@@ -129,7 +129,7 @@ class Monitor:
 
         elif self.position.is_pending():
 
-            if self.last_decision.breaking_reason():
+            if self.last_decision.breaking_in_range:
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
 
@@ -137,17 +137,15 @@ class Monitor:
             decision = Decision(self)
 
             if self.density.is_ready() and self.breaking.in_range():
-            
+                
+                decision.breaking_in_range = True
+
                 # Breaking
                 if self.breaking.price_changes_ok() and self.breaking.duration_ok():
-                    if self.breaking.direction == 1:
-                        decision.breaking = 5
-                    elif self.breaking.direction == -1:
-                        decision.breaking = -5
+                    decision.breaking_price_changes_and_duration = 5 * self.breaking.direction
 
-                # 4 in line
-                if abs(self.data[-1].trend) > 3:
-                    decision.in_line = self.data[-1].trend
+                # in line
+                decision.in_line = self.data[-1].trend
 
                 decision.density_direction = self.density.density_direction(self.breaking.direction)
 
@@ -156,15 +154,15 @@ class Monitor:
                 # decision.xxx = xxx
                 pass
 
+            gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
+            
             # Action
             if decision.should() == 'buy':
                 self.position.buy(self.price_plus_ticks(-1))
                 self.last_decision = decision
-                gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
             elif decision.should() == 'sell':
                 self.position.sell(self.price_plus_ticks(+1))
                 self.last_decision = decision
-                gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
 
 
     def last_cdp(self):
