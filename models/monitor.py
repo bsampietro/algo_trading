@@ -1,5 +1,5 @@
 import time
-from threading import Thread
+from threading import Thread, Lock
 import logging
 import json
 import os
@@ -48,39 +48,44 @@ class Monitor:
         self.pending_exec = None
         self.initial_time = 0
 
+        # Lock variables
+        self.price_change_lock = Lock()
+        self.order_change_lock = Lock()
+
 
     def price_change(self, tickType, price, price_time):
-        if tickType != 4:
-            return
-        cdp = ChartDataPoint(price, price_time)
-        if len(self.data) > 0:
-            if self.data[-1].price == price:
+        with self.price_change_lock:
+            if tickType != 4:
                 return
-            self.data[-1].duration = cdp.time - self.data[-1].time
-            cdp.jump = self.ticks(cdp.price - self.data[-1].price)
+            cdp = ChartDataPoint(price, price_time)
+            if len(self.data) > 0:
+                if self.data[-1].price == price:
+                    return
+                self.data[-1].duration = cdp.time - self.data[-1].time
+                cdp.jump = self.ticks(cdp.price - self.data[-1].price)
 
-        self.data.append(cdp)
+            self.data.append(cdp)
 
-        if len(self.data) == 1:
-            self.initial_time = int(self.data[0].time)
+            if len(self.data) == 1:
+                self.initial_time = int(self.data[0].time)
 
-        self.set_last_height_and_trend()
+            self.set_last_height_and_trend()
 
-        self.density.price_change()
+            self.density.price_change()
 
-        self.speed.price_change()
+            self.speed.price_change()
 
-        self.breaking.price_change()
+            self.breaking.price_change()
 
-        self.position.price_change()
-        
-        self.trending.price_change()
+            self.position.price_change()
+            
+            self.trending.price_change()
 
-        # self.prm.adjust()
+            # self.prm.adjust()
 
-        self.query_and_decision()
+            self.query_and_decision()
 
-        self.log_data()
+            self.log_data()
 
 
     def set_last_height_and_trend(self):
@@ -126,6 +131,9 @@ class Monitor:
                 if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
                     self.position.close()
                 return
+
+            # stop when position arrive near max
+            # if ...
 
         elif self.position.is_pending():
 
@@ -367,7 +375,8 @@ class Monitor:
 
 
     def order_change(self, order_id, status, remaining):
-        self.position.order_change(order_id, status, remaining)
+        with self.order_change_lock:
+            self.position.order_change(order_id, status, remaining)
 
 
 class ChartDataPoint:

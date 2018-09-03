@@ -37,7 +37,9 @@ class Result:
             "pnl: {:+.2f}, "
             "fantasy_pnl: {:+.2f}, "
             "fluctuation: {:.2f}, "
-            "reversal: {:.2f}"
+            "reversal: {:.2f}, "
+            "decision: '{}'"
         )
-        output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal)
+        output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal,
+            self.decision.state_str())
         return output

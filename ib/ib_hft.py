@@ -33,9 +33,7 @@ class IBHft(EClient, EWrapper):
         self.current_order_id = None
 
         # threading variables
-        self.tick_price_lock = Lock()
         self.place_order_lock = Lock()
-
 
         # Only used in load (not live) mode
         self.active_order = None
@@ -102,23 +100,22 @@ class IBHft(EClient, EWrapper):
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
-        with self.tick_price_lock:
-            super().tickPrice(reqId, tickType, price, attrib)
+        super().tickPrice(reqId, tickType, price, attrib)
 
-            if price <= 0:
-                logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
-                return
+        if price <= 0:
+            logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
+            return
 
-            # tickType:
-            # bid price = 1
-            # ask price = 2
-            # last traded price = 4
+        # tickType:
+        # bid price = 1
+        # ask price = 2
+        # last traded price = 4
 
-            if self.live_mode:
-                self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
-            else:
-                self.transmit_order(price=price)
-                self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
+        if self.live_mode:
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
+        else:
+            self.transmit_order(price=price)
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
 
 
     def wait_for_readiness(self):
@@ -191,7 +188,7 @@ class IBHft(EClient, EWrapper):
                     parentId, lastFillPrice, clientId,
                     whyHeld):
         super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, 
-                lastFillPrice, clientId, whyHeld)
+            lastFillPrice, clientId, whyHeld)
 
         self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining)
 
