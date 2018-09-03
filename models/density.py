@@ -258,12 +258,14 @@ class Density:
             return down_part / mid_part
 
 
-    def interval_tuple(self, direction):
+    def interval_tuples(self, direction):
         assert direction in (1, -1)
+        up_tuple = (self.current_interval_max, self.up_interval_min, self.up_interval_max)
+        down_tuple = (self.current_interval_min, self.down_interval_max, self.down_interval_min)
         if direction == 1:
-            return (self.current_interval_max, self.up_interval_min, self.up_interval_max)
+            return (up_tuple, down_tuple)
         else:
-            return (self.current_interval_min, self.down_interval_max, self.down_interval_min)
+            return (down_tuple, up_tuple)
 
 
     def density_direction(self, direction):
@@ -276,6 +278,19 @@ class Density:
 
     def is_ready(self):
         return len(self._previous_price_data) > 0
+
+
+    def copy_data(self):
+        new_density = Density(None)
+        new_density.up_density_direction = self.up_density_direction
+        new_density.down_density_direction = self.down_density_direction
+        new_density.up_interval_max = self.up_interval_max
+        new_density.up_interval_min = self.up_interval_min
+        new_density.current_interval_max = self.current_interval_max
+        new_density.current_interval_min = self.current_interval_min
+        new_density.down_interval_max = self.down_interval_max
+        new_density.down_interval_min = self.down_interval_min
+        return new_density
 
 
     def state_str(self):

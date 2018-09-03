@@ -42,7 +42,8 @@ class Monitor:
         
         self.data = []
         self.state = STATE["random_walk"]
-        self.last_decision = None
+        self.action_decision = None
+        self.action_density = None
 
         self.cycles = []
         self.pending_exec = None
@@ -126,25 +127,29 @@ class Monitor:
                 self.position.close()
                 return
 
-            if self.last_decision.breaking_in_range:
-                anti_trend_tuple = self.density.interval_tuple(-1 * self.position.direction())
+            if self.action_decision.breaking_in_range:
+                trend_tuple, anti_trend_tuple = self.action_density.interval_tuples(self.position.direction())
+                # loose position
                 if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
                     self.position.close()
-                return
+                    return
 
-            # stop when position arrive near max
-            # if ...
+                # win position
+                if self.position.direction() * (self.last_price() - trend_tuple[1]) >= 0:
+                    self.position.close()
+                    return
+
 
         elif self.position.is_pending():
 
-            if self.last_decision.breaking_in_range:
+            if self.action_decision.breaking_in_range:
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
 
         else:
             decision = Decision(self)
 
-            if self.density.is_ready() and self.breaking.in_range():
+            if self.breaking.in_range():
                 
                 decision.breaking_in_range = True
 
@@ -155,7 +160,7 @@ class Monitor:
                 # in line
                 decision.in_line = self.data[-1].trend
 
-                decision.density_direction = self.density.density_direction(self.breaking.direction)
+                decision.density_direction = self.breaking.density.density_direction(self.breaking.direction)
 
             # Need to implement speeding
             if self.speed.is_speeding():
@@ -163,14 +168,15 @@ class Monitor:
                 pass
 
             gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
-            
+
             # Action
+            if decision.should() != '':
+                self.action_decision = decision
+                self.action_density = self.breaking.density
             if decision.should() == 'buy':
                 self.position.buy(self.price_plus_ticks(-1))
-                self.last_decision = decision
             elif decision.should() == 'sell':
                 self.position.sell(self.price_plus_ticks(+1))
-                self.last_decision = decision
 
 
     def last_cdp(self):
