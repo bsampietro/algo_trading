@@ -14,7 +14,6 @@ from lib import util
 # State objects can be used to return data and decide in this class whether to change state
 # or just return direct information and get this class to ask if should change or not
 from models.states.breaking import Breaking
-from models.states.trending import Trending
 from models.cycle import Cycle
 from models.params import Params
 from models.position import Position
@@ -37,8 +36,6 @@ class Monitor:
         self.speed = Speed(self)
         self.results = Results(self)
         self.breaking = Breaking(self)
-
-        self.trending = Trending(self) # legacy
         
         self.data = []
         self.state = STATE["random_walk"]
@@ -79,8 +76,6 @@ class Monitor:
             self.breaking.price_change()
 
             self.position.price_change()
-            
-            self.trending.price_change()
 
             # self.prm.adjust()
 
