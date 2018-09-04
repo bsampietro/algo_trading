@@ -8,8 +8,8 @@ class Density:
         self.list_dps = []
 
         self.current_dp = None
-        self.up_density_direction = None
-        self.down_density_direction = None
+        self.up_density_direction = 0
+        self.down_density_direction = 0
 
         self.up_interval_max = 0
         self.up_interval_min = 0
@@ -294,33 +294,48 @@ class Density:
         return new_density
 
 
+    def copied(self):
+        return self.up_density_direction != 0 and self.current_dp is None
+
+
     def state_str(self):
-        if self.current_dp is None:
+        if not (self.is_ready() or self.copied()):
             return ""
-        output = "  DENSITY:\n"
+        output = ""
+        if self.current_dp is not None:
+            output += "  DENSITY:\n"
+        else:
+            output += "  DENSITY Copy:\n"
         if self.in_position:
             for dp in reversed(self.list_dps):
                 if self.down_interval_min <= dp.price <= self.up_interval_max:
                     output += f"    {dp.state_str(self.m.prm.price_precision)}\n"
+        if self.current_dp is not None:
+            output += (
+                f"    in_position: {self.in_position}\n"
+                f"    min_higher_area: {self.min_higher_area}\n"
+                f"    max_lower_area: {self.max_lower_area}\n"
+            )
         output += (
-            f"    in_position: {self.in_position}\n"
             f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.up_density_direction)}\n"
             f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.down_density_direction)}\n"
-            f"    min_higher_area: {self.min_higher_area}\n"
-            f"    max_lower_area: {self.max_lower_area}\n"
         )
         output += (
             "    {:.{price_precision}f}\n"
             "    {:.{price_precision}f}\n"
             "    {:.{price_precision}f}\n"
-            "    current_dp: {}\n"
-            "    {:.{price_precision}f}\n"
-            "    {:.{price_precision}f}\n"
-            "    {:.{price_precision}f}\n"
         ).format(self.up_interval_max, self.up_interval_min, self.current_interval_max,
-            self.current_dp.state_str(self.m.prm.price_precision),
-            self.current_interval_min, self.down_interval_max, self.down_interval_min,
-            price_precision = self.m.prm.price_precision)
+            price_precision = self.m.prm.price_precision if self.m is not None else 5)
+        if self.current_dp is not None:
+            output += f"    current_dp: {self.current_dp.state_str(self.m.prm.price_precision)}\n"
+        else:
+            output += "    -\n"
+        output += (
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+        ).format(self.current_interval_min, self.down_interval_max, self.down_interval_min,
+            price_precision = self.m.prm.price_precision if self.m is not None else 5)
         return output
 
 

@@ -357,7 +357,6 @@ class Monitor:
         gvars.datalog[self.ticker].write(self.breaking.state_str())
         gvars.datalog[self.ticker].write(self.position.state_str())
         gvars.datalog[self.ticker].write(self.results.state_str())
-        # gvars.datalog[self.ticker].write(self.trending.state_str())
         
         if gvars.datalog_buffer[self.ticker] != "":
             gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")

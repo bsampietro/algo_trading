@@ -139,4 +139,5 @@ class Breaking:
                 self.price_changes, price_precision = self.m.prm.price_precision)
             if len(self.price_changes_list) > 0:
                 output += f"    price_changes_list: {str(self.price_changes_list)}\n"
+            output += self.density.state_str()
         return output
