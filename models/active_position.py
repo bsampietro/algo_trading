@@ -83,9 +83,9 @@ class ActivePosition:
         if self.p.is_active():
             output += (
                 f"  ACTIVE_POSITION {self.direction}:\n"
-                f"    transaction_time: {self.transaction_time}\n"
-                f"    up_trending_price: {self.up_trending_price}\n"
-                f"    down_trending_price: {self.down_trending_price}\n"
+                f"    transaction_time: {self.transaction_time:.4f}\n"
+                f"    up_trending_price: {self.up_trending_price:.{self.m.prm.price_precision}f}\n"
+                f"    down_trending_price: {self.down_trending_price:.{self.m.prm.price_precision}f}\n"
             )
         return output
 

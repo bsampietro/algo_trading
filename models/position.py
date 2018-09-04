@@ -115,8 +115,8 @@ class Position:
         if self.is_active() or self.is_pending():
             output += (
                 f"  POSITION:\n"
-                f"    order_price: {self.order_price}\n"
-                f"    order_time: {self.order_time}\n"
+                f"    order_price: {self.order_price:.{self.m.prm.price_precision}f}\n"
+                f"    order_time: {self.order_time:.4f}\n"
                 f"    nr_of_trades: {self.nr_of_trades}\n"
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
