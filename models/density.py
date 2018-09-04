@@ -3,7 +3,7 @@ from lib import core
 
 class Density:
     def __init__(self, monitor):
-        self.mtr = monitor
+        self.m = monitor
 
         self.list_dps = []
 
@@ -36,7 +36,7 @@ class Density:
 
 
     def update_dps(self):
-        data = self.mtr.data_since(self.mtr.prm.primary_look_back_time)
+        data = self.m.data_since(self.m.prm.primary_look_back_time)
         if len(data) < 2:
             return
 
@@ -48,7 +48,7 @@ class Density:
                 self.list_dps.append(dp)
             dp.duration += cdp.duration
 
-        if (data[-1].time - data[0].time < self.mtr.prm.primary_look_back_time - 300 and 
+        if (data[-1].time - data[0].time < self.m.prm.primary_look_back_time - 300 and 
                 len(self._previous_price_data) == 0):
             return
 
@@ -57,8 +57,9 @@ class Density:
             if cdp == data[0]: # Pointer comparison
                 break
             dp_index = core.index(lambda dp: dp.price == cdp.price, self.list_dps)
-            self.list_dps[dp_index].duration -= cdp.duration
-            if self.list_dps[dp_index].duration < 0.001: # because of floating point errors
+            dp = self.list_dps[dp_index]
+            dp.duration -= cdp.duration
+            if dp.price != self.m.last_price() and dp.duration < 0.001: # not last and duration close to zero (floating point errors)
                 self.list_dps.pop(dp_index)
         self._previous_price_data = data
 
@@ -133,7 +134,7 @@ class Density:
 
         self.in_position = False
 
-        current_dp_index = core.index(lambda dp: dp.price == self.mtr.last_price(), self.list_dps)
+        current_dp_index = core.index(lambda dp: dp.price == self.m.last_price(), self.list_dps)
         self.current_dp = self.list_dps[current_dp_index]
 
         if self.current_dp.dpercentile <= self.max_lower_area:
@@ -249,7 +250,7 @@ class Density:
     def up_down_ratio(self, direction):
         mid_part = self.current_interval_max - self.current_interval_min
         if mid_part == 0:
-            mid_part = self.mtr.prm.tick_price
+            mid_part = self.m.prm.tick_price
         if direction == 1:
             up_part = self.up_interval_min - self.current_interval_max
             return up_part / mid_part
