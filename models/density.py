@@ -331,7 +331,7 @@ class DensityPoint:
 
     def state_str(self):
         output = (
-            "price: {:.2f}, "
+            "price: {}, "
             "duration: {:.2f}, "
             "index: {}, "
             "ipercentile: {}, "

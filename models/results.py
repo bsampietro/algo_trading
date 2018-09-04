@@ -19,11 +19,11 @@ class Results:
             output += "  RESULTS:\n"
             for result in self.data:
                 output += f"    {result.state_str()}\n"
-            output += "    ___real_pnl: {:+.2f}\n".format(self.pnl())
-            output += "    fantasy_pnl: {:+.2f}\n".format(self.fantasy_pnl())
+            output += "    ___real_pnl: {}\n".format(self.pnl())
+            output += "    fantasy_pnl: {}\n".format(self.fantasy_pnl())
             output += "            w/l: {} / {}\n".format(self.nr_of_wl('winners'), self.nr_of_wl('loosers'))
-            output += "    average_win: {:+.2f}\n".format(self.average_wl('winners'))
-            output += "   average_loss: {:+.2f}\n".format(self.average_wl('loosers'))
+            output += "    average_win: {}\n".format(self.average_wl('winners'))
+            output += "   average_loss: {}\n".format(self.average_wl('loosers'))
         return output
 
 
@@ -56,10 +56,10 @@ class Result:
 
     def state_str(self):
         output = (
-            "pnl: {:+.2f}, "
-            "fantasy_pnl: {:+.2f}, "
-            "fluctuation: {:.2f}, "
-            "reversal: {:.2f}, "
+            "pnl: {}, "
+            "fantasy_pnl: {}, "
+            "fluctuation: {}, "
+            "reversal: {}, "
             "decision: '{}'"
         )
         output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal,

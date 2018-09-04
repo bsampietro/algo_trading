@@ -126,7 +126,7 @@ class SpeedPoint:
         output = (
             "ticks: {:+d}, "
             "max_ticks: {}, "
-            "price: {:.2f}, "
+            "price: {}, "
             "time: {:.4f}, "
             "max_jump: {:+d}, "
             "changes: {}, "
