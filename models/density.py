@@ -301,21 +301,26 @@ class Density:
         if self.in_position:
             for dp in reversed(self.list_dps):
                 if self.down_interval_min <= dp.price <= self.up_interval_max:
-                    output += f"    {dp.state_str()}\n"
+                    output += f"    {dp.state_str(self.m.prm.price_precision)}\n"
         output += (
             f"    in_position: {self.in_position}\n"
             f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.up_density_direction)}\n"
             f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.down_density_direction)}\n"
             f"    min_higher_area: {self.min_higher_area}\n"
             f"    max_lower_area: {self.max_lower_area}\n"
-            f"    {self.up_interval_max}\n"
-            f"    {self.up_interval_min}\n"
-            f"    {self.current_interval_max}\n"
-            f"    current_dp: {self.current_dp.state_str()}\n"
-            f"    {self.current_interval_min}\n"
-            f"    {self.down_interval_max}\n"
-            f"    {self.down_interval_min}\n"
         )
+        output += (
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+            "    current_dp: {}\n"
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+            "    {:.{price_precision}f}\n"
+        ).format(self.up_interval_max, self.up_interval_min, self.current_interval_max,
+            self.current_dp.state_str(self.m.prm.price_precision),
+            self.current_interval_min, self.down_interval_max, self.down_interval_min,
+            price_precision = self.m.prm.price_precision)
         return output
 
 
@@ -329,16 +334,16 @@ class DensityPoint:
         self.dpercentile = 0
         self.height = gvars.HEIGHT['mid']
 
-    def state_str(self):
+    def state_str(self, price_precision = 2):
         output = (
-            "price: {}, "
+            "price: {:.{price_precision}f}, "
             "duration: {:.2f}, "
             "index: {}, "
             "ipercentile: {}, "
             "dpercentage: {:.2f}, "
             "dpercentile: {}, "
             "height: {}"
-        )
-        output = output.format(self.price, self.duration, self.index, 
-            self.ipercentile, self.dpercentage, self.dpercentile, self.height)
+        ).format(self.price, self.duration, self.index,
+            self.ipercentile, self.dpercentage, self.dpercentile, self.height,
+            price_precision = price_precision)
         return output

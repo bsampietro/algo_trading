@@ -18,12 +18,17 @@ class Results:
             self.show_results_history = False
             output += "  RESULTS:\n"
             for result in self.data:
-                output += f"    {result.state_str()}\n"
-            output += "    ___real_pnl: {}\n".format(self.pnl())
-            output += "    fantasy_pnl: {}\n".format(self.fantasy_pnl())
-            output += "            w/l: {} / {}\n".format(self.nr_of_wl('winners'), self.nr_of_wl('loosers'))
-            output += "    average_win: {}\n".format(self.average_wl('winners'))
-            output += "   average_loss: {}\n".format(self.average_wl('loosers'))
+                output += f"    {result.state_str(self.m.prm.price_precision)}\n"
+            output += (
+                "    ___real_pnl: {:+.{price_precision}f}\n"
+                "    fantasy_pnl: {:+.{price_precision}f}\n"
+                "            w/l: {} / {}\n"
+                "    average_win: {:+.{price_precision}f}\n"
+                "   average_loss: {:+.{price_precision}f}\n"
+            ).format(self.pnl(), self.fantasy_pnl(),
+                self.nr_of_wl('winners'), self.nr_of_wl('loosers'),
+                self.average_wl('winners'), self.average_wl('loosers'),
+                price_precision = self.m.prm.price_precision)
         return output
 
 
@@ -54,14 +59,14 @@ class Result:
         self.decision = decision
 
 
-    def state_str(self):
+    def state_str(self, price_precision = 2):
         output = (
-            "pnl: {}, "
-            "fantasy_pnl: {}, "
-            "fluctuation: {}, "
-            "reversal: {}, "
+            "pnl: {:+.{price_precision}f}, "
+            "fantasy_pnl: {:+.{price_precision}f}, "
+            "fluctuation: {:.{price_precision}f}, "
+            "reversal: {:.{price_precision}f}, "
             "decision: '{}'"
         )
         output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal,
-            self.decision.state_str())
+            self.decision.state_str(), price_precision = price_precision)
         return output

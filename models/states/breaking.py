@@ -130,12 +130,13 @@ class Breaking:
         output = ""
         if self.direction != 0:
             output += (
-                f"  BREAKING {self.direction}:\n"
-                f"    min_price: {self.min_price}\n"
-                f"    max_price: {self.max_price}\n"
-                f"    start_time: {self.start_time}\n"
-                f"    price_changes: {self.price_changes}\n"
-            )
+                "  BREAKING {}:\n"
+                "    min_price: {:.{price_precision}f}\n"
+                "    max_price: {:.{price_precision}f}\n"
+                "    start_time: {:.4f}\n"
+                "    price_changes: {}\n"
+            ).format(self.direction, self.min_price, self.max_price, self.start_time, 
+                self.price_changes, price_precision = self.m.prm.price_precision)
             if len(self.price_changes_list) > 0:
                 output += f"    price_changes_list: {str(self.price_changes_list)}\n"
         return output
