@@ -3,47 +3,34 @@ class ActivePosition:
     def __init__(self, position, monitor):
         self.m = monitor
         self.p = position
-        self.initialize_state()
+        
+        self.direction = self.p.direction()
+        assert self.direction != 0
+        self.up_trending_price = self.down_trending_price = self.m.last_price()
+        self.transaction_time = self.m.last_time()
+        self.density_data = self.m.action_density_data
 
 
-    def initialize_state(self):
-        self.direction = 0
-        self.up_trending_price = 0
-        self.down_trending_price = 0
-        self.transaction_time = 0
-        self.density_data = None
+    def close(self):
+        self.append_results()
 
 
     def price_change(self):
-        if self.p.position == 0:
-            if self.direction != 0:
-                # Just got out of position
-                self.append_results()
-                self.initialize_state()
-        else:
-            if self.direction == 0:
-                # Just got into new position
-                self.direction = self.p.direction()
-                self.up_trending_price = self.down_trending_price = self.m.last_price()
-                self.transaction_time = self.m.last_time()
-                self.density_data = self.m.action_density_data
-            else:
-                # There is an active position
-                if self.m.last_price() > self.up_trending_price:
-                    self.up_trending_price = self.m.last_price()
-                elif self.m.last_price() < self.down_trending_price:
-                    self.down_trending_price = self.m.last_price()
+        if self.m.last_price() > self.up_trending_price:
+            self.up_trending_price = self.m.last_price()
+        elif self.m.last_price() < self.down_trending_price:
+            self.down_trending_price = self.m.last_price()
 
 
     def reached_minimum(self):
-        if self.p.direction() * (self.m.last_price() - self.density_data.anti_trend_tuple[0]) < 0:
+        if self.direction * (self.m.last_price() - self.density_data.anti_trend_tuple[0]) < 0:
             return True
         else:
             return False
 
 
     def reached_maximum(self):
-        if self.p.direction() * (self.m.last_price() - self.density_data.trend_tuple[1]) >= 0:
+        if self.direction * (self.m.last_price() - self.density_data.trend_tuple[1]) >= 0:
             return True
         else:
             return False
@@ -68,7 +55,6 @@ class ActivePosition:
 
 
     def append_results(self):
-        assert self.direction != 0
         self.m.results.append(
             pnl = round(self.direction * (self.m.data[-2].price - self.transaction_price),
                 self.m.prm.price_precision),
@@ -85,7 +71,6 @@ class ActivePosition:
 
 
     def trending_price(self, straight=True):
-        assert self.direction != 0
         if straight:
             return self.up_trending_price if self.direction == 1 else self.down_trending_price
         else:
@@ -98,14 +83,12 @@ class ActivePosition:
 
 
     def state_str(self):
-        output = ""
-        if self.p.is_active():
-            output += (
-                f"  ACTIVE_POSITION {self.direction}:\n"
-                f"    transaction_time: {self.transaction_time:.4f}\n"
-                f"    up_trending_price: {self.up_trending_price:.{self.m.prm.price_precision}f}\n"
-                f"    down_trending_price: {self.down_trending_price:.{self.m.prm.price_precision}f}\n"
-            )
+        output = (
+            f"  Active Position {self.direction}:\n"
+            f"    transaction_time: {self.transaction_time:.4f}\n"
+            f"    up_trending_price: {self.up_trending_price:.{self.m.prm.price_precision}f}\n"
+            f"    down_trending_price: {self.down_trending_price:.{self.m.prm.price_precision}f}\n"
+        )
         return output
 
 

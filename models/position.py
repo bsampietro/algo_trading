@@ -13,7 +13,7 @@ class Position:
         self.order_price = 0
         self.order_time = 0
 
-        self.ap = ActivePosition(self, self.m)
+        self.ap = None
         
         self.nr_of_trades = 0
 
@@ -22,8 +22,8 @@ class Position:
 
 
     def price_change(self):
-        self.security_check()
-        self.ap.price_change()
+        if self.ap is not None:
+            self.ap.price_change()
         
 
     def buy(self, price):
@@ -100,6 +100,12 @@ class Position:
         if status == "Filled":
             self.pending_order_id = POI['none']
             self.nr_of_trades += 1
+            self.position = remaining
+            if self.position != 0:
+                self.ap = ActivePosition(self, self.m)
+            else:
+                self.ap.close()
+                self.ap = None
         elif status == "Cancelled":
             self.pending_order_id = POI['none']
         else:
@@ -107,7 +113,7 @@ class Position:
             # get the order id after placing the order so
             # it is managed only on remote
             self.pending_order_id = order_id
-        self.position = remaining
+        self.security_check(remaining)
 
 
     def state_str(self):
@@ -121,7 +127,8 @@ class Position:
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
             )
-        output += self.ap.state_str()
+        if self.ap is not None:
+            output += self.ap.state_str()
         return output
 
 
@@ -130,8 +137,8 @@ class Position:
     def sound_notify(self):
         Thread(target = lambda: os.system("mpv --really-quiet /home/bruno/Downloads/Goat-sound-effect.mp3")).start()
 
-    def security_check(self):
-        if abs(self.position) > CONTRACT_NR:
+    def security_check(self, remaining):
+        if self.position != remaining or abs(self.position) > CONTRACT_NR:
             gvars.datalog_buffer[self.m.ticker] += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.m.ticker}\n")
             # self.sound_notify()
