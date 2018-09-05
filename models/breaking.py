@@ -120,6 +120,7 @@ class Breaking:
         while len(self.price_changes_list) > self.m.prm.max_breaking_price_changes_list:
             self.price_changes_list.pop(0)
         self.price_changes_list.append(price_changes)
+        self.price_changes_list.sort()
 
 
     def in_range(self):

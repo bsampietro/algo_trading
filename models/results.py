@@ -73,9 +73,9 @@ class Result:
             "f_pnl: {:+.{price_precision}f}, "
             "fluct: {:.{price_precision}f}, "
             "rev: {:.{price_precision}f}, "
-            "o_time: {:>15.2f}, "
-            "s_time: {:>15.2f}, "
-            "e_time: {:>15.2f}, "
+            "o_time: {:>12.1f}, "
+            "s_time: {:>12.1f}, "
+            "e_time: {:>12.1f}, "
             "decision: '{}'"
         ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.order_time,
             self.start_time, self.end_time, self.decision.state_str(), price_precision = price_precision)

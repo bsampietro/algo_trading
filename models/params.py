@@ -7,7 +7,7 @@ class Params:
     def adjust(self):
         pass
         # self.find_rallies()
-        # explore cycles and get statistics...
+        # explore results and get statistics...
 
 
     def find_rallies(self):

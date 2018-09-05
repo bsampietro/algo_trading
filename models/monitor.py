@@ -13,17 +13,13 @@ from lib import util
 
 # State objects can be used to return data and decide in this class whether to change state
 # or just return direct information and get this class to ask if should change or not
-from models.states.breaking import Breaking
-from models.cycle import Cycle
+from models.breaking import Breaking
 from models.params import Params
 from models.position import Position
 from models.density import Density
 from models.speed import Speed
 from models.results import Results
 from models.decision import Decision
-
-STATE = {"random_walk": 0, "in_range": 1, "breaking_up": 2, "breaking_down": 3,
-        "trending_up": 4, "trending_down": 5}
 
 class Monitor:
     def __init__(self, ticker, remote):
@@ -38,12 +34,9 @@ class Monitor:
         self.breaking = Breaking(self)
         
         self.data = []
-        self.state = STATE["random_walk"]
         self.action_decision = None
         self.action_density = None
 
-        self.cycles = []
-        self.pending_exec = None
         self.initial_time = 0
 
         # Lock variables
@@ -180,31 +173,13 @@ class Monitor:
             return ChartDataPoint()
         return self.data[-1]
 
+    
     def last_price(self):
         return self.last_cdp().price
 
+    
     def last_time(self):
         return self.last_cdp().time
-
-    # ------ Cycles ------------
-    @property
-    def last_range(self):
-        for state in reversed(self.cycles[-1].states):
-            if type(state) is Range:
-                return state
-
-    # Last State
-    @property
-    def ls(self):
-        return self.cycles[-1].last_state()
-    
-    # add_state(self, state)
-    @ls.setter
-    def ls(self, value):
-        if len(self.cycles) == 0 or self.cycles[-1].closed():
-            self.cycles.append(Cycle())
-        self.cycles[-1].add_state(value)
-    # --------------------------
 
 
     # the_time could be a specific time or an amount of time since now
@@ -268,7 +243,6 @@ class Monitor:
         #self.output_chart('timed')
         #self.output_chart('all')
         self.save_data()
-        self.log_cycles()
 
 
     def output_chart(self, kind):
@@ -348,10 +322,10 @@ class Monitor:
 
 
     def log_data(self):
-        print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price()}")
+        print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
         gvars.datalog[self.ticker].write(
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
-            f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price()}\n"
+            f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price():.{self.prm.price_precision}f}\n"
         )
         gvars.datalog[self.ticker].write(self.density.state_str())
         gvars.datalog[self.ticker].write(self.speed.state_str())
@@ -363,16 +337,6 @@ class Monitor:
             gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")
             gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
             gvars.datalog_buffer[self.ticker] = ""
-
-
-    def log_cycles(self):
-        output = ""
-        for cycle in self.cycles:
-            output += cycle.state_str()
-            for state in cycle.states:
-                output += state.state_str()
-        gvars.datalog[self.ticker].write("\nCYCLES:\n")
-        gvars.datalog[self.ticker].write(output)
 
 
     def order_change(self, order_id, status, remaining):
