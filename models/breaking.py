@@ -17,35 +17,32 @@ class Breaking:
         self.max_price = 0
         self.start_time = 0
         self.price_changes = 0
-        self.density = None
+        self.density_data = None
 
 
     def update(self):
         if not self.m.density.is_ready():
             return
         if self.direction == 0:
-            density = self.m.density
-            if density.current_interval_max < self.m.last_price() < density.up_interval_min:
+            if self.m.density.current_interval_max < self.m.last_price() < self.m.density.up_interval_min:
                 self.direction = 1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()
-                self.density = density.copy_data()
-            elif density.current_interval_min > self.m.last_price() > density.down_interval_max:
+                self.density_data = self.m.density.get_data(self.direction)
+            elif self.m.density.current_interval_min > self.m.last_price() > self.m.density.down_interval_max:
                 self.direction = -1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()
-                self.density = density.copy_data()
+                self.density_data = self.m.density.get_data(self.direction)
         else:
-            density = self.density
-            
             self.price_changes += 1
             
             density_interval_mid_price = round(
-                (density.current_interval_max + density.current_interval_min) / 2.0,
+                (self.density_data.current_interval_max + self.density_data.current_interval_min) / 2.0,
                 self.m.prm.price_precision
             )
             if self.direction == 1:
-                if density_interval_mid_price <= self.m.last_price() < density.up_interval_min:
+                if density_interval_mid_price <= self.m.last_price() < self.density_data.up_interval_min:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -57,7 +54,7 @@ class Breaking:
                     self.add_to_price_changes_list(self.price_changes)
                     self.initialize_state()
             elif self.direction == -1:
-                if density_interval_mid_price >= self.m.last_price() > density.down_interval_max:
+                if density_interval_mid_price >= self.m.last_price() > self.density_data.down_interval_max:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -140,5 +137,5 @@ class Breaking:
                 self.price_changes, price_precision = self.m.prm.price_precision)
             if len(self.price_changes_list) > 0:
                 output += f"    price_changes_list: {str(self.price_changes_list)}\n"
-            output += self.density.state_str()
+            output += self.density_data.state_str(self.m.prm.price_precision)
         return output

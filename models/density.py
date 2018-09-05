@@ -272,51 +272,41 @@ class Density:
     def density_direction(self, direction):
         assert direction in (1, -1)
         if direction == 1:
-            return self.up_density_direction
+            return (self.up_density_direction, self.down_density_direction)
         else:
-            return self.down_density_direction
+            return (self.down_density_direction, self.up_density_direction)
 
 
     def is_ready(self):
         return len(self._previous_price_data) > 0
 
 
-    def copy_data(self):
-        new_density = Density(None)
-        new_density.up_density_direction = self.up_density_direction
-        new_density.down_density_direction = self.down_density_direction
-        new_density.up_interval_max = self.up_interval_max
-        new_density.up_interval_min = self.up_interval_min
-        new_density.current_interval_max = self.current_interval_max
-        new_density.current_interval_min = self.current_interval_min
-        new_density.down_interval_max = self.down_interval_max
-        new_density.down_interval_min = self.down_interval_min
-        return new_density
-
-
-    def copied(self):
-        return self.up_density_direction != 0 and self.current_dp is None
+    def get_data(self, direction):
+        dd = DensityData()
+        dd.trend_tuple, dd.anti_trend_tuple = self.interval_tuples(direction)
+        dd.trend_density_direction, dd.anti_trend_density_direction = self.density_direction(direction)
+        dd.up_interval_max = self.up_interval_max
+        dd.up_interval_min = self.up_interval_min
+        dd.current_interval_max = self.current_interval_max
+        dd.current_interval_min = self.current_interval_min
+        dd.down_interval_max = self.down_interval_max
+        dd.down_interval_min = self.down_interval_min
+        return dd
 
 
     def state_str(self):
-        if not (self.is_ready() or self.copied()):
+        if not self.is_ready():
             return ""
-        output = ""
-        if self.current_dp is not None:
-            output += "  DENSITY:\n"
-        else:
-            output += "  DENSITY Copy:\n"
+        output = "  DENSITY:\n"
         if self.in_position:
             for dp in reversed(self.list_dps):
                 if self.down_interval_min <= dp.price <= self.up_interval_max:
                     output += f"    {dp.state_str(self.m.prm.price_precision)}\n"
-        if self.current_dp is not None:
-            output += (
-                f"    in_position: {self.in_position}\n"
-                f"    min_higher_area: {self.min_higher_area}\n"
-                f"    max_lower_area: {self.max_lower_area}\n"
-            )
+        
         output += (
+            f"    in_position: {self.in_position}\n"
+            f"    min_higher_area: {self.min_higher_area}\n"
+            f"    max_lower_area: {self.max_lower_area}\n"
             f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.up_density_direction)}\n"
             f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.down_density_direction)}\n"
         )
@@ -361,4 +351,32 @@ class DensityPoint:
         ).format(self.price, self.duration, self.index,
             self.ipercentile, self.dpercentage, self.dpercentile, self.height,
             price_precision = price_precision)
+        return output
+
+
+class DensityData:
+    def __init__(self):
+        self.trend_tuple = self.anti_trend_tuple = None
+        self.trend_density_direction = self.anti_trend_density_direction = None
+        
+        self.up_interval_max = 0
+        self.up_interval_min = 0
+        self.current_interval_max = 0
+        self.current_interval_min = 0
+        self.down_interval_max = 0
+        self.down_interval_min = 0
+
+    def state_str(self, price_precision = 2):
+        output = (
+            "  Density Data:\n"
+            f"    trend_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.trend_density_direction)}\n"
+            f"    anti_trend_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.anti_trend_density_direction)}\n"
+            f"    {self.up_interval_max:.{price_precision}f}\n"
+            f"    {self.up_interval_min:.{price_precision}f}\n"
+            f"    {self.current_interval_max:.{price_precision}f}\n"
+            f"    -\n"
+            f"    {self.current_interval_min:.{price_precision}f}\n"
+            f"    {self.down_interval_max:.{price_precision}f}\n"
+            f"    {self.down_interval_min:.{price_precision}f}\n"
+        )
         return output

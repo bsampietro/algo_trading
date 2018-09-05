@@ -26,6 +26,8 @@ class Monitor:
 
         self.ticker = ticker
         self.remote = remote
+        self.data = []
+        
         self.prm = Params(self)
         self.position = Position(self, remote)
         self.density = Density(self)
@@ -33,9 +35,8 @@ class Monitor:
         self.results = Results(self)
         self.breaking = Breaking(self)
         
-        self.data = []
         self.action_decision = None
-        self.action_density = None
+        self.action_density_data = None
 
         self.initial_time = 0
 
@@ -116,14 +117,13 @@ class Monitor:
                 return
 
             if self.action_decision.breaking_in_range:
-                trend_tuple, anti_trend_tuple = self.action_density.interval_tuples(self.position.direction())
                 # loose position
-                if self.position.direction() * (self.last_price() - anti_trend_tuple[0]) < 0:
+                if self.position.ap.reached_minimum():
                     self.position.close()
                     return
 
                 # win position
-                if self.position.direction() * (self.last_price() - trend_tuple[1]) >= 0:
+                if self.position.ap.reached_maximum():
                     self.position.close()
                     return
 
@@ -149,7 +149,7 @@ class Monitor:
                 # in line
                 decision.in_line = self.data[-1].trend
 
-                decision.density_direction = self.breaking.density.density_direction(self.breaking.direction)
+                decision.density_direction = self.breaking.density_data.trend_density_direction
 
             # Need to implement speeding
             if self.speed.is_speeding():
@@ -161,7 +161,7 @@ class Monitor:
             # Action
             if decision.should() != '':
                 self.action_decision = decision
-                self.action_density = self.breaking.density
+                self.action_density_data = self.breaking.density_data
             if decision.should() == 'buy':
                 self.position.buy(self.price_plus_ticks(-1))
             elif decision.should() == 'sell':

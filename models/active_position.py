@@ -11,6 +11,7 @@ class ActivePosition:
         self.up_trending_price = 0
         self.down_trending_price = 0
         self.transaction_time = 0
+        self.density_data = None
 
 
     def price_change(self):
@@ -25,12 +26,27 @@ class ActivePosition:
                 self.direction = self.p.direction()
                 self.up_trending_price = self.down_trending_price = self.m.last_price()
                 self.transaction_time = self.m.last_time()
+                self.density_data = self.m.action_density_data
             else:
                 # There is an active position
                 if self.m.last_price() > self.up_trending_price:
                     self.up_trending_price = self.m.last_price()
                 elif self.m.last_price() < self.down_trending_price:
                     self.down_trending_price = self.m.last_price()
+
+
+    def reached_minimum(self):
+        if self.p.direction() * (self.m.last_price() - self.density_data.anti_trend_tuple[0]) < 0:
+            return True
+        else:
+            return False
+
+
+    def reached_maximum(self):
+        if self.p.direction() * (self.m.last_price() - self.density_data.trend_tuple[1]) >= 0:
+            return True
+        else:
+            return False
 
     
     def trending_stopped(self):
