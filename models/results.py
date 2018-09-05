@@ -7,9 +7,10 @@ class Results:
         self.show_results_history = False
 
 
-    def append(self, pnl, fantasy_pnl, fluctuation, reversal):
+    def append(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time):
     	self.show_results_history = True
-    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, self.m.action_decision))
+    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, order_time,
+            start_time, end_time, self.m.action_decision))
 
 
     def state_str(self):
@@ -51,22 +52,31 @@ class Results:
 
 
 class Result:
-    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, decision):
+    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time, decision):
         self.pnl = pnl
         self.fantasy_pnl = fantasy_pnl
         self.fluctuation = fluctuation
         self.reversal = reversal
+        self.order_time = order_time
+        self.start_time = start_time
+        self.end_time = end_time
         self.decision = decision
+
+
+    def canceled(self):
+        return self.start_time == 0
 
 
     def state_str(self, price_precision = 2):
         output = (
             "pnl: {:+.{price_precision}f}, "
-            "fantasy_pnl: {:+.{price_precision}f}, "
-            "fluctuation: {:.{price_precision}f}, "
-            "reversal: {:.{price_precision}f}, "
+            "f_pnl: {:+.{price_precision}f}, "
+            "fluct: {:.{price_precision}f}, "
+            "rev: {:.{price_precision}f}, "
+            "o_time: {:>15.2f}, "
+            "s_time: {:>15.2f}, "
+            "e_time: {:>15.2f}, "
             "decision: '{}'"
-        )
-        output = output.format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal,
-            self.decision.state_str(), price_precision = price_precision)
+        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.order_time,
+            self.start_time, self.end_time, self.decision.state_str(), price_precision = price_precision)
         return output

@@ -30,7 +30,7 @@ class Decision:
 
     def state_str(self):
         output = (
-            "breaking_price_changes_and_duration: {}, "
+            "bkr_pr_ch_and_drt: {}, "
             "in_line: {}, "
             "density_direction: {}"
         )

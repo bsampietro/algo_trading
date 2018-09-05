@@ -61,7 +61,10 @@ class ActivePosition:
             fluctuation = round(self.up_trending_price - self.down_trending_price,
                 self.m.prm.price_precision),
             reversal = round(abs(self.transaction_price - self.trending_price(False)),
-                self.m.prm.price_precision)
+                self.m.prm.price_precision),
+            order_time = self.p.order_time,
+            start_time = self.transaction_time,
+            end_time = self.m.data[-2].time
         )
 
 

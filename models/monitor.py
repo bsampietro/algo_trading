@@ -140,6 +140,7 @@ class Monitor:
             if self.action_decision.breaking_in_range:
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
+                    self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
             decision = Decision(self)
