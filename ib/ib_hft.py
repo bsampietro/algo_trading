@@ -38,6 +38,8 @@ class IBHft(EClient, EWrapper):
         # Only used in load (not live) mode
         self.active_order = None
         self.remaining = 0
+        self.current_tick_time = 0
+        self.current_tick_price = 0
 
         self.live_mode = True if input_file == "" else False
         if self.live_mode:
@@ -93,7 +95,9 @@ class IBHft(EClient, EWrapper):
                 data = json.load(f)
 
             for time, price in data:
-                self.tickPrice(self.current_req_id, 4, price, {"time": time})
+                self.current_tick_time = time
+                self.current_tick_price = price
+                self.tickPrice(self.current_req_id, 4, price, {})
             
             for req_id, monitor in self.req_id_to_monitor_map.items():
                 monitor.close()
@@ -115,7 +119,7 @@ class IBHft(EClient, EWrapper):
             self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
         else:
             self.transmit_order(price=price)
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, attrib["time"])
+            self.req_id_to_monitor_map[reqId].price_change(tickType, price, self.current_tick_time)
 
 
     def wait_for_readiness(self):
@@ -167,7 +171,7 @@ class IBHft(EClient, EWrapper):
                 self.order_id_to_monitor_map[order_id] = monitor
 
             if self.live_mode:
-                # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+                self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
                 pass
             else:
                 self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining, 0, 0, 0, 0, 0, "")
@@ -176,7 +180,7 @@ class IBHft(EClient, EWrapper):
 
     def cancel_order(self, order_id):
         if self.live_mode:
-            # self.cancelOrder(order_id)
+            self.cancelOrder(order_id)
             pass
         else:
             self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, 0, 0, 0, 0, 0, "")
@@ -190,7 +194,10 @@ class IBHft(EClient, EWrapper):
         super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, 
             lastFillPrice, clientId, whyHeld)
 
-        self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining)
+        if self.live_mode:
+            self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining, lastFillPrice, time.time())
+        else:
+            self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining, lastFillPrice, self.current_tick_time)
 
     
     def openOrder(self, orderId, contract, order,
@@ -221,10 +228,12 @@ class IBHft(EClient, EWrapper):
         elif order.orderType == "MKT":
             if order.action == "BUY":
                 self.remaining += order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining,
+                    self.current_tick_price, 0, 0, self.current_tick_price, 0, "")
             elif order.action == "SELL":
                 self.remaining -= order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining,
+                    self.current_tick_price, 0, 0, self.current_tick_price, 0, "")
         else:
             # Order is lmt, so just assigning for later execution
             self.active_order = order

@@ -339,9 +339,9 @@ class Monitor:
             gvars.datalog_buffer[self.ticker] = ""
 
 
-    def order_change(self, order_id, status, remaining):
+    def order_change(self, order_id, status, remaining, fill_price, fill_time):
         with self.order_change_lock:
-            self.position.order_change(order_id, status, remaining)
+            self.position.order_change(order_id, status, remaining, fill_price, fill_time)
 
 
 class ChartDataPoint:

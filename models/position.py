@@ -91,7 +91,7 @@ class Position:
             return 0
 
 
-    def order_change(self, order_id, status, remaining):
+    def order_change(self, order_id, status, remaining, fill_price, fill_time):
         gvars.datalog_buffer[self.m.ticker] += ("    position.order_change params:\n")
         gvars.datalog_buffer[self.m.ticker] += (f"      order_id: {order_id}\n")
         gvars.datalog_buffer[self.m.ticker] += (f"      status: {status}\n")
@@ -102,9 +102,9 @@ class Position:
             self.nr_of_trades += 1
             self.position = remaining
             if self.position != 0:
-                self.ap = ActivePosition(self, self.m)
+                self.ap = ActivePosition(self.m, self, fill_price, fill_time)
             else:
-                self.ap.close()
+                self.ap.append_results(fill_price, fill_time)
                 self.ap = None
         elif status == "Cancelled":
             self.pending_order_id = POI['none']

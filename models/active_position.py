@@ -1,18 +1,14 @@
 import gvars
 class ActivePosition:
-    def __init__(self, position, monitor):
+    def __init__(self, monitor, position, fill_price, fill_time):
         self.m = monitor
         self.p = position
         
         self.direction = self.p.direction()
         assert self.direction != 0
-        self.up_trending_price = self.down_trending_price = self.m.last_price()
-        self.transaction_time = self.m.last_time()
+        self.transaction_price = self.up_trending_price = self.down_trending_price = fill_price
+        self.transaction_time = fill_time
         self.density_data = self.m.action_density_data
-
-
-    def close(self):
-        self.append_results()
 
 
     def price_change(self):
@@ -54,9 +50,9 @@ class ActivePosition:
     # +++++++ Private +++++++++
 
 
-    def append_results(self):
+    def append_results(self, fill_price, fill_time):
         self.m.results.append(
-            pnl = round(self.direction * (self.m.data[-2].price - self.transaction_price),
+            pnl = round(self.direction * (fill_price - self.transaction_price),
                 self.m.prm.price_precision),
             fantasy_pnl = round(self.direction * (self.trending_price() - self.transaction_price),
                 self.m.prm.price_precision),
@@ -66,7 +62,7 @@ class ActivePosition:
                 self.m.prm.price_precision),
             order_time = self.p.order_time,
             start_time = self.transaction_time,
-            end_time = self.m.data[-2].time
+            end_time = fill_time
         )
 
 
@@ -77,14 +73,10 @@ class ActivePosition:
             return self.down_trending_price if self.direction == 1 else self.up_trending_price
 
 
-    @property
-    def transaction_price(self):
-        return self.p.order_price
-
-
     def state_str(self):
         output = (
             f"  Active Position {self.direction}:\n"
+            f"    transaction_price: {self.transaction_price:.{self.m.prm.price_precision}f}\n"
             f"    transaction_time: {self.transaction_time:.4f}\n"
             f"    up_trending_price: {self.up_trending_price:.{self.m.prm.price_precision}f}\n"
             f"    down_trending_price: {self.down_trending_price:.{self.m.prm.price_precision}f}\n"
