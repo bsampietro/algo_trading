@@ -37,12 +37,8 @@ class Breaking:
         else:
             self.price_changes += 1
             
-            density_interval_mid_price = round(
-                (self.density_data.current_interval_max + self.density_data.current_interval_min) / 2.0,
-                self.m.prm.price_precision
-            )
             if self.direction == 1:
-                if density_interval_mid_price <= self.m.last_price() < self.density_data.up_interval_min:
+                if self.density_data.current_interval_mid <= self.m.last_price() < self.density_data.up_interval_min:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -54,7 +50,7 @@ class Breaking:
                     self.add_to_price_changes_list(self.price_changes)
                     self.initialize_state()
             elif self.direction == -1:
-                if density_interval_mid_price >= self.m.last_price() > self.density_data.down_interval_max:
+                if self.density_data.current_interval_mid >= self.m.last_price() > self.density_data.down_interval_max:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -65,8 +61,6 @@ class Breaking:
                 else:
                     self.add_to_price_changes_list(self.price_changes)
                     self.initialize_state()
-
-            gvars.datalog_buffer[self.m.ticker] += (f"    density_interval_mid_price: {density_interval_mid_price}\n")
 
 
     def duration_ok(self):

@@ -14,6 +14,7 @@ class Density:
         self.up_interval_max = 0
         self.up_interval_min = 0
         self.current_interval_max = 0
+        self.current_interval_mid = 0 # mid: Calculated after max and min
         self.current_interval_min = 0
         self.down_interval_max = 0
         self.down_interval_min = 0
@@ -149,6 +150,7 @@ class Density:
         self.up_interval_max = 0
         self.up_interval_min = 0
         self.current_interval_max = 0
+        self.current_interval_mid = 0
         self.current_interval_min = 0
         self.down_interval_max = 0
         self.down_interval_min = 0
@@ -244,6 +246,11 @@ class Density:
         if self.down_interval_min == 0:
             self.down_interval_min = self.list_dps[0].price
 
+        self.current_interval_mid = round(
+                (self.current_interval_max + self.current_interval_min) / 2.0,
+                self.m.prm.price_precision
+            )
+
         self.in_position = True
 
 
@@ -288,6 +295,7 @@ class Density:
         dd.up_interval_max = self.up_interval_max
         dd.up_interval_min = self.up_interval_min
         dd.current_interval_max = self.current_interval_max
+        dd.current_interval_mid = self.current_interval_mid
         dd.current_interval_min = self.current_interval_min
         dd.down_interval_max = self.down_interval_max
         dd.down_interval_min = self.down_interval_min
@@ -362,6 +370,7 @@ class DensityData:
         self.up_interval_max = 0
         self.up_interval_min = 0
         self.current_interval_max = 0
+        self.current_interval_mid = 0
         self.current_interval_min = 0
         self.down_interval_max = 0
         self.down_interval_min = 0
@@ -374,7 +383,7 @@ class DensityData:
             f"    {self.up_interval_max:.{price_precision}f}\n"
             f"    {self.up_interval_min:.{price_precision}f}\n"
             f"    {self.current_interval_max:.{price_precision}f}\n"
-            f"    -\n"
+            f"    ->{self.current_interval_mid:.{price_precision}f}\n"
             f"    {self.current_interval_min:.{price_precision}f}\n"
             f"    {self.down_interval_max:.{price_precision}f}\n"
             f"    {self.down_interval_min:.{price_precision}f}\n"
