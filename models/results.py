@@ -13,9 +13,9 @@ class Results:
             start_time, end_time, self.m.action_decision))
 
 
-    def state_str(self):
+    def state_str(self, force_show = False):
         output = ""
-        if self.show_results_history:
+        if self.show_results_history or force_show:
             self.show_results_history = False
             output += "  RESULTS:\n"
             for result in self.data:

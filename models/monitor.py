@@ -112,14 +112,10 @@ class Monitor:
         
         if self.position.is_active():
 
-            if self.position.ap.trending_stopped():
-                self.position.close()
-                return
-
             if self.action_decision.breaking_in_range:
-                # loose position
-                if self.position.ap.reached_minimum():
+                if self.position.ap.trending_stopped():
                     self.position.close()
+                    # self.breaking.initialize_state()
                     return
 
                 # win position
@@ -139,15 +135,23 @@ class Monitor:
             decision = Decision(self)
 
             if self.breaking.in_range():
+
+                # if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
+                #     return
                 
                 decision.breaking_in_range = True
 
                 # Breaking
                 if self.breaking.price_changes_ok() and self.breaking.duration_ok():
-                    decision.breaking_price_changes_and_duration = 5 * self.breaking.direction
+                    decision.breaking_price_changes_and_duration = 6 * self.breaking.direction
 
-                # in line
-                decision.in_line = self.data[-1].trend
+                # # in line
+                # if abs(self.data[-1].trend) >= 3:
+                #     decision.in_line = self.data[-1].trend
+
+                # # trend two
+                # if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
+                #     decision.trend_two = 3
 
                 decision.density_direction = self.breaking.density_data.trend_density_direction
 
@@ -242,6 +246,7 @@ class Monitor:
     def close(self):
         #self.output_chart('timed')
         #self.output_chart('all')
+        print(self.results.state_str(True))
         self.save_data()
 
 

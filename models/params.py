@@ -46,7 +46,8 @@ class Params:
             self.price_precision = 5
 
         self.trending_break_time = 60 # secs
-        self.min_trending_break_value = 5 # ticks
+        self.max_trending_break_ticks = 6 # ticks
+        self.min_trending_break_ticks = 2 # ticks
 
         self.breaking_range_value = 2 # ticks
         self.min_breaking_price_changes = 4 # times
