@@ -136,24 +136,26 @@ class Monitor:
 
             if self.breaking.in_range():
 
-                # if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
-                #     return
+                if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) <= 1:
+                    return
                 
                 decision.breaking_in_range = True
+                decision.direction = self.breaking.direction
+                decision.density_direction = self.breaking.density_data.trend_density_direction
 
                 # Breaking
-                if self.breaking.price_changes_ok() and self.breaking.duration_ok():
-                    decision.breaking_price_changes_and_duration = 6 * self.breaking.direction
+                if self.breaking.price_changes_ok():
+                    decision.breaking_price_changes = self.breaking.price_changes
 
-                # # in line
-                # if abs(self.data[-1].trend) >= 3:
-                #     decision.in_line = self.data[-1].trend
+                if self.breaking.duration_ok():
+                    decision.breaking_duration_ok = True
 
-                # # trend two
-                # if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
-                #     decision.trend_two = 3
+                if abs(self.data[-1].trend) >= 3:
+                    decision.in_line = abs(self.data[-1].trend)
 
-                decision.density_direction = self.breaking.density_data.trend_density_direction
+                if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
+                    decision.trend_two = abs(self.last_price() - self.breaking.density_data.trend_tuple[0])
+
 
             # Need to implement speeding
             if self.speed.is_speeding():

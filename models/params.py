@@ -50,7 +50,7 @@ class Params:
         self.min_trending_break_ticks = 2 # ticks
 
         self.breaking_range_value = 2 # ticks
-        self.min_breaking_price_changes = 4 # times
+        self.min_breaking_price_changes = 5 # times
         self.breaking_up_down_ratio = 1.0
         self.max_breaking_price_changes_list = 20 # times
         
