@@ -57,6 +57,8 @@ class Density:
             if cdp == data[0]: # Pointer comparison
                 break
             dp_index = core.index(lambda dp: dp.price == cdp.price, self.list_dps)
+            if dp_index is None:
+                continue
             dp = self.list_dps[dp_index]
             dp.duration -= cdp.duration
             if dp.price != self.m.last_price() and dp.duration < 0.001: # not last and duration close to zero (floating point errors)
