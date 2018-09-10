@@ -5,8 +5,11 @@ import gvars
 class Decision:
     def __init__(self, monitor):
         self.m = monitor
+
+        self.density_data = None
         self.direction = 0
         self.breaking_in_range = False
+        self.speeding = False
         
         self.breaking_duration_ok = False
         self.density_direction = 0
@@ -52,6 +55,79 @@ class Decision:
             return 2
         else:
             return 0
+
+
+    def should_close(self):
+        ap = self.m.position.ap
+        trending_break_ticks = self.trending_break_ticks()
+        gvars.datalog_buffer[self.m.ticker] += (f"    trending_break_ticks: {trending_break_ticks}\n\n")
+
+        # Time stop
+        time_since_transaction = self.m.last_time() - ap.transaction_time
+        if time_since_transaction > self.m.prm.trending_break_time:
+            min_max = self.m.min_max_since(self.m.prm.trending_break_time)
+            gvars.datalog_buffer[self.m.ticker] += (f"    t_stopped: min_max_1: {min_max[1].price}\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"    t_stopped: min_max_0: {min_max[0].price}\n")
+            if self.m.ticks(min_max[1].price - min_max[0].price) <= trending_break_ticks:
+                return True
+        
+        # Price stop
+        if self.m.ticks(abs(self.m.last_price() - ap.trending_price())) >= trending_break_ticks:
+            return True
+
+        return False
+
+
+    def trending_break_ticks(self):
+        assert self.breaking_in_range or self.speeding
+        ap = self.m.position.ap
+        if self.breaking_in_range:
+            # possible_trending_break_ticks = self.m.ticks(abs(self.trending_price() - self.transaction_price)) / 3.0
+            # if possible_trending_break_ticks > self.m.prm.min_trending_break_ticks:
+            #     return possible_trending_break_ticks
+            # else:
+            #     return self.m.prm.min_trending_break_ticks
+
+            trend_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - ap.trending_price()))
+            anti_trend_ticks = self.m.ticks(abs(ap.transaction_price - self.density_data.anti_trend_tuple[0]))
+
+            # break_ticks = min(trend_ticks, anti_trend_ticks)
+            # if break_ticks < self.m.prm.min_trending_break_ticks:
+            #     return self.m.prm.min_trending_break_ticks
+            # elif break_ticks > self.m.prm.max_trending_break_ticks:
+            #     return self.m.prm.max_trending_break_ticks
+            # else:
+            #     return break_ticks
+
+            break_ticks = 0
+            if self.direction * (ap.trending_price() - ap.transaction_price) >= 2:
+                break_ticks = 3
+            elif self.direction * (ap.trending_price() - self.density_data.trend_tuple[1]) >= 0:
+                break_ticks = 1
+            elif anti_trend_ticks <= 3:
+                break_ticks = 3
+            elif anti_trend_ticks >= 6:
+                break_ticks = 6
+            else:
+                break_ticks = anti_trend_ticks
+            return break_ticks
+            # return 3
+        else:
+            return 4
+
+
+    # def reached_minimum(self):
+    #     if self.direction * (self.m.last_price() - self.density_data.anti_trend_tuple[0]) < 0:
+    #         return True
+    #     else:
+    #         return False
+
+
+    def reached_maximum(self):
+        if self.direction * (self.m.last_price() - self.density_data.trend_tuple[1]) >= 0 and self.breaking_in_range:
+            return True
+        else:
+            return False
 
 
     def state_str(self):

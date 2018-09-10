@@ -36,7 +36,6 @@ class Monitor:
         self.breaking = Breaking(self)
         
         self.action_decision = None
-        self.action_density_data = None
 
         self.initial_time = 0
 
@@ -112,16 +111,15 @@ class Monitor:
         
         if self.position.is_active():
 
-            if self.action_decision.breaking_in_range:
-                if self.position.ap.trending_stopped():
-                    self.position.close()
-                    # self.breaking.initialize_state()
-                    return
+            if self.action_decision.should_close():
+                self.position.close()
+                # self.breaking.initialize_state()
+                return
 
-                # win position
-                if self.position.ap.reached_maximum():
-                    self.position.close()
-                    return
+            # win position
+            if self.action_decision.reached_maximum():
+                self.position.close()
+                return
 
 
         elif self.position.is_pending():
@@ -140,6 +138,7 @@ class Monitor:
                     return
                 
                 decision.breaking_in_range = True
+                decision.density_data = self.breaking.density_data
                 decision.direction = self.breaking.direction
                 decision.density_direction = self.breaking.density_data.trend_density_direction
 
@@ -167,7 +166,6 @@ class Monitor:
             # Action
             if decision.should() != '':
                 self.action_decision = decision
-                self.action_density_data = self.breaking.density_data
             if decision.should() == 'buy':
                 self.position.buy(self.price_plus_ticks(-1))
             elif decision.should() == 'sell':
