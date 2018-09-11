@@ -37,10 +37,9 @@ class Breaking:
         else:
             self.price_changes += 1
             
-            density_interval_mid_price = round(
-                (self.density_data.current_interval_max + self.density_data.current_interval_min) / 2.0,
-                self.m.prm.price_precision
-            )
+            density_interval_mid_price = self.m.mid_price(
+                self.density_data.current_interval_max, self.density_data.current_interval_min)
+            
             if self.direction == 1:
                 if density_interval_mid_price <= self.m.last_price() < self.density_data.up_interval_min:
                     if self.m.last_price() < self.min_price:

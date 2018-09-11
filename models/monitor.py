@@ -242,6 +242,12 @@ class Monitor:
     def price_plus_ticks(self, ticks):
         return round(self.last_price() + ticks * self.prm.tick_price, self.prm.price_precision)
 
+
+    def mid_price(self, price1, price2 = 0):
+        if price2 == 0: # price1 is iterable with 2 elements
+            price1, price2 = price1
+        return round((price1 + price2) / 2.0, self.prm.price_precision)
+
     
     def close(self):
         #self.output_chart('timed')
