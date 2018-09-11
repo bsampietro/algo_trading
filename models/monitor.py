@@ -127,7 +127,7 @@ class Monitor:
             if self.action_decision.breaking_in_range:
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
-                    self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
+                    #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
             decision = Decision(self)
@@ -137,20 +137,14 @@ class Monitor:
                 if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) <= 1:
                     return
                 
+                decision.direction = self.breaking.direction
                 decision.breaking_in_range = True
                 decision.density_data = self.breaking.density_data
-                decision.direction = self.breaking.direction
-                decision.density_direction = self.breaking.density_data.trend_density_direction
 
                 # Breaking
-                if self.breaking.price_changes_ok():
-                    decision.breaking_price_changes = self.breaking.price_changes
-
-                if self.breaking.duration_ok():
-                    decision.breaking_duration_ok = True
-
-                if abs(self.data[-1].trend) >= 3:
-                    decision.in_line = abs(self.data[-1].trend)
+                decision.breaking_price_changes = self.breaking.price_changes
+                decision.breaking_duration_ok = self.breaking.duration_ok()
+                decision.in_line = abs(self.data[-1].trend)
 
                 if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
                     decision.trend_two = abs(self.last_price() - self.breaking.density_data.trend_tuple[0])

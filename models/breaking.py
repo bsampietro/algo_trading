@@ -70,7 +70,7 @@ class Breaking:
 
     def duration_ok(self):
         duration_ok = False
-        mid_price = round((self.max_price + self.min_price) / 2.0, self.m.prm.price_precision)
+        mid_price = self.m.mid_price(self.max_price, self.min_price)
         time_up_down = self.m.time_up_down_since(self.start_time, mid_price)
 
         if self.direction == 1:
@@ -91,25 +91,6 @@ class Breaking:
         gvars.datalog_buffer[self.m.ticker] += (f"    duration_ok: {duration_ok}\n")
 
         return duration_ok
-
-
-    def price_changes_ok(self):
-        price_changes_ok = False
-        
-        threshold = self.m.prm.min_breaking_price_changes
-        # Uncomment this to start using the past breaking price changes
-        # if len(self.price_changes_list) > self.m.prm.max_breaking_price_changes_list - 5:
-        #     threshold = round(max(self.price_changes_list) * 0.75)
-        # if threshold > self.m.prm.min_breaking_price_changes:
-        #     threshold = self.m.prm.min_breaking_price_changes
-        
-        if self.price_changes >= threshold:
-            price_changes_ok = True
-        
-        gvars.datalog_buffer[self.m.ticker] += (f"    threshold: {threshold}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"    price_changes_ok: {price_changes_ok}\n")
-        
-        return price_changes_ok
 
 
     def add_to_price_changes_list(self, price_changes):
