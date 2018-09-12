@@ -73,10 +73,10 @@ class Result:
             "f_pnl: {:+.{price_precision}f}, "
             "fluct: {:.{price_precision}f}, "
             "rev: {:.{price_precision}f}, "
+            "decision: '{}', "
             "o_time: {:>12.1f}, "
             "s_time: {:>12.1f}, "
-            "e_time: {:>12.1f}, "
-            "decision: '{}'"
-        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.order_time,
-            self.start_time, self.end_time, self.decision.state_str(), price_precision = price_precision)
+            "e_time: {:>12.1f}"
+        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.decision.state_str(),
+            self.order_time, self.start_time, self.end_time, price_precision = price_precision)
         return output

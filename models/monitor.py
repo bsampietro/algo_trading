@@ -134,7 +134,7 @@ class Monitor:
 
             if self.breaking.in_range():
 
-                if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) <= 1:
+                if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
                     return
                 
                 decision.direction = self.breaking.direction

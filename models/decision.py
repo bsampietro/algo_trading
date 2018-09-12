@@ -58,15 +58,20 @@ class Decision:
     # ++++++++ Scores +++++++++++++
 
     def breaking_price_changes_score(self):
-        return 6 if self.breaking_price_changes > self.m.prm.min_breaking_price_changes else 0
+        score = 0
+        if self.breaking_price_changes > self.m.prm.min_breaking_price_changes:
+            score += 4
+            if self.breaking_duration_ok:
+                score += 2
+        return score
 
 
     def in_line_score(self):
-        return self.in_line if self.in_line >= 4 else 0
+        return self.in_line if self.in_line >= 3 else 0
 
 
     def trend_two_score(self):
-        return 3 if self.trend_two > 0 else 0
+        return 2 if self.trend_two > 0 else 0
 
 
     def density_direction_score(self):
@@ -78,7 +83,7 @@ class Decision:
 
     def breaking_duration_ok_score(self):
         if self.breaking_duration_ok:
-            return 0 # 2
+            return 0
         else:
             return 0
 
@@ -93,18 +98,11 @@ class Decision:
             anti_trend_ticks = self.m.ticks(abs(ap.transaction_price - self.density_data.anti_trend_tuple[0]))
 
             # break_ticks = min(trend_ticks, anti_trend_ticks)
-            # if break_ticks < self.m.prm.min_trending_break_ticks:
-            #     return self.m.prm.min_trending_break_ticks
-            # elif break_ticks > self.m.prm.max_trending_break_ticks:
-            #     return self.m.prm.max_trending_break_ticks
-            # else:
-            #     return break_ticks
-
             break_ticks = 0
-            if self.direction * self.m.ticks(ap.trending_price() - ap.transaction_price) >= 2:
-                break_ticks = 3
-            elif self.direction * self.m.ticks(ap.trending_price() - self.density_data.trend_tuple[1]) >= 0:
+            if self.direction * self.m.ticks(ap.trending_price() - self.density_data.trend_tuple[1]) >= 0:
                 break_ticks = 1
+            elif self.direction * self.m.ticks(ap.trending_price() - ap.transaction_price) >= 2:
+                break_ticks = 3
             elif anti_trend_ticks <= 3:
                 break_ticks = 3
             elif anti_trend_ticks >= 6:

@@ -46,14 +46,11 @@ class Params:
             self.price_precision = 5
 
         self.trending_break_time = 60 # secs
-        self.max_trending_break_ticks = 6 # ticks
-        self.min_trending_break_ticks = 2 # ticks
 
-        self.breaking_range_value = 2 # ticks
         self.min_breaking_price_changes = 5 # times
         self.breaking_up_down_ratio = 1.0
-        self.max_breaking_price_changes_list = 20 # times
+        self.max_breaking_price_changes_list = 50 # times
         
-        self.primary_look_back_time = 3600 # secs
+        self.primary_look_back_time = 7200 # secs # ideal for ES, 600-900 for all others
 
         self.speeding_time = 5 # secs
