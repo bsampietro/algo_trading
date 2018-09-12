@@ -51,6 +51,6 @@ class Params:
         self.breaking_up_down_ratio = 1.0
         self.max_breaking_price_changes_list = 50 # times
         
-        self.primary_look_back_time = 7200 # secs # ideal for ES, 600-900 for all others
+        self.primary_look_back_time = 900 # secs # ideal for ES, 600-900 for all others
 
         self.speeding_time = 5 # secs

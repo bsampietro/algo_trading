@@ -124,7 +124,7 @@ class Monitor:
 
         elif self.position.is_pending():
 
-            if self.action_decision.breaking_in_range:
+            if self.action_decision.breaking_in_range():
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
@@ -134,21 +134,19 @@ class Monitor:
 
             if self.breaking.in_range():
 
-                if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
-                    return
+                # if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
+                #     return
                 
-                decision.direction = self.breaking.direction
-                decision.breaking_in_range = True
                 decision.density_data = self.breaking.density_data
+                decision.direction = self.breaking.direction
+                decision.last_price = self.last_price()
 
-                # Breaking
                 decision.breaking_price_changes = self.breaking.price_changes
                 decision.breaking_duration_ok = self.breaking.duration_ok()
                 decision.in_line = abs(self.data[-1].trend)
 
                 if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
                     decision.trend_two = abs(self.last_price() - self.breaking.density_data.trend_tuple[0])
-
 
             # Need to implement speeding
             if self.speed.is_speeding():
@@ -247,6 +245,8 @@ class Monitor:
         #self.output_chart('timed')
         #self.output_chart('all')
         print(self.results.state_str(True))
+        min_max = self.min_max_since(86400*7)
+        print(f"Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}")
         self.save_data()
 
 

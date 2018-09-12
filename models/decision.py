@@ -7,9 +7,10 @@ class Decision:
         self.m = monitor
 
         self.density_data = None
+        self.time_speeding_points = None
+
         self.direction = 0
-        self.breaking_in_range = False
-        self.speeding = False
+        self.last_price = 0
         
         self.breaking_duration_ok = False
         self.breaking_price_changes = 0
@@ -20,7 +21,7 @@ class Decision:
     @lru_cache(maxsize=None)
     def should(self):
         decision = ''
-        total_score = sum(self.tupleized_scores())
+        total_score = sum(self.all_scores())
         if total_score >= 6:
             if self.direction == 1:
                 decision = 'buy'
@@ -50,9 +51,12 @@ class Decision:
         return False
 
 
-    def tupleized_scores(self):
-        return (self.breaking_price_changes_score(), self.in_line_score(), self.trend_two_score(), 
-            self.density_direction_score(), self.breaking_duration_ok_score())
+    def all_scores(self):
+        scores = []
+        for attr_name, attr_obj in vars(type(self)).items():
+            if attr_name[-6:] == '_score':
+                scores.append(attr_obj(self))
+        return scores
 
 
     # ++++++++ Scores +++++++++++++
@@ -67,7 +71,7 @@ class Decision:
 
 
     def in_line_score(self):
-        return self.in_line if self.in_line >= 3 else 0
+        return 2 if self.in_line >= 3 else 0
 
 
     def trend_two_score(self):
@@ -75,25 +79,39 @@ class Decision:
 
 
     def density_direction_score(self):
-        if self.density_data and self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in']):
+        if not self.breaking_in_range():
+            return 0
+        if self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in']):
             return 3
         else:
             return 0
 
 
-    def breaking_duration_ok_score(self):
-        if self.breaking_duration_ok:
-            return 0
-        else:
-            return 0
+    # def price_and_density_score(self):
+    #     to_win_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
+    #     to_loose_ticks = self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
+    #     advantage = to_win_ticks - to_loose_ticks
+    #     if to_win_ticks < 3:
+    #         return -1000
+    #     if advantage > 0:
+    #         return advantage
+
 
     # +++++++++++++++++++++++++++++
 
+
+    def breaking_in_range(self):
+        return self.density_data is not None
+
+
+    def speeding(self):
+        return self.time_speeding_points is not None
+
     
     def trending_break_ticks(self):
-        assert self.breaking_in_range or self.speeding
+        assert self.breaking_in_range() or self.speeding()
         ap = self.m.position.ap
-        if self.breaking_in_range:
+        if self.breaking_in_range():
             trend_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - ap.trending_price()))
             anti_trend_ticks = self.m.ticks(abs(ap.transaction_price - self.density_data.anti_trend_tuple[0]))
 
@@ -116,7 +134,7 @@ class Decision:
 
 
     def reached_maximum(self):
-        if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 and self.breaking_in_range:
+        if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 and self.breaking_in_range():
             return True
         else:
             return False
@@ -126,11 +144,9 @@ class Decision:
         output = (
             "breaking_price_changes: {}, "
             "breaking_duration_ok: {}, "
-            "breaking_in_range: {}, "
             "in_line: {}, "
             "trend_two: {}, "
-        ).format(self.breaking_price_changes, self.breaking_duration_ok, self.breaking_in_range,
-            self.in_line, self.trend_two)
+        ).format(self.breaking_price_changes, self.breaking_duration_ok, self.in_line, self.trend_two)
         if self.density_data:
             output += "density_direction: {}".format(gvars.DENSITY_DIRECTION_INV.get(self.density_data.trend_density_direction))
         return output
