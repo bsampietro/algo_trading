@@ -48,14 +48,17 @@ class Decision:
         if self.m.ticks(abs(self.m.last_price() - ap.trending_price())) >= trending_break_ticks:
             return True
 
+        if self.reached_maximum():
+            return True
+
         return False
 
 
     def all_scores(self):
         scores = []
-        for attr_name, attr_obj in vars(type(self)).items():
-            if attr_name[-6:] == '_score':
-                scores.append(attr_obj(self))
+        for funct_name, funct_obj in vars(type(self)).items():
+            if funct_name[-6:] == '_score':
+                scores.append(funct_obj(self))
         return scores
 
 
@@ -81,20 +84,23 @@ class Decision:
     def density_direction_score(self):
         if not self.breaking_in_range():
             return 0
+        score = 0
         if self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in']):
-            return 3
-        else:
+            score += 2
+            if self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge']):
+                score += 2
+        return score
+
+
+    def advantage_score(self):
+        if not self.breaking_in_range():
             return 0
-
-
-    # def price_and_density_score(self):
-    #     to_win_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
-    #     to_loose_ticks = self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
-    #     advantage = to_win_ticks - to_loose_ticks
-    #     if to_win_ticks < 3:
-    #         return -1000
-    #     if advantage > 0:
-    #         return advantage
+        score = 0
+        if self.to_win_ticks() <= 1:
+            score += -1000 # Big number so it doesn't place the trade
+        if self.to_win_ticks() - self.to_loose_ticks() >= 1:
+            score += 2
+        return score
 
 
     # +++++++++++++++++++++++++++++
@@ -138,6 +144,16 @@ class Decision:
             return True
         else:
             return False
+
+
+    @lru_cache(maxsize=None)
+    def to_win_ticks(self):
+        return self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
+
+
+    @lru_cache(maxsize=None)
+    def to_loose_ticks(self):
+        return self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
 
 
     def state_str(self):

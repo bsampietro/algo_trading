@@ -116,12 +116,6 @@ class Monitor:
                 # self.breaking.initialize_state()
                 return
 
-            # win position
-            if self.action_decision.reached_maximum():
-                self.position.close()
-                return
-
-
         elif self.position.is_pending():
 
             if self.action_decision.breaking_in_range():
@@ -133,9 +127,6 @@ class Monitor:
             decision = Decision(self)
 
             if self.breaking.in_range():
-
-                # if self.ticks(abs(self.breaking.density_data.trend_tuple[1] - self.last_price())) < 3:
-                #     return
                 
                 decision.density_data = self.breaking.density_data
                 decision.direction = self.breaking.direction
