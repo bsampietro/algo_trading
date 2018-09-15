@@ -144,7 +144,7 @@ class Monitor:
                 # decision.xxx = xxx
                 pass
 
-            gvars.datalog_buffer[self.ticker] += f"    Decision: {decision.state_str()}\n"
+            gvars.datalog_buffer[self.ticker] += f"    Decision:\n{decision.state_str()}"
 
             # Action
             if decision.should() != '':
@@ -235,9 +235,7 @@ class Monitor:
     def close(self):
         #self.output_chart('timed')
         #self.output_chart('all')
-        print(self.results.state_str(True))
-        min_max = self.min_max_since(86400*7)
-        print(f"Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}")
+        self.log_final_data()
         self.save_data()
 
 
@@ -333,6 +331,16 @@ class Monitor:
             gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")
             gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
             gvars.datalog_buffer[self.ticker] = ""
+
+
+    def log_final_data(self):
+        output = "\nFINAL DATA\n"
+        output += self.results.state_str(True)
+        min_max = self.min_max_since(86400*7)
+        output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
+        output += f"  Data points: {len(self.data)}\n"
+        print(output)
+        gvars.datalog[self.ticker].write(output)
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):

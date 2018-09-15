@@ -13,13 +13,18 @@ class Results:
             start_time, end_time, self.m.action_decision))
 
 
-    def state_str(self, force_show = False):
+    def state_str(self, show_all = False):
         output = ""
-        if self.show_results_history or force_show:
+        if self.show_results_history or show_all:
             self.show_results_history = False
             output += "  RESULTS:\n"
-            for result in self.data:
-                output += f"    {result.state_str(self.m.prm.price_precision)}\n"
+            if show_all:
+                for nr, result in enumerate(self.data):
+                    output += f"    Result {nr}:\n"
+                    output += result.state_str(self.m.prm.price_precision)
+            else:
+                output += f"    Result:\n"
+                output += self.data[-1].state_str(self.m.prm.price_precision)
             output += (
                 "    ___real_pnl: {:+.{price_precision}f}\n"
                 "    fantasy_pnl: {:+.{price_precision}f}\n"
@@ -69,14 +74,14 @@ class Result:
 
     def state_str(self, price_precision = 2):
         output = (
-            "pnl: {:+.{price_precision}f}, "
-            "f_pnl: {:+.{price_precision}f}, "
-            "fluct: {:.{price_precision}f}, "
-            "rev: {:.{price_precision}f}, "
-            "decision: '{}', "
-            "o_time: {:>12.1f}, "
-            "s_time: {:>12.1f}, "
-            "e_time: {:>12.1f}"
-        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.decision.state_str(),
-            self.order_time, self.start_time, self.end_time, price_precision = price_precision)
+            "      pnl: {:+.{price_precision}f}\n"
+            "      f_pnl: {:+.{price_precision}f}\n"
+            "      fluct: {:.{price_precision}f}\n"
+            "      rev: {:.{price_precision}f}\n"
+            "      o_time: {:>12.1f}\n"
+            "      s_time: {:>12.1f}\n"
+            "      e_time: {:>12.1f}\n"
+            "      decision:\n{}"
+        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.order_time, self.start_time,
+            self.end_time, self.decision.state_str(), price_precision = price_precision)
         return output

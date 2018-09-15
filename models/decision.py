@@ -17,6 +17,8 @@ class Decision:
         self.in_line = 0
         self.trend_two = 0
 
+        self.scores_output = ""
+
 
     @lru_cache(maxsize=None)
     def should(self):
@@ -58,7 +60,9 @@ class Decision:
         scores = []
         for funct_name, funct_obj in vars(type(self)).items():
             if funct_name[-6:] == '_score':
-                scores.append(funct_obj(self))
+                score = funct_obj(self)
+                self.scores_output += (f"          {funct_name}: {score}\n")
+                scores.append(score)
         return scores
 
 
@@ -158,11 +162,12 @@ class Decision:
 
     def state_str(self):
         output = (
-            "breaking_price_changes: {}, "
-            "breaking_duration_ok: {}, "
-            "in_line: {}, "
-            "trend_two: {}, "
+            "        Variables:\n"
+            "          breaking_price_changes: {}\n"
+            "          breaking_duration_ok: {}\n"
+            "          in_line: {}\n"
+            "          trend_two: {}\n"
         ).format(self.breaking_price_changes, self.breaking_duration_ok, self.in_line, self.trend_two)
-        if self.density_data:
-            output += "density_direction: {}".format(gvars.DENSITY_DIRECTION_INV.get(self.density_data.trend_density_direction))
+        output += "        Scores:\n"
+        output += self.scores_output
         return output
