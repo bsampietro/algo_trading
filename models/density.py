@@ -19,6 +19,7 @@ class Density:
         self.down_interval_min = None # type: float
 
         self.in_position = False
+        self.values_set = False
 
         # Private
         self._previous_price_data = []
@@ -247,6 +248,7 @@ class Density:
             self.down_interval_min = self.list_dps[0].price
 
         self.in_position = True
+        self.values_set = True
 
 
     def up_down_ratio(self, direction):
@@ -279,10 +281,6 @@ class Density:
             return (self.down_density_direction, self.up_density_direction)
 
 
-    def is_ready(self):
-        return len(self._previous_price_data) > 0
-
-
     def get_data(self, direction):
         dd = DensityData()
         dd.trend_tuple, dd.anti_trend_tuple = self.interval_tuples(direction)
@@ -297,14 +295,13 @@ class Density:
 
 
     def state_str(self):
-        if not self.is_ready():
+        if not self.values_set:
             return ""
         output = "  DENSITY:\n"
         if self.in_position:
             for dp in reversed(self.list_dps):
                 if self.down_interval_min <= dp.price <= self.up_interval_max:
                     output += f"    {dp.state_str(self.m.prm.price_precision)}\n"
-        
         output += (
             f"    in_position: {self.in_position}\n"
             f"    min_higher_area: {self.min_higher_area}\n"

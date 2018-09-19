@@ -21,7 +21,7 @@ class Breaking:
 
 
     def update(self):
-        if not self.m.density.is_ready():
+        if not self.m.density.values_set:
             return
         if self.direction == 0:
             if self.m.density.current_interval_max < self.m.last_price() < self.m.density.up_interval_min:
