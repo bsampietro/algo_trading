@@ -122,11 +122,19 @@ class Monitor:
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
+            elif self.action_decision.speeding():
+                if not self.speed.is_speeding():
+                    self.position.cancel_pending()
+                    #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
             decision = Decision(self)
+            
+            if self.speed.is_speeding():
 
-            if self.breaking.in_range():
+                decision.time_speeding_points = self.speed.time_speeding_points
+
+            elif self.breaking.in_range():
                 
                 decision.density_data = self.breaking.density_data
                 decision.direction = self.breaking.direction
@@ -139,20 +147,14 @@ class Monitor:
                 if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
                     decision.trend_two = abs(self.last_price() - self.breaking.density_data.trend_tuple[0])
 
-            # Need to implement speeding
-            if self.speed.is_speeding():
-                # decision.xxx = xxx
-                pass
-
-            gvars.datalog_buffer[self.ticker] += f"    Decision:\n{decision.state_str()}"
-
-            # Action
-            if decision.should() != '':
-                self.action_decision = decision
             if decision.should() == 'buy':
-                self.position.buy(self.price_plus_ticks(-1))
+                self.action_decision = decision
+                self.position.buy(self.price_plus_ticks(-decision.adjusting_ticks))
+                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision:\n{decision.state_str()}"
             elif decision.should() == 'sell':
-                self.position.sell(self.price_plus_ticks(+1))
+                self.action_decision = decision
+                self.position.sell(self.price_plus_ticks(+decision.adjusting_ticks))
+                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision:\n{decision.state_str()}"
 
 
     def last_cdp(self):

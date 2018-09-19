@@ -26,7 +26,7 @@ class Position:
             self.ap.price_change()
         
 
-    def buy(self, price):
+    def buy(self, price = 0):
         if self.is_pending():
             return
         self.order_price = price
@@ -38,7 +38,7 @@ class Position:
         gvars.datalog_buffer[self.m.ticker] += (f"    Order to BUY at {price}\n")
 
 
-    def sell(self, price):
+    def sell(self, price = 0):
         if self.is_pending():
             return
         self.order_price = price
@@ -92,10 +92,9 @@ class Position:
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):
-        gvars.datalog_buffer[self.m.ticker] += ("    position.order_change params:\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      order_id: {order_id}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      status: {status}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"      remaining: {remaining}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.order_id: {order_id}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.status: {status}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.remaining: {remaining}\n")
         
         if status == "Filled":
             self.pending_order_id = POI['none']

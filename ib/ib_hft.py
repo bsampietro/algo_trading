@@ -172,7 +172,6 @@ class IBHft(EClient, EWrapper):
 
             if self.live_mode:
                 self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
-                pass
             else:
                 self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining, 0, 0, 0, 0, 0, "")
                 self.transmit_order(order)
@@ -181,7 +180,6 @@ class IBHft(EClient, EWrapper):
     def cancel_order(self, order_id):
         if self.live_mode:
             self.cancelOrder(order_id)
-            pass
         else:
             self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, 0, 0, 0, 0, 0, "")
             self.active_order = None
@@ -225,7 +223,7 @@ class IBHft(EClient, EWrapper):
                     self.remaining -= self.active_order.totalQuantity
                     self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
                     self.active_order = None
-        elif order.orderType == "MKT":
+        elif (order.orderType == "MKT") or (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price):
             if order.action == "BUY":
                 self.remaining += order.totalQuantity
                 self.orderStatus(self.current_order_id, "Filled", 1, self.remaining,

@@ -80,7 +80,7 @@ class Speed:
             elif -4 >= speed_point.ticks <= min(self.time_speed, key=lambda sp: sp.ticks).ticks * 0.75:
                 self._last_time_speeding_time = price_data[-1].time
                 self.time_speeding_points = [speed_point]
-        elif len(self.time_speeding_points) <= 4:
+        elif len(self.time_speeding_points) <= self.m.prm.time_speeding_points_length - 1: # <= X if want to have X + 1 max speeding points
             self._last_time_speeding_time = price_data[-1].time
             self.time_speeding_points.append(speed_point)
         else:

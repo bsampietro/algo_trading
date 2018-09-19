@@ -54,3 +54,4 @@ class Params:
         self.primary_look_back_time = 900 # secs # ideal for ES, 600-900 for all others
 
         self.speeding_time = 5 # secs
+        self.time_speeding_points_length = 4
