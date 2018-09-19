@@ -9,15 +9,15 @@ class Decision:
         self.density_data = None
         self.time_speeding_points = None
 
-        self.direction = None # assigned None to be sure it fails if used before assigning real direction
-        self.last_price = 0
+        self.direction = None # type: int
+        self.last_price = None # type: float
         
         self.breaking_duration_ok = False
         self.breaking_price_changes = 0
         self.in_line = 0
         self.trend_two = 0
 
-        self.adjusting_ticks = 0
+        self.adjusting_ticks = None # type: int
 
         self._scores_output = ""
 

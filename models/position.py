@@ -10,8 +10,8 @@ class Position:
         self.m = monitor
         self.remote = remote
 
-        self.order_price = 0
-        self.order_time = 0
+        self.order_price = None # type: float
+        self.order_time = None # type: int
 
         self.ap = None
         

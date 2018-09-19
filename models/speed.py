@@ -6,7 +6,7 @@ class Speed:
         self.time_speeding_points = []
 
         self._speed_min_time_passed = False
-        self._last_time_speeding_time = 0
+        self._last_time_speeding_time = None # type: int
         self._show_full_list_in_state_str = True
 
 
@@ -33,7 +33,7 @@ class Speed:
     def update_time_speed(self):
         # Get latest price data
         time_or_duration = self.m.prm.speeding_time
-        if self._last_time_speeding_time > 0:
+        if self._last_time_speeding_time != None:
             if self.m.data[-1].time - self._last_time_speeding_time > self.m.prm.speeding_time / 2.0:
                 time_or_duration = self._last_time_speeding_time
             else:
@@ -41,7 +41,7 @@ class Speed:
         price_data = self.m.data_since(time_or_duration)
 
         if len(price_data) <= 1:
-            self._last_time_speeding_time = 0
+            self._last_time_speeding_time = None # type: int
             self.time_speeding_points = []
             self._show_full_list_in_state_str = True
             return
@@ -84,7 +84,7 @@ class Speed:
             self._last_time_speeding_time = price_data[-1].time
             self.time_speeding_points.append(speed_point)
         else:
-            self._last_time_speeding_time = 0
+            self._last_time_speeding_time = None # type: int
             self.time_speeding_points = []
             self._show_full_list_in_state_str = True
 

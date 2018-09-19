@@ -8,22 +8,22 @@ class Density:
         self.list_dps = []
 
         self.current_dp = None
-        self.up_density_direction = 0
-        self.down_density_direction = 0
+        self.up_density_direction = None # type: int
+        self.down_density_direction = None # type: int
 
-        self.up_interval_max = 0
-        self.up_interval_min = 0
-        self.current_interval_max = 0
-        self.current_interval_min = 0
-        self.down_interval_max = 0
-        self.down_interval_min = 0
+        self.up_interval_max = None # type: float
+        self.up_interval_min = None # type: float
+        self.current_interval_max = None # type: float
+        self.current_interval_min = None # type: float
+        self.down_interval_max = None # type: float
+        self.down_interval_min = None # type: float
 
         self.in_position = False
 
         # Private
         self._previous_price_data = []
-        self.min_higher_area = 0
-        self.max_lower_area = 0
+        self.min_higher_area = None # type: int
+        self.max_lower_area = None # type: int
         
 
     def price_change(self):
@@ -148,12 +148,12 @@ class Density:
 
         # Set interval variables
 
-        self.up_interval_max = 0
-        self.up_interval_min = 0
-        self.current_interval_max = 0
-        self.current_interval_min = 0
-        self.down_interval_max = 0
-        self.down_interval_min = 0
+        self.up_interval_max = None # type: float
+        self.up_interval_min = None # type: float
+        self.current_interval_max = None # type: float
+        self.current_interval_min = None # type: float
+        self.down_interval_max = None # type: float
+        self.down_interval_min = None # type: float
 
         if self.up_density_direction == gvars.DENSITY_DIRECTION['out']:
 
@@ -231,19 +231,19 @@ class Density:
                     filled_position = 3
                     break
 
-        if self.up_interval_max == 0:
+        if self.up_interval_max == None:
             self.up_interval_max = self.list_dps[-1].price
-        if self.up_interval_min == 0:
+        if self.up_interval_min == None:
             self.up_interval_min = self.list_dps[-1].price
             self.up_density_direction = gvars.DENSITY_DIRECTION['out-edge']
-        if self.current_interval_max == 0:
+        if self.current_interval_max == None:
             self.current_interval_max = self.list_dps[-1].price
-        if self.current_interval_min == 0:
+        if self.current_interval_min == None:
             self.current_interval_min = self.list_dps[0].price
-        if self.down_interval_max == 0:
+        if self.down_interval_max == None:
             self.down_interval_max = self.list_dps[0].price
             self.down_density_direction = gvars.DENSITY_DIRECTION['out-edge']
-        if self.down_interval_min == 0:
+        if self.down_interval_min == None:
             self.down_interval_min = self.list_dps[0].price
 
         self.in_position = True
@@ -309,8 +309,8 @@ class Density:
             f"    in_position: {self.in_position}\n"
             f"    min_higher_area: {self.min_higher_area}\n"
             f"    max_lower_area: {self.max_lower_area}\n"
-            f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.up_density_direction)}\n"
-            f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.down_density_direction)}\n"
+            f"    up_density_direction: {gvars.DENSITY_DIRECTION_INV[self.up_density_direction]}\n"
+            f"    down_density_direction: {gvars.DENSITY_DIRECTION_INV[self.down_density_direction]}\n"
         )
         output += (
             "    {:.{price_precision}f}\n"
@@ -335,10 +335,10 @@ class DensityPoint:
     def __init__(self, price):
         self.price = price
         self.duration = 0
-        self.index = 0
-        self.ipercentile = 0
-        self.dpercentage = 0
-        self.dpercentile = 0
+        self.index = None # type: int
+        self.ipercentile = None # type: int
+        self.dpercentage = None # type: int
+        self.dpercentile = None # type: int
         self.height = gvars.HEIGHT['mid']
 
     def state_str(self, price_precision = 2):
@@ -361,18 +361,18 @@ class DensityData:
         self.trend_tuple = self.anti_trend_tuple = None
         self.trend_density_direction = self.anti_trend_density_direction = None
         
-        self.up_interval_max = 0
-        self.up_interval_min = 0
-        self.current_interval_max = 0
-        self.current_interval_min = 0
-        self.down_interval_max = 0
-        self.down_interval_min = 0
+        self.up_interval_max = None # type: int
+        self.up_interval_min = None # type: int
+        self.current_interval_max = None # type: int
+        self.current_interval_min = None # type: int
+        self.down_interval_max = None # type: int
+        self.down_interval_min = None # type: int
 
     def state_str(self, price_precision = 2):
         output = (
             "  Density Data:\n"
-            f"    trend_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.trend_density_direction)}\n"
-            f"    anti_trend_density_direction: {gvars.DENSITY_DIRECTION_INV.get(self.anti_trend_density_direction)}\n"
+            f"    trend_density_direction: {gvars.DENSITY_DIRECTION_INV[self.trend_density_direction]}\n"
+            f"    anti_trend_density_direction: {gvars.DENSITY_DIRECTION_INV[self.anti_trend_density_direction]}\n"
             f"    {self.up_interval_max:.{price_precision}f}\n"
             f"    {self.up_interval_min:.{price_precision}f}\n"
             f"    {self.current_interval_max:.{price_precision}f}\n"

@@ -13,9 +13,9 @@ class Breaking:
 
     def initialize_state(self):
         self.direction = 0
-        self.min_price = 0
-        self.max_price = 0
-        self.start_time = 0
+        self.min_price = None # type: float
+        self.max_price = None # type: float
+        self.start_time = None # type: int
         self.price_changes = 0
         self.density_data = None
 

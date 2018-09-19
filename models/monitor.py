@@ -37,7 +37,7 @@ class Monitor:
         
         self.action_decision = None
 
-        self.initial_time = 0
+        self.initial_time = None # type: int
 
         # Lock variables
         self.price_change_lock = Lock()
@@ -355,7 +355,7 @@ class ChartDataPoint:
         self.price = price
         self.time = time
         self.duration = 0
-        self.height = 0 # min - mid - max
-        self.trend = 0 # distance (in ticks) from min or max
+        self.height = gvars.HEIGHT['mid'] # min - mid - max
+        self.trend = None # type: int # distance (in ticks) from min or max
         self.jump = 0 # distance (in ticks) from previous price
         # self.slope = 0
