@@ -113,34 +113,34 @@ class Monitor:
 
             if self.action_decision.should_close():
                 self.position.close()
-                if self.action_decision.breaking_in_range():
+                if self.action_decision.is_breaking_in_range():
                     # self.breaking.initialize_state()
                     pass
-                elif self.action_decision.speeding():
+                elif self.action_decision.is_speeding():
                     self.speed.reset()
                 return
 
         elif self.position.is_pending():
 
-            if self.action_decision.breaking_in_range():
+            if self.action_decision.is_breaking_in_range():
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
-            elif self.action_decision.speeding():
+            elif self.action_decision.is_speeding():
                 if not self.speed.is_speeding():
                     self.position.cancel_pending()
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
-            decision = Decision(self)
+            decision = None
             
             if self.speed.is_speeding():
 
-                decision.time_speeding_points = self.speed.time_speeding_points
+                decision = Decision(self, time_speeding_points = self.speed.time_speeding_points)
 
             elif self.breaking.in_range():
                 
-                decision.density_data = self.breaking.density_data
+                decision = Decision(self, density_data = self.breaking.density_data)
                 decision.direction = self.breaking.direction
                 decision.last_price = self.last_price()
 
@@ -150,6 +150,9 @@ class Monitor:
 
                 if self.breaking.direction * (self.last_price() - self.breaking.density_data.trend_tuple[0]) >= 2:
                     decision.trend_two = abs(self.last_price() - self.breaking.density_data.trend_tuple[0])
+
+            if decision is None:
+                return
 
             if decision.should() == 'buy':
                 self.action_decision = decision
