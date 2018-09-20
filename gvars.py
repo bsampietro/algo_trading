@@ -8,3 +8,4 @@ TREND_PATTERN = {'follow': 1, 'neutral': 0, 'reversal': -1}
 # Variables
 datalog = {}
 datalog_buffer = {}
+datalog_final = {}

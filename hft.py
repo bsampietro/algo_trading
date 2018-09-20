@@ -16,6 +16,7 @@ if __name__ == "__main__":
             ticker = util.file_from_path(file_or_ticker)
             gvars.datalog[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}.log", "w")
             gvars.datalog_buffer[ticker] = ""
+            gvars.datalog_final[ticker] = open(f"{gvars.TEMP_DIR}/{ticker}_final.log", "w")
 
         if util.contract_type(sys.argv[1]) == "FUT":
             ib_hft = IBHft(tickers = sys.argv[1:])
@@ -29,5 +30,7 @@ if __name__ == "__main__":
     finally:
         for ticker, stream in gvars.datalog.items():
             print(f"Closing {ticker} stream...")
+            stream.close()
+        for ticker, stream in gvars.datalog_final.items():
             stream.close()
         print("Done.")

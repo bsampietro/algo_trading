@@ -10,7 +10,7 @@ class Results:
     def append(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time):
     	self.show_results_history = True
     	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, order_time,
-            start_time, end_time, self.m.action_decision))
+            start_time, end_time, self.m.action_decision, self.pnl()))
 
 
     def state_str(self, show_all = False):
@@ -19,12 +19,10 @@ class Results:
             self.show_results_history = False
             output += "  RESULTS:\n"
             if show_all:
-                for nr, result in enumerate(self.data):
-                    output += f"    Result {nr}:\n"
-                    output += result.state_str(self.m.prm.price_precision)
+                for result in self.data:
+                    output += f"    {result.state_str(self.m.prm.price_precision)}\n"
             else:
-                output += f"    Result:\n"
-                output += self.data[-1].state_str(self.m.prm.price_precision)
+                output += f"    {self.data[-1].state_str(self.m.prm.price_precision)}\n"
             output += (
                 "    ___real_pnl: {:+.{price_precision}f}\n"
                 "    fantasy_pnl: {:+.{price_precision}f}\n"
@@ -57,7 +55,7 @@ class Results:
 
 
 class Result:
-    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time, decision):
+    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time, decision, acc_pnl):
         self.pnl = pnl
         self.fantasy_pnl = fantasy_pnl
         self.fluctuation = fluctuation
@@ -66,6 +64,7 @@ class Result:
         self.start_time = start_time
         self.end_time = end_time
         self.decision = decision
+        self.acc_pnl = acc_pnl
 
 
     def canceled(self):
@@ -74,14 +73,14 @@ class Result:
 
     def state_str(self, price_precision = 2):
         output = (
-            "      pnl: {:+.{price_precision}f}\n"
-            "      f_pnl: {:+.{price_precision}f}\n"
-            "      fluct: {:.{price_precision}f}\n"
-            "      rev: {:.{price_precision}f}\n"
-            "      o_time: {:>12.1f}\n"
-            "      s_time: {:>12.1f}\n"
-            "      e_time: {:>12.1f}\n"
-            "      decision:\n{}"
-        ).format(self.pnl, self.fantasy_pnl, self.fluctuation, self.reversal, self.order_time, self.start_time,
-            self.end_time, self.decision.state_str(), price_precision = price_precision)
+            f"pnl: {self.pnl:+.{price_precision}f}, "
+            f"f_pnl: {self.fantasy_pnl:+.{price_precision}f}, "
+            f"fluct: {self.fluctuation:.{price_precision}f}, "
+            f"rev: {self.reversal:.{price_precision}f}, "
+            f"acc_pnl: {self.acc_pnl:+.{price_precision}f}, "
+            f"decision: ({self.decision.state_str()}), "
+            f"o_time: {self.order_time:>12.1f}, "
+            f"s_time: {self.start_time:>12.1f}, "
+            f"e_time: {self.end_time:>12.1f}, "
+        )
         return output

@@ -350,6 +350,7 @@ class Monitor:
         output += f"  Data points: {len(self.data)}\n"
         print(output)
         gvars.datalog[self.ticker].write(output)
+        gvars.datalog_final[self.ticker].write(output)
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):

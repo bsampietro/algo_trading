@@ -37,6 +37,7 @@ class Decision:
     def should(self):
         decision = ''
         if self.is_breaking_in_range():
+            self.set_breaking_data()
             total_score = sum(self.all_scores())
             if total_score >= 6:
                 self.adjusting_ticks = 1
@@ -82,7 +83,7 @@ class Decision:
         for funct_name, funct_obj in vars(type(self)).items():
             if funct_name[-6:] == '_score':
                 score = funct_obj(self)
-                self._scores_output += (f"          {funct_name}: {score}\n")
+                self._scores_output += (f"{funct_name}: {score}, ")
                 scores.append(score)
         return scores
 
@@ -116,7 +117,6 @@ class Decision:
             score += 2
             if self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge']):
                 score += 2
-                self.trend_pattern = gvars.TREND_PATTERN['reversal']
         return score
 
 
@@ -133,6 +133,15 @@ class Decision:
     # +++++++++++++++++++++++++++++
 
     # +++++++++++++++++++++++++++++
+
+
+    def set_breaking_data(self):
+        if (self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in']) and
+                self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge'])):
+            self.trend_pattern = gvars.TREND_PATTERN['reversal']
+        elif (self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge']) and
+                self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in'])):
+            self.trend_pattern = gvars.TREND_PATTERN['follow']
 
 
     def set_speeding_data(self):
@@ -227,16 +236,18 @@ class Decision:
     def state_str(self):
         output = ""
         if self.is_breaking_in_range():
-            output += "        Is breaking:\n"
+            output += "Breaking - "
         elif self.is_speeding():
-            output += "        Is speeding:\n"
-        output += (
-            "        Variables:\n"
-            "          breaking_price_changes: {}\n"
-            "          breaking_duration_ok: {}\n"
-            "          in_line: {}\n"
-            "          trend_two: {}\n"
-        ).format(self.breaking_price_changes, self.breaking_duration_ok, self.in_line, self.trend_two)
-        output += "        Scores:\n"
+            output += "Speeding - "
+        output += f"trend_pattern: {self.trend_pattern:+d}, "
         output += self._scores_output
+        output += (
+            f"breaking_price_changes: {self.breaking_price_changes:>3}, "
+            f"breaking_duration_ok: {str(self.breaking_duration_ok):>5}, "
+            f"in_line: {self.in_line}, "
+            f"trend_two: {self.trend_two}, "
+            f"adjusting_ticks: {self.adjusting_ticks}, "
+        )
+        if self.is_speeding():
+            output += f"time_speeding_points: {str([tsp.ticks for tsp in self.time_speeding_points])}"
         return output
