@@ -20,6 +20,8 @@ class Decision:
 
         self.adjusting_ticks = None # type: int
 
+        self.trend_pattern = gvars.TREND_PATTERN['neutral']
+
         self._scores_output = ""
 
 
@@ -114,6 +116,7 @@ class Decision:
             score += 2
             if self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge']):
                 score += 2
+                self.trend_pattern = gvars.TREND_PATTERN['reversal']
         return score
 
 
@@ -141,32 +144,38 @@ class Decision:
             if ini_ticks > 0:
                 if sum_ticks >= ini_ticks * 0.75:
                     self.direction = -1
+                    self.trend_pattern = gvars.TREND_PATTERN['reversal']
             elif ini_ticks < 0:
                 if sum_ticks <= ini_ticks * 0.75:
                     self.direction = 1
+                    self.trend_pattern = gvars.TREND_PATTERN['reversal']
         elif len(self.time_speeding_points) == self.m.prm.time_speeding_points_length:
             if all(tsp.ticks >= 2 for tsp in self.time_speeding_points):
                 self.direction = 1
+                self.trend_pattern = gvars.TREND_PATTERN['follow']
             elif all(tsp.ticks <= -2 for tsp in self.time_speeding_points):
                 self.direction = -1
+                self.trend_pattern = gvars.TREND_PATTERN['follow']
 
 
     def trending_break_ticks(self):
+        break_ticks = None
         if self.is_breaking_in_range():
             trend_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - self.ap.trending_price()))
             anti_trend_ticks = self.m.ticks(abs(self.ap.transaction_price - self.density_data.anti_trend_tuple[0]))
 
             # break_ticks = min(trend_ticks, anti_trend_ticks)
-            break_ticks = 0
             if self.direction * self.m.ticks(self.ap.trending_price() - self.density_data.trend_tuple[1]) >= 0:
                 break_ticks = 1
             elif self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= 2:
                 break_ticks = 3
             else:
                 break_ticks = util.value_or_min_max(anti_trend_ticks, (3, 6))
-            return break_ticks # or fixed 3 ?
+            # or break_ticks = fixed 3 ?
         elif self.is_speeding():
-            return self.to_loose_ticks()
+            break_ticks = self.to_loose_ticks()
+        break_ticks += 1 if self.trend_pattern == gvars.TREND_PATTERN['reversal'] else 0
+        return break_ticks
 
 
     def reached_maximum(self):
