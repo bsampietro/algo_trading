@@ -26,17 +26,6 @@ def contract_type(symbol):
     else:
         return "" # is nothing
 
-def today_in_string():
-    return datetime.today().strftime("%Y%m%d")
-
-def date_in_string(date):
-    if type(date) is str:
-        return date
-    elif type(date) is datetime:
-        return date.strftime("%Y%m%d")
-    else:
-        raise RuntimeError("Bruno: the_day argument is of wrong type")
-
 def read_symbol_list(path):
     symbol_list = []
     with open(path) as symbols:
@@ -46,29 +35,16 @@ def read_symbol_list(path):
                 symbol_list.append(symbol)
     return symbol_list
 
-def covariance(data1, data2):
-    if len(data1) != len(data2):
-        raise RuntimeError("Covariance lists should have the same lenghts")
-
-    data1_mean = statistics.mean(data1)
-    data2_mean = statistics.mean(data2)
-
-    sum = 0
-    for i in range(len(data1)):
-        sum += ((data1[i] - data1_mean) * (data2[i] - data2_mean))
-
-    return sum / (len(data1) - 1)
-
-def calculate_hv(closes):
-    # return (statistics.stdev(closes) / closes[-1]) * 100 * math.sqrt(252/len(closes))
-    return (statistics.stdev(closes) / statistics.mean(closes)) * 100 * math.sqrt(252/len(closes))
-
-def calculate_percentage_hv(percentage_changes):
-    return statistics.stdev(percentage_changes) * math.sqrt(252/len(percentage_changes))
-
 def file_from_path(file_):
     return file_.split("/")[-1]
 
+def value_or_min_max(value, min_max):
+    if value < min_max[0]:
+        return min_max[0]
+    elif value > min_max[1]:
+        return min_max[1]
+    else:
+        return value
 
 # ------ Private ------
 
@@ -164,11 +140,3 @@ def get_futures_date(fdcode):
         raise InputError("Unknown futures year")
 
     return year + month
-
-
-# ----------- to implement ---------------
-
-def get_option_expiration(date):
-    day = 21 - (calendar.weekday(date.year, date.month, 1) + 2) % 7
-    return datetime(date.year, date.month, day)
-

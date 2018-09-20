@@ -41,9 +41,7 @@ class Speed:
         price_data = self.m.data_since(time_or_duration)
 
         if len(price_data) <= 1:
-            self._last_time_speeding_time = None # type: int
-            self.time_speeding_points = []
-            self._show_full_list_in_state_str = True
+            self.reset()
             return
 
         # Create Speed point
@@ -84,13 +82,17 @@ class Speed:
             self._last_time_speeding_time = price_data[-1].time
             self.time_speeding_points.append(speed_point)
         else:
-            self._last_time_speeding_time = None # type: int
-            self.time_speeding_points = []
-            self._show_full_list_in_state_str = True
+            self.reset()
 
 
     def is_speeding(self):
         return len(self.time_speeding_points) > 0
+
+
+    def reset(self):
+        self._last_time_speeding_time = None # type: int
+        self.time_speeding_points = []
+        self._show_full_list_in_state_str = True
 
 
     def state_str(self):

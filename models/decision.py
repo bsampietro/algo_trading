@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 import gvars
+from lib import util
 
 class Decision:
     def __init__(self, monitor):
@@ -49,8 +50,8 @@ class Decision:
 
         # Time stop
         time_since_transaction = self.m.last_time() - self.ap.transaction_time
-        if time_since_transaction > self.m.prm.trending_break_time:
-            min_max = self.m.min_max_since(self.m.prm.trending_break_time)
+        if time_since_transaction > self.break_time():
+            min_max = self.m.min_max_since(self.break_time())
             gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_close.min_max[1].price: {min_max[1].price}\n")
             gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_close.min_max[0].price: {min_max[0].price}\n")
             if self.m.ticks(min_max[1].price - min_max[0].price) <= trending_break_ticks:
@@ -143,12 +144,11 @@ class Decision:
         elif len(self.time_speeding_points) == self.m.prm.time_speeding_points_length:
             if all(tsp.ticks >= 2 for tsp in self.time_speeding_points):
                 self.direction = 1
-            elif all(tsp.ticks < 0 for tsp in self.time_speeding_points):
-                self.direction <= -2
+            elif all(tsp.ticks <= -2 for tsp in self.time_speeding_points):
+                self.direction = -1
 
 
     def trending_break_ticks(self):
-        assert self.breaking_in_range() or self.speeding()
         if self.breaking_in_range():
             trend_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - self.ap.trending_price()))
             anti_trend_ticks = self.m.ticks(abs(self.ap.transaction_price - self.density_data.anti_trend_tuple[0]))
@@ -159,15 +159,11 @@ class Decision:
                 break_ticks = 1
             elif self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= 2:
                 break_ticks = 3
-            elif anti_trend_ticks <= 3:
-                break_ticks = 3
-            elif anti_trend_ticks >= 6:
-                break_ticks = 6
             else:
-                break_ticks = anti_trend_ticks
+                break_ticks = util.value_or_min_max(anti_trend_ticks, (3, 6))
             return break_ticks # or fixed 3 ?
         elif self.speeding():
-            return 4
+            return self.to_loose_ticks()
 
 
     def reached_maximum(self):
@@ -177,7 +173,7 @@ class Decision:
             else:
                 return False
         elif self.speeding():
-            if self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= 4:
+            if self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= self.to_win_ticks():
                 return True
             else:
                 return False
@@ -185,12 +181,28 @@ class Decision:
 
     @lru_cache(maxsize=None)
     def to_win_ticks(self):
-        return self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
+        if self.breaking_in_range():
+            return self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
+        elif self.speeding():
+            return util.value_or_min_max(round(sum(tsp.ticks for tsp in self.time_speeding_points) * 0.75),
+                self.m.prm.speed_min_max_win_loose_ticks)
 
 
     @lru_cache(maxsize=None)
     def to_loose_ticks(self):
-        return self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
+        if self.breaking_in_range():
+            return self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
+        elif self.speeding():
+            return util.value_or_min_max(round(self.to_win_ticks() * 0.75),
+                self.m.prm.speed_min_max_win_loose_ticks)
+
+
+    @lru_cache(maxsize=None)
+    def break_time(self):
+        if self.breaking_in_range():
+            return self.m.prm.breaking_stop_time
+        elif self.speeding():
+            return self.m.prm.speeding_stop_time
 
 
     @property

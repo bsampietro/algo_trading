@@ -45,7 +45,8 @@ class Params:
             self.tick_price = 0.00005
             self.price_precision = 5
 
-        self.trending_break_time = 60 # secs
+        self.breaking_stop_time = 60 # secs
+        self.speeding_stop_time = 10 # secs
 
         self.min_breaking_price_changes = 5 # times
         self.breaking_up_down_ratio = 1.0
@@ -55,3 +56,4 @@ class Params:
 
         self.speeding_time = 5 # secs
         self.time_speeding_points_length = 4
+        self.speed_min_max_win_loose_ticks = (2, 6)

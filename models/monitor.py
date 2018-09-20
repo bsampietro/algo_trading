@@ -113,7 +113,11 @@ class Monitor:
 
             if self.action_decision.should_close():
                 self.position.close()
-                # self.breaking.initialize_state()
+                if self.action_decision.breaking_in_range():
+                    # self.breaking.initialize_state()
+                    pass
+                elif self.action_decision.speeding():
+                    self.speed.reset()
                 return
 
         elif self.position.is_pending():
