@@ -19,7 +19,8 @@ from models.position import Position
 from models.density import Density
 from models.speed import Speed
 from models.results import Results
-from models.decision import Decision
+from models.breaking_decision import BreakingDecision
+from models.speeding_decision import SpeedingDecision
 
 class Monitor:
     def __init__(self, ticker, remote):
@@ -136,11 +137,11 @@ class Monitor:
             
             if self.speed.is_speeding():
 
-                decision = Decision(self, time_speeding_points = self.speed.time_speeding_points)
+                decision = SpeedingDecision(self, time_speeding_points = self.speed.time_speeding_points)
 
             elif self.breaking.in_range():
                 
-                decision = Decision(self, density_data = self.breaking.density_data)
+                decision = BreakingDecision(self, density_data = self.breaking.density_data)
                 decision.direction = self.breaking.direction
                 decision.last_price = self.last_price()
 
