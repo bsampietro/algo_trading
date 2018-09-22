@@ -24,7 +24,7 @@ from models.breaking_decision import BreakingDecision
 from models.speeding_decision import SpeedingDecision
 
 class Monitor:
-    def __init__(self, ticker, remote):
+    def __init__(self, ticker, remote, test = False):
 
         self.ticker = ticker
         self.remote = remote
@@ -165,11 +165,11 @@ class Monitor:
             if decision.should() == 'buy':
                 self.action_decision = decision
                 self.position.buy(self.price_plus_ticks(-decision.adjusting_ticks))
-                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
+                self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
             elif decision.should() == 'sell':
                 self.action_decision = decision
                 self.position.sell(self.price_plus_ticks(+decision.adjusting_ticks))
-                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
+                self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
 
 
     def last_cdp(self):
@@ -336,20 +336,20 @@ class Monitor:
 
     def log_data(self):
         print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
-        gvars.datalog[self.ticker].write(
+        self.datalog.write(
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
             f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price():.{self.prm.price_precision}f}\n"
         )
-        gvars.datalog[self.ticker].write(self.density.state_str())
-        gvars.datalog[self.ticker].write(self.speed.state_str())
-        gvars.datalog[self.ticker].write(self.breaking.state_str())
-        gvars.datalog[self.ticker].write(self.position.state_str())
-        gvars.datalog[self.ticker].write(self.results.state_str())
+        self.datalog.write(self.density.state_str())
+        self.datalog.write(self.speed.state_str())
+        self.datalog.write(self.breaking.state_str())
+        self.datalog.write(self.position.state_str())
+        self.datalog.write(self.results.state_str())
         
-        if gvars.datalog_buffer[self.ticker] != "":
-            gvars.datalog[self.ticker].write("  DATALOG_BUFFER:\n")
-            gvars.datalog[self.ticker].write(gvars.datalog_buffer[self.ticker])
-            gvars.datalog_buffer[self.ticker] = ""
+        if self.datalog_buffer != "":
+            self.datalog.write("  DATALOG_BUFFER:\n")
+            self.datalog.write(self.datalog_buffer)
+            self.datalog_buffer = ""
 
 
     def log_final_data(self):
@@ -359,8 +359,8 @@ class Monitor:
         output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
         output += f"  Data points: {len(self.data)}\n"
         print(output)
-        gvars.datalog[self.ticker].write(output)
-        gvars.datalog_final[self.ticker].write(output)
+        self.datalog.write(output)
+        self.datalog_final.write(output)
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):

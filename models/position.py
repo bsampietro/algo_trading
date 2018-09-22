@@ -35,7 +35,7 @@ class Position:
         self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "BUY", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    Order to BUY at {price}\n")
+        self.m.datalog_buffer += (f"    Order to BUY at {price}\n")
 
 
     def sell(self, price = 0):
@@ -47,7 +47,7 @@ class Position:
         self.pending_order_id = POI['local']
         self.remote.place_order(self.m, "SELL", CONTRACT_NR, price)
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    Order to SELL at {price}\n")
+        self.m.datalog_buffer += (f"    Order to SELL at {price}\n")
 
 
     def close(self):
@@ -62,7 +62,7 @@ class Position:
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.m, "BUY", CONTRACT_NR)
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    Order to close at {self.m.last_price()}\n")
+        self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
 
 
     def cancel_pending(self):
@@ -90,9 +90,9 @@ class Position:
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):
-        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.order_id: {order_id}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.status: {status}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"    position.order_change.remaining: {remaining}\n")
+        self.m.datalog_buffer += (f"    position.order_change.order_id: {order_id}\n")
+        self.m.datalog_buffer += (f"    position.order_change.status: {status}\n")
+        self.m.datalog_buffer += (f"    position.order_change.remaining: {remaining}\n")
         
         if status == "Filled":
             self.pending_order_id = POI['none']
@@ -136,7 +136,7 @@ class Position:
 
     def security_check(self, remaining):
         if self.position != remaining or abs(self.position) > CONTRACT_NR:
-            gvars.datalog_buffer[self.m.ticker] += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
+            self.m.datalog_buffer += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.m.ticker}\n")
             # self.sound_notify()
             os._exit(1)

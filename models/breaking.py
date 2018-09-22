@@ -65,7 +65,7 @@ class Breaking:
                     self.add_to_price_changes_list(self.price_changes)
                     self.initialize_state()
 
-            gvars.datalog_buffer[self.m.ticker] += (f"    breaking.update.density_interval_mid_price: {density_interval_mid_price}\n")
+            self.m.datalog_buffer += (f"    breaking.update.density_interval_mid_price: {density_interval_mid_price}\n")
 
 
     def duration_ok(self):
@@ -86,9 +86,9 @@ class Breaking:
                 if (float(time_up_down[1] + time_up_down[2]) / time_up_down[0]) > self.m.prm.breaking_up_down_ratio:
                     duration_ok = True
 
-        gvars.datalog_buffer[self.m.ticker] += (f"    breaking.duration_ok.mid_price: {mid_price}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"    breaking.duration_ok.time_up_down: {time_up_down}\n")
-        gvars.datalog_buffer[self.m.ticker] += (f"    breaking.duration_ok.duration_ok: {duration_ok}\n")
+        self.m.datalog_buffer += (f"    breaking.duration_ok.mid_price: {mid_price}\n")
+        self.m.datalog_buffer += (f"    breaking.duration_ok.time_up_down: {time_up_down}\n")
+        self.m.datalog_buffer += (f"    breaking.duration_ok.duration_ok: {duration_ok}\n")
 
         return duration_ok
 

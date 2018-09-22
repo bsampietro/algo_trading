@@ -26,14 +26,14 @@ class Decision:
 
     def should_stop(self):
         trending_break_ticks = self.trending_break_ticks()
-        gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.trending_break_ticks: {trending_break_ticks}\n")
+        self.m.datalog_buffer += (f"    decision.should_stop.trending_break_ticks: {trending_break_ticks}\n")
 
         # Time stop
         time_since_transaction = self.m.last_time() - self.ap.transaction_time
         if time_since_transaction > self.break_time():
             min_max = self.m.min_max_since(self.break_time())
-            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.min_max[1].price: {min_max[1].price}\n")
-            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.min_max[0].price: {min_max[0].price}\n")
+            self.m.datalog_buffer += (f"    decision.should_stop.min_max[1].price: {min_max[1].price}\n")
+            self.m.datalog_buffer += (f"    decision.should_stop.min_max[0].price: {min_max[0].price}\n")
             if self.m.ticks(min_max[1].price - min_max[0].price) <= trending_break_ticks:
                 return True
         
