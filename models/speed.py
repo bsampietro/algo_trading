@@ -51,7 +51,8 @@ class Speed:
             price = price_data[-1].price,
             time = price_data[-1].time,
             changes = len(price_data) - 1, # -1 because it includes the change already counted before
-            max_jump = max(price_data, key=lambda cdp: abs(cdp.jump)).jump
+            max_jump = max(price_data, key=lambda cdp: abs(cdp.jump)).jump,
+            run = all(pd.trend > 0 for pd in price_data) or all(pd.trend < 0 for pd in price_data)
         )
 
         # Add to time speed
@@ -114,13 +115,14 @@ class Speed:
 
 
 class SpeedPoint:
-    def __init__(self, ticks, max_ticks, price, time, max_jump, changes):
+    def __init__(self, ticks, max_ticks, price, time, max_jump, changes, run):
         self.ticks = ticks
         self.max_ticks = max_ticks
         self.price = price
         self.time = time
         self.max_jump = max_jump
         self.changes = changes
+        self.run = run
         self.danger_index = ticks * changes # changes acts as volume
         
 

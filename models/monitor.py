@@ -112,7 +112,7 @@ class Monitor:
         
         if self.position.is_active():
 
-            if self.action_decision.should_close():
+            if self.action_decision.should_stop() or self.action_decision.reached_maximum():
                 self.position.close()
                 if self.action_decision.is_breaking_in_range():
                     # self.breaking.initialize_state()
@@ -158,11 +158,11 @@ class Monitor:
             if decision.should() == 'buy':
                 self.action_decision = decision
                 self.position.buy(self.price_plus_ticks(-decision.adjusting_ticks))
-                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision:\n{decision.state_str()}"
+                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
             elif decision.should() == 'sell':
                 self.action_decision = decision
                 self.position.sell(self.price_plus_ticks(+decision.adjusting_ticks))
-                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision:\n{decision.state_str()}"
+                gvars.datalog_buffer[self.ticker] += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
 
 
     def last_cdp(self):

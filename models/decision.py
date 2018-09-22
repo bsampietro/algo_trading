@@ -24,24 +24,21 @@ class Decision:
         return 'time_speeding_points' in vars(self) # sounds hackisk but avoids importing SpeedingDecision type
 
 
-    def should_close(self):
+    def should_stop(self):
         trending_break_ticks = self.trending_break_ticks()
-        gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_close.trending_break_ticks: {trending_break_ticks}\n")
+        gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.trending_break_ticks: {trending_break_ticks}\n")
 
         # Time stop
         time_since_transaction = self.m.last_time() - self.ap.transaction_time
         if time_since_transaction > self.break_time():
             min_max = self.m.min_max_since(self.break_time())
-            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_close.min_max[1].price: {min_max[1].price}\n")
-            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_close.min_max[0].price: {min_max[0].price}\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.min_max[1].price: {min_max[1].price}\n")
+            gvars.datalog_buffer[self.m.ticker] += (f"    decision.should_stop.min_max[0].price: {min_max[0].price}\n")
             if self.m.ticks(min_max[1].price - min_max[0].price) <= trending_break_ticks:
                 return True
         
         # Price stop
         if self.m.ticks(abs(self.m.last_price() - self.ap.trending_price())) >= trending_break_ticks:
-            return True
-
-        if self.reached_maximum():
             return True
 
         return False
@@ -66,10 +63,13 @@ class Decision:
     # +++++ To be overwritten in child classes ++++
 
     def trending_break_ticks(self):
-        pass
+        raise NotImplementedError
 
     def break_time(self):
-        pass
+        raise NotImplementedError
+
+    def should(self):
+        raise NotImplementedError
 
     def reached_maximum(self):
-        pass
+        raise NotImplementedError
