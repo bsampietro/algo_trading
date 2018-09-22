@@ -3,6 +3,7 @@ from threading import Thread, Lock
 import logging
 import json
 import os
+import io
 
 # import pygal
 # import bokeh.plotting
@@ -43,6 +44,12 @@ class Monitor:
         # Lock variables
         self.price_change_lock = Lock()
         self.order_change_lock = Lock()
+
+        base_file_name = f"{ticker}_{hash(self)}" if test else f"{ticker}"
+        if test: self.datalog = io.StringIO("some initial text data")
+        else: self.datalog = open(f"{gvars.TEMP_DIR}/{base_file_name}.log", "w")
+        self.datalog_buffer = ""
+        self.datalog_final = open(f"{gvars.TEMP_DIR}/{base_file_name}_final.log", "w")
 
 
     def price_change(self, tickType, price, price_time):
@@ -247,6 +254,8 @@ class Monitor:
         #self.output_chart('all')
         self.log_final_data()
         self.save_data()
+        self.datalog.close()
+        self.datalog_final.close()
 
 
     def output_chart(self, kind):

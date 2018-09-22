@@ -61,8 +61,6 @@ class Position:
             self.remote.place_order(self.m, "SELL", CONTRACT_NR)
         elif self.position == -CONTRACT_NR:
             self.remote.place_order(self.m, "BUY", CONTRACT_NR)
-        else:
-            self.security_check()
 
         gvars.datalog_buffer[self.m.ticker] += (f"    Order to close at {self.m.last_price()}\n")
 

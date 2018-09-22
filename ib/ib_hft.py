@@ -35,11 +35,11 @@ class IBHft(EClient, EWrapper):
         # threading variables
         self.place_order_lock = Lock()
 
-        # Only used in load (not live) mode
-        self.active_order = None
-        self.remaining = 0
-        self.current_tick_time = 0
-        self.current_tick_price = 0
+        # Used in load (not live) mode or test orders
+        self.active_order = {} # dict by monitor
+        self.remaining = {} # dict by monitor
+        self.current_tick_time = {} # dict by tick
+        self.current_tick_price = {} # dict by tick
 
         self.live_mode = True if input_file == "" else False
         if self.live_mode:
@@ -95,8 +95,8 @@ class IBHft(EClient, EWrapper):
                 data = json.load(f)
 
             for time, price in data:
-                self.current_tick_time = time
-                self.current_tick_price = price
+                self.current_tick_time[ticker] = time
+                self.current_tick_price[ticker] = price
                 self.tickPrice(self.current_req_id, 4, price, {})
             
             for req_id, monitor in self.req_id_to_monitor_map.items():
@@ -115,11 +115,15 @@ class IBHft(EClient, EWrapper):
         # ask price = 2
         # last traded price = 4
 
+        monitor = self.req_id_to_monitor_map[reqId]
         if self.live_mode:
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, time.time())
+            time = time.time()
+            self.current_tick_time[monitor.ticker] = time
+            self.current_tick_price[monitor.ticker] = price
+            monitor.price_change(tickType, price, time)
         else:
-            self.transmit_order(price=price)
-            self.req_id_to_monitor_map[reqId].price_change(tickType, price, self.current_tick_time)
+            self.transmit_order(monitor, price=price)
+            monitor.price_change(tickType, price, self.current_tick_time[monitor.ticker])
 
 
     def wait_for_readiness(self):
@@ -155,7 +159,7 @@ class IBHft(EClient, EWrapper):
 
 
     # Orders
-    def place_order(self, monitor, action, quantity, price=0, order_id=None):
+    def place_order(self, monitor, action, quantity, price=0, order_id=None, test=False):
         with self.place_order_lock:
             order = Order()
             if price == 0:
@@ -170,19 +174,20 @@ class IBHft(EClient, EWrapper):
                 order_id = self.get_next_order_id()
                 self.order_id_to_monitor_map[order_id] = monitor
 
-            if self.live_mode:
-                self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+            if not self.live_mode or test:
+                self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
+                self.transmit_order(monitor, order)
             else:
-                self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining, 0, 0, 0, 0, 0, "")
-                self.transmit_order(order)
+                self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
 
 
-    def cancel_order(self, order_id):
-        if self.live_mode:
-            self.cancelOrder(order_id)
+    def cancel_order(self, order_id, test=False):
+        if not self.live_mode or test:
+            monitor = self.order_id_to_monitor_map[order_id]
+            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
+            self.active_order[monitor] = None
         else:
-            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining, 0, 0, 0, 0, 0, "")
-            self.active_order = None
+            self.cancelOrder(order_id)
 
 
     def orderStatus(self, orderId, status, filled,
@@ -192,10 +197,11 @@ class IBHft(EClient, EWrapper):
         super().orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, 
             lastFillPrice, clientId, whyHeld)
 
+        monitor = self.order_id_to_monitor_map[orderId]
         if self.live_mode:
-            self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining, lastFillPrice, time.time())
+            monitor.order_change(orderId, status, remaining, lastFillPrice, time.time())
         else:
-            self.order_id_to_monitor_map[orderId].order_change(orderId, status, remaining, lastFillPrice, self.current_tick_time)
+            monitor.order_change(orderId, status, remaining, lastFillPrice, self.current_tick_time[monitor.ticker])
 
     
     def openOrder(self, orderId, contract, order,
@@ -208,30 +214,30 @@ class IBHft(EClient, EWrapper):
     # ++++++++++++++ PRIVATE +++++++++++++++++++
 
     # Only for load mode
-    def transmit_order(self, order=None, price=0):
+    def transmit_order(self, monitor, order=None, price=0):
         if order is None:
             # lmt order created before, assigned to self.active_order and executing based on price parameter
-            if self.active_order is None:
+            if self.active_order.get(monitor) is None:
                 return
-            if self.active_order.action == "BUY":
-                if price <= self.active_order.lmtPrice:
-                    self.remaining += self.active_order.totalQuantity
-                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
-                    self.active_order = None
-            elif self.active_order.action == "SELL":
-                if price >= self.active_order.lmtPrice:
-                    self.remaining -= self.active_order.totalQuantity
-                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining, price, 0, 0, price, 0, "")
-                    self.active_order = None
-        elif (order.orderType == "MKT") or (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price):
+            if self.active_order[monitor].action == "BUY":
+                if price <= self.active_order[monitor].lmtPrice:
+                    self.remaining[monitor] = self.remaining.get(monitor, 0) + self.active_order[monitor].totalQuantity
+                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.active_order[monitor] = None
+            elif self.active_order[monitor].action == "SELL":
+                if price >= self.active_order[monitor].lmtPrice:
+                    self.remaining[monitor] = self.remaining.get(monitor, 0) - self.active_order[monitor].totalQuantity
+                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.active_order[monitor] = None
+        elif (order.orderType == "MKT") or (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price[monitor.ticker]):
             if order.action == "BUY":
-                self.remaining += order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining,
-                    self.current_tick_price, 0, 0, self.current_tick_price, 0, "")
+                self.remaining[monitor] = self.remaining.get(monitor, 0) + order.totalQuantity
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor],
+                    self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
             elif order.action == "SELL":
-                self.remaining -= order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining,
-                    self.current_tick_price, 0, 0, self.current_tick_price, 0, "")
+                self.remaining[monitor] = self.remaining.get(monitor, 0) - order.totalQuantity
+                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor],
+                    self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
         else:
             # Order is lmt, so just assigning for later execution
-            self.active_order = order
+            self.active_order[monitor] = order
