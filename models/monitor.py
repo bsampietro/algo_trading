@@ -30,7 +30,11 @@ class Monitor:
         self.remote = remote
         self.data = []
         
-        self.prm = Params(self)
+        if test:
+            self.prm = Params(self)
+            self.prm.randomize()
+        else:
+            self.prm = Params(self)
         self.position = Position(self, remote)
         self.density = Density(self)
         self.speed = Speed(self)
@@ -368,6 +372,7 @@ class Monitor:
         min_max = self.min_max_since(86400*7)
         output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
         output += f"  Data points: {len(self.data)}\n"
+        output += self.prm.state_str()
         print(output)
         self.datalog.write(output)
         self.datalog_final.write(output)

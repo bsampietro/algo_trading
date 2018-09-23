@@ -61,7 +61,7 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitor = Monitor(ticker, self)
-            monitor.create_children(1)
+            # monitor.create_children(10)
 
             next_req_id = self.get_next_req_id()
             self.req_id_to_monitor_map[next_req_id] = monitor
