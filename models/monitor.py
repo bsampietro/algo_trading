@@ -3,14 +3,14 @@ from threading import Thread, Lock
 import logging
 import json
 import os
-import io
 
 # import pygal
-# import bokeh.plotting
-# import bokeh.models
+import bokeh.plotting
+import bokeh.models
 
 import gvars
 from lib import util
+from lib.secondary import DummyStream
 
 # State objects can be used to return data and decide in this class whether to change state
 # or just return direct information and get this class to ask if should change or not
@@ -54,7 +54,7 @@ class Monitor:
 
         if test:
             base_file_name = f"{ticker}_{hash(self)}"
-            self.datalog = io.StringIO("some initial text data")
+            self.datalog = DummyStream()
         else:
             base_file_name = f"{ticker}"
             self.datalog = open(f"{gvars.TEMP_DIR}/{base_file_name}.log", "w")
@@ -262,10 +262,13 @@ class Monitor:
 
     
     def close(self):
-        #self.output_chart('timed')
-        #self.output_chart('all')
+        if not self.test:
+            self.output_chart('timed')
+            self.output_chart('all')
+            if self.remote.live_mode:
+                self.save_data()
         self.log_final_data()
-        self.save_data()
+
         self.datalog.close()
         self.datalog_final.close()
         for monitor in self.child_test_monitors:
@@ -340,8 +343,6 @@ class Monitor:
 
 
     def save_data(self):
-        if not self.remote.live_mode:
-            return
         mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
         file_name = f"{gvars.TEMP_DIR}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
         with open(file_name, "w") as f:
@@ -349,10 +350,14 @@ class Monitor:
 
 
     def log_data(self):
-        print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
+        if self.test:
+            self.datalog_buffer = ""
+            return
+        if self.remote.live_mode or len(self.data) % 100 == 0:
+            print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
         self.datalog.write(
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
-            f"({self.last_time()} - {int(self.last_time()) - self.initial_time}): {self.last_price():.{self.prm.price_precision}f}\n"
+            f"({self.last_time():.2f} - {int(self.last_time()) - self.initial_time}): {self.last_price():.{self.prm.price_precision}f}\n"
         )
         self.datalog.write(self.density.state_str())
         self.datalog.write(self.speed.state_str())

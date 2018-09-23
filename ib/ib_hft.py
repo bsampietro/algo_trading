@@ -61,7 +61,7 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitor = Monitor(ticker, self)
-            # monitor.create_children(10)
+            monitor.create_children(1)
 
             next_req_id = self.get_next_req_id()
             self.req_id_to_monitor_map[next_req_id] = monitor
@@ -101,8 +101,8 @@ class IBHft(EClient, EWrapper):
         monitor = self.req_id_to_monitor_map[reqId]
         if self.live_mode:
             time = time.time()
-            self.current_tick_time[monitor.ticker] = time
             self.current_tick_price[monitor.ticker] = price
+            self.current_tick_time[monitor.ticker] = time
             monitor.price_change(tickType, price, time)
         else:
             self.transmit_order(monitor, price=price)
@@ -157,8 +157,7 @@ class IBHft(EClient, EWrapper):
 
             if order_id is None:
                 order_id = self.get_next_order_id()
-                if monitor in self.order_id_to_monitor_map.values():
-                    assert False
+                assert monitor not in self.order_id_to_monitor_map.values()
                 self.order_id_to_monitor_map[order_id] = monitor
 
             if not self.live_mode or test:

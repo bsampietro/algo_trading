@@ -9,8 +9,8 @@ class Results:
 
     def append(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time):
     	self.show_results_history = True
-    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, order_time,
-            start_time, end_time, self.m.action_decision, self.pnl()))
+    	self.data.append(Result(pnl, fantasy_pnl, fluctuation, reversal, self.m.action_decision, self.pnl(),
+            order_time, start_time, end_time, self.m.initial_time))
 
 
     def state_str(self, show_all = False):
@@ -60,16 +60,17 @@ class Results:
 
 
 class Result:
-    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, order_time, start_time, end_time, decision, acc_pnl):
+    def __init__(self, pnl, fantasy_pnl, fluctuation, reversal, decision, acc_pnl, order_time, start_time, end_time, initial_time):
         self.pnl = pnl
         self.fantasy_pnl = fantasy_pnl
         self.fluctuation = fluctuation
         self.reversal = reversal
+        self.decision = decision
+        self.acc_pnl = acc_pnl
         self.order_time = order_time
         self.start_time = start_time
         self.end_time = end_time
-        self.decision = decision
-        self.acc_pnl = acc_pnl
+        self.initial_time = initial_time
 
 
     def canceled(self):
@@ -84,8 +85,8 @@ class Result:
             f"rev: {self.reversal:.{price_precision}f}, "
             f"acc_pnl: {self.acc_pnl:>+6.{price_precision}f}, "
             f"decision: ({self.decision.state_str()}), "
-            f"o_time: {self.order_time:>12.1f}, "
-            f"s_time: {self.start_time:>12.1f}, "
-            f"e_time: {self.end_time:>12.1f}, "
+            f"o_time: {self.order_time - self.initial_time:>8.1f}, "
+            f"s_time: {self.start_time - self.initial_time:>8.1f}, "
+            f"e_time: {self.end_time - self.initial_time:>8.1f}, "
         )
         return output
