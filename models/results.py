@@ -56,7 +56,7 @@ class Results:
         return statistics.mean(results) if len(results) > 0 else 0
 
     def average_pnl(self):
-        return self.pnl() / len(self.data)
+        return self.pnl() / len(self.data) if len(self.data) > 0 else 0
 
 
 class Result:

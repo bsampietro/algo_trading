@@ -33,7 +33,7 @@ class Position:
         self.order_time = self.m.last_time()
         
         self.pending_order_id = POI['local']
-        self.remote.place_order(self.m, "BUY", CONTRACT_NR, price)
+        self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to BUY at {price}\n")
 
@@ -45,7 +45,7 @@ class Position:
         self.order_time = self.m.last_time()
         
         self.pending_order_id = POI['local']
-        self.remote.place_order(self.m, "SELL", CONTRACT_NR, price)
+        self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to SELL at {price}\n")
 
@@ -58,9 +58,9 @@ class Position:
 
         self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
-            self.remote.place_order(self.m, "SELL", CONTRACT_NR)
+            self.remote.place_order(self.m, "SELL", CONTRACT_NR, test=self.m.test)
         elif self.position == -CONTRACT_NR:
-            self.remote.place_order(self.m, "BUY", CONTRACT_NR)
+            self.remote.place_order(self.m, "BUY", CONTRACT_NR, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
 
@@ -69,7 +69,7 @@ class Position:
         if self.pending_order_id >= 0:
             pending_order_id = self.pending_order_id
             self.pending_order_id = POI['local']
-            self.remote.cancel_order(pending_order_id)
+            self.remote.cancel_order(pending_order_id, test=self.m.test)
 
 
     def is_pending(self):

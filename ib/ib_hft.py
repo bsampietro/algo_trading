@@ -25,8 +25,8 @@ class IBHft(EClient, EWrapper):
         self.tickers = tickers
 
         # state variables
-        self.req_id_to_monitor_map = {}
-        self.order_id_to_monitor_map = {}
+        self.req_id_to_monitor_map = {} # Only parent monitors
+        self.order_id_to_monitor_map = {} # Parent and children monitors
 
         # tws variables
         self.current_req_id = 0
@@ -61,30 +61,13 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitor = Monitor(ticker, self)
-            self.start_monitoring(monitor)
+            monitor.create_children(1)
+
+            next_req_id = self.get_next_req_id()
+            self.req_id_to_monitor_map[next_req_id] = monitor
+            self.request_market_data(next_req_id, monitor.ticker)
+            
             self.monitors.append(monitor)
-
-
-    def keyboardInterrupt(self):
-        self.clear_all()
-
-
-    def clear_all(self):
-        print("Clearing all...")
-        
-        for req_id, monitor in self.req_id_to_monitor_map.items():
-            self.cancelMktData(req_id)
-            monitor.close()
-            time.sleep(3)
-        self.disconnect()
-
-        print("Finished clearing.")
-
-
-    def start_monitoring(self, monitor):
-        next_req_id = self.get_next_req_id()
-        self.req_id_to_monitor_map[next_req_id] = monitor
-        self.request_market_data(next_req_id, monitor.ticker)
 
 
     def request_market_data(self, req_id, ticker):
@@ -123,6 +106,8 @@ class IBHft(EClient, EWrapper):
             monitor.price_change(tickType, price, time)
         else:
             self.transmit_order(monitor, price=price)
+            for child_monitor in monitor.child_test_monitors:
+                self.transmit_order(child_monitor, price=price)
             monitor.price_change(tickType, price, self.current_tick_time[monitor.ticker])
 
 
@@ -172,10 +157,12 @@ class IBHft(EClient, EWrapper):
 
             if order_id is None:
                 order_id = self.get_next_order_id()
+                if monitor in self.order_id_to_monitor_map.values():
+                    assert False
                 self.order_id_to_monitor_map[order_id] = monitor
 
             if not self.live_mode or test:
-                self.orderStatus(self.current_order_id, "Submitted", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
+                self.orderStatus(order_id, "Submitted", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
                 self.transmit_order(monitor, order)
             else:
                 self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
@@ -184,7 +171,7 @@ class IBHft(EClient, EWrapper):
     def cancel_order(self, order_id, test=False):
         if not self.live_mode or test:
             monitor = self.order_id_to_monitor_map[order_id]
-            self.orderStatus(self.current_order_id, "Cancelled", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
+            self.orderStatus(order_id, "Cancelled", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
             self.active_order[monitor] = None
         else:
             self.cancelOrder(order_id)
@@ -198,6 +185,8 @@ class IBHft(EClient, EWrapper):
             lastFillPrice, clientId, whyHeld)
 
         monitor = self.order_id_to_monitor_map[orderId]
+        if status == "Filled" or status == "Cancelled":
+            self.order_id_to_monitor_map.pop(orderId)
         if self.live_mode:
             monitor.order_change(orderId, status, remaining, lastFillPrice, time.time())
         else:
@@ -222,22 +211,44 @@ class IBHft(EClient, EWrapper):
             if self.active_order[monitor].action == "BUY":
                 if price <= self.active_order[monitor].lmtPrice:
                     self.remaining[monitor] = self.remaining.get(monitor, 0) + self.active_order[monitor].totalQuantity
-                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
                     self.active_order[monitor] = None
             elif self.active_order[monitor].action == "SELL":
                 if price >= self.active_order[monitor].lmtPrice:
                     self.remaining[monitor] = self.remaining.get(monitor, 0) - self.active_order[monitor].totalQuantity
-                    self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
                     self.active_order[monitor] = None
         elif (order.orderType == "MKT") or (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price[monitor.ticker]):
             if order.action == "BUY":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) + order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor],
+                self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
                     self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
             elif order.action == "SELL":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) - order.totalQuantity
-                self.orderStatus(self.current_order_id, "Filled", 1, self.remaining[monitor],
+                self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
                     self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
         else:
             # Order is lmt, so just assigning for later execution
             self.active_order[monitor] = order
+
+
+    def monitor_to_order_id_map(self, monitor):
+        for order_id, dmonitor in self.order_id_to_monitor_map.items():
+            if monitor == dmonitor:
+                return order_id
+
+
+    def keyboardInterrupt(self):
+        self.clear_all()
+
+
+    def clear_all(self):
+        print("Clearing all...")
+        
+        for req_id, monitor in self.req_id_to_monitor_map.items():
+            self.cancelMktData(req_id)
+            monitor.close()
+            time.sleep(3)
+        self.disconnect()
+
+        print("Finished clearing.")

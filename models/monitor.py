@@ -45,9 +45,15 @@ class Monitor:
         self.price_change_lock = Lock()
         self.order_change_lock = Lock()
 
-        base_file_name = f"{ticker}_{hash(self)}" if test else f"{ticker}"
-        if test: self.datalog = io.StringIO("some initial text data")
-        else: self.datalog = open(f"{gvars.TEMP_DIR}/{base_file_name}.log", "w")
+        self.test = test
+        self.child_test_monitors = []
+
+        if test:
+            base_file_name = f"{ticker}_{hash(self)}"
+            self.datalog = io.StringIO("some initial text data")
+        else:
+            base_file_name = f"{ticker}"
+            self.datalog = open(f"{gvars.TEMP_DIR}/{base_file_name}.log", "w")
         self.datalog_buffer = ""
         self.datalog_final = open(f"{gvars.TEMP_DIR}/{base_file_name}_final.log", "w")
 
@@ -56,6 +62,8 @@ class Monitor:
         with self.price_change_lock:
             if tickType != 4:
                 return
+            for monitor in self.child_test_monitors:
+                monitor.price_change(tickType, price, price_time)
             cdp = ChartDataPoint(price, price_time)
             if len(self.data) > 0:
                 if self.data[-1].price == price:
@@ -256,6 +264,8 @@ class Monitor:
         self.save_data()
         self.datalog.close()
         self.datalog_final.close()
+        for monitor in self.child_test_monitors:
+            monitor.close()
 
 
     def output_chart(self, kind):
@@ -366,6 +376,11 @@ class Monitor:
     def order_change(self, order_id, status, remaining, fill_price, fill_time):
         with self.order_change_lock:
             self.position.order_change(order_id, status, remaining, fill_price, fill_time)
+
+
+    def create_children(self, number):
+        for i in range(number):
+            self.child_test_monitors.append(Monitor(self.ticker, self.remote, test=True))
 
 
 class ChartDataPoint:
