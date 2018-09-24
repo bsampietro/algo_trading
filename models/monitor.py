@@ -3,6 +3,7 @@ from threading import Thread, Lock
 import logging
 import json
 import os
+from functools import lru_cache
 
 # import pygal
 import bokeh.plotting
@@ -57,9 +58,9 @@ class Monitor:
             self.datalog = DummyStream()
         else:
             base_file_name = f"{ticker}"
-            self.datalog = open(f"{gvars.TEMP_DIR}/{base_file_name}.log", "w")
+            self.datalog = open(f"{self.create_and_return_output_dir()}/{base_file_name}.log", "w")
         self.datalog_buffer = ""
-        self.datalog_final = open(f"{gvars.TEMP_DIR}/{base_file_name}_final.log", "w")
+        self.datalog_final = open(f"{self.create_and_return_output_dir()}/{base_file_name}_final.log", "w")
 
 
     def price_change(self, tickType, price, price_time):
@@ -287,7 +288,7 @@ class Monitor:
             x = list(map(lambda cdp: cdp.time - self.initial_time, self.data))
             y = list(map(lambda cdp: cdp.price, self.data))
 
-        bokeh.plotting.output_file(f"{gvars.TEMP_DIR}/{self.ticker}_{kind}_chart.html", title=self.ticker)
+        bokeh.plotting.output_file(f"{self.create_and_return_output_dir()}/{self.ticker}_{kind}_chart.html", title=self.ticker)
         
         TOOLTIPS = [
             ("index", "$index"),
@@ -314,7 +315,7 @@ class Monitor:
         bokeh.plotting.save(p)
 
         # # Pygal
-        # dir_path = f"{gvars.TEMP_DIR}/{self.ticker}_chart"
+        # dir_path = f"{self.create_and_return_output_dir()}/{self.ticker}_chart"
         # os.makedirs(dir_path, exist_ok=True)
         # chunks = []
         # chunk = []
@@ -344,7 +345,7 @@ class Monitor:
 
     def save_data(self):
         mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
-        file_name = f"{gvars.TEMP_DIR}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        file_name = f"{self.create_and_return_output_dir()}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
         with open(file_name, "w") as f:
             json.dump(mapped_data, f)
 
@@ -373,12 +374,13 @@ class Monitor:
 
     def log_final_data(self):
         output = "\nFINAL DATA\n"
-        output += self.results.state_str(True)
+        output += self.results.state_str('stats')
         min_max = self.min_max_since(86400*7)
         output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
         output += f"  Data points: {len(self.data)}\n"
         output += self.prm.state_str()
         print(output)
+        output += self.results.state_str('all')
         self.datalog.write(output)
         self.datalog_final.write(output)
 
@@ -391,6 +393,16 @@ class Monitor:
     def create_children(self, number):
         for i in range(number):
             self.child_test_monitors.append(Monitor(self.ticker, self.remote, test=True))
+
+
+    @lru_cache(maxsize=None)
+    def create_and_return_output_dir(self):
+        new_dir_name = f"{gvars.TEMP_DIR}/{self.ticker[0:2]}"
+        try:
+            os.mkdir(new_dir_name)
+        except FileExistsError:
+            pass
+        return new_dir_name
 
 
 class ChartDataPoint:

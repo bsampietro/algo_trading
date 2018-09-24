@@ -13,31 +13,6 @@ class Results:
             order_time, start_time, end_time, self.m.initial_time))
 
 
-    def state_str(self, show_all = False):
-        output = ""
-        if self.show_results_history or show_all:
-            self.show_results_history = False
-            output += "  RESULTS:\n"
-            if show_all:
-                for result in self.data:
-                    output += f"    {result.state_str(self.m.prm.price_precision)}\n"
-            else:
-                output += f"    {self.data[-1].state_str(self.m.prm.price_precision)}\n"
-            output += (
-                "    ___real_pnl: {:+.{price_precision}f}\n"
-                "    fantasy_pnl: {:+.{price_precision}f}\n"
-                "            w/l: {} / {}\n"
-                "    average_win: {:+.{price_precision}f}\n"
-                "   average_loss: {:+.{price_precision}f}\n"
-                "    average_pnl: {:+.5f}\n"
-            ).format(self.pnl(), self.fantasy_pnl(),
-                self.nr_of_wl('winners'), self.nr_of_wl('loosers'),
-                self.average_wl('winners'), self.average_wl('loosers'),
-                self.average_pnl(),
-                price_precision = self.m.prm.price_precision)
-        return output
-
-
     def pnl(self):
         return sum(map(lambda r: r.pnl, self.data))
 
@@ -56,7 +31,38 @@ class Results:
         return statistics.mean(results) if len(results) > 0 else 0
 
     def average_pnl(self):
-        return self.pnl() / len(self.data) if len(self.data) > 0 else 0
+        return self.pnl() / self.total_trades() if self.total_trades() > 0 else 0
+
+    def total_trades(self):
+        return len(self.data)
+
+
+    def state_str(self, *pshow):
+        show = ('last', 'stats') if len(pshow) == 0 else pshow
+        output = ""
+        if self.show_results_history or len(pshow) > 0:
+            self.show_results_history = False
+            output += "  RESULTS:\n"
+            if 'all' in show:
+                for result in self.data:
+                    output += f"    {result.state_str(self.m.prm.price_precision)}\n"
+            if 'last' in show:
+                output += f"    {self.data[-1].state_str(self.m.prm.price_precision)}\n"
+            if 'stats' in show:
+                output += (
+                    "    ___real_pnl: {:+.{price_precision}f}\n"
+                    "    fantasy_pnl: {:+.{price_precision}f}\n"
+                    "            w/l: {} / {}\n"
+                    "    average_win: {:+.{price_precision}f}\n"
+                    "   average_loss: {:+.{price_precision}f}\n"
+                    "    average_pnl: {:+.5f}\n"
+                    "   total_trades: {}\n"
+                ).format(self.pnl(), self.fantasy_pnl(),
+                    self.nr_of_wl('winners'), self.nr_of_wl('loosers'),
+                    self.average_wl('winners'), self.average_wl('loosers'),
+                    self.average_pnl(), self.total_trades(),
+                    price_precision = self.m.prm.price_precision)
+        return output
 
 
 class Result:

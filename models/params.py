@@ -39,7 +39,7 @@ class Params:
 
 
     def set_options(self):
-        self.breaking_stop_time_options = (40, 60, 80) # secs
+        self.breaking_stop_time_options = (20, 40, 60, 80, 120) # secs
         self.speeding_stop_time_options = (5, 10, 20, 30) # secs
 
         self.min_breaking_price_changes_options = (3, 5, 10, 15) # times
@@ -59,8 +59,8 @@ class Params:
 
 
     def state_str(self):
-        output = "Parameters:\n"
+        output = "  PARAMETERS:\n"
         for variable, value in vars(self).items():
             if variable[-8:] == '_options':
-                output += f"  {variable.replace('_options', '')}: {getattr(self, variable.replace('_options', ''))}\n"
+                output += f"    {variable.replace('_options', '')}: {getattr(self, variable.replace('_options', ''))}\n"
         return output
