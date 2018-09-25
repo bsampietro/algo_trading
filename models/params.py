@@ -8,21 +8,62 @@ class Params:
 
 
     def set_initial_parameters(self):
-        if self.m.ticker[0:2] == "GC":
-            self.tick_price = 0.10
+        if self.m.ticker[0:2] == "ES":
+            self.tick_price = 0.25
             self.price_precision = 2
+        
+        elif self.m.ticker[0:2] == "NQ":
+            self.tick_price = 0.25
+            self.price_precision = 2
+        
+        elif self.m.ticker[0:2] == "YM":
+            self.tick_price = 1
+            self.price_precision = 2
+        
         elif self.m.ticker[0:2] == "CL":
             self.tick_price = 0.01
             self.price_precision = 2
+        
         elif self.m.ticker[0:2] == "NG":
             self.tick_price = 0.001
             self.price_precision = 3
-        elif self.m.ticker[0:2] == "ES":
-            self.tick_price = 0.25
+        
+        elif self.m.ticker[0:2] == "GC":
+            self.tick_price = 0.10
             self.price_precision = 2
+        
+        elif self.m.ticker[0:2] == "HG":
+            self.tick_price = 0.0005
+            self.price_precision = 4
+        
+        elif self.m.ticker[0:2] == "SI":
+            self.tick_price = 0.005
+            self.price_precision = 3
+        
         elif self.m.ticker[0:3] == "EUR":
             self.tick_price = 0.00005
             self.price_precision = 5
+        
+        elif self.m.ticker[0:3] == "JPY":
+            self.tick_price = 0.0000005
+            self.price_precision = 7
+        
+        elif self.m.ticker[0:2] == "ZB":
+            self.tick_price = 0.03125
+            self.price_precision = 5
+        
+        elif self.m.ticker[0:2] == "ZN":
+            self.tick_price = 0.015625
+            self.price_precision = 6
+        
+        elif self.m.ticker[0:2] == "ZC":
+            self.tick_price = 0.25
+            self.price_precision = 2
+        
+        elif self.m.ticker[0:2] == "ZS":
+            self.tick_price = 0.25
+            self.price_precision = 2
+
         self.max_breaking_price_changes_list = 50 # times
 
         self.breaking_stop_time = 60 # secs

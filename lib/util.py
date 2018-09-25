@@ -81,7 +81,7 @@ def get_futures_contract(symbol):
     contract.secType = "FUT"
     if symbol[0:2] in ("GC", "SI", "NG", "CL", "HG"):
         contract.exchange = "NYMEX"
-    elif symbol[0:2] in ("ES", "GE", "6E", "6J"):
+    elif symbol[0:2] in ("ES", "NQ", "GE"):
         contract.exchange = "GLOBEX"
     elif symbol[0:2] in ("UB" ,"ZB", "ZN", "ZF", "ZT", "ZS", "ZC", "ZW", "YM"):
         contract.exchange = "ECBOT"

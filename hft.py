@@ -11,8 +11,8 @@ from lib import util
 if __name__ == "__main__":
     logging.basicConfig(filename='./log/hft.log', level=logging.INFO)
     try:
-        if util.contract_type(sys.argv[1]) == "FUT":
-            ib_hft = IBHft(tickers = sys.argv[1:])
+        if ".txt" in sys.argv[1]:
+            ib_hft = IBHft(tickers = util.read_symbol_list(sys.argv[1]))
         else:
             ib_hft = IBHft(input_file = sys.argv[1])
         print("Main program finished")

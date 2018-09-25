@@ -49,7 +49,9 @@ class IBHft(EClient, EWrapper):
         else:
             self.input_file = input_file
             self.tickers = [util.file_from_path(input_file)]
-            self.wait_for_readiness()
+            
+            self.nextValidId(0)
+            self.wait_for_readiness() # Dummy call
 
             self.test_thread = Thread(target = self.connectAck)
             self.test_thread.start()
@@ -68,6 +70,8 @@ class IBHft(EClient, EWrapper):
             self.request_market_data(next_req_id, monitor.ticker)
             
             self.monitors.append(monitor)
+        print("Registered:")
+        print([f"{req_id}: {monitor.ticker}" for req_id, monitor in self.req_id_to_monitor_map.items()])
 
 
     def request_market_data(self, req_id, ticker):
@@ -100,10 +104,10 @@ class IBHft(EClient, EWrapper):
 
         monitor = self.req_id_to_monitor_map[reqId]
         if self.live_mode:
-            time = time.time()
+            time_ = time.time()
             self.current_tick_price[monitor.ticker] = price
-            self.current_tick_time[monitor.ticker] = time
-            monitor.price_change(tickType, price, time)
+            self.current_tick_time[monitor.ticker] = time_
+            monitor.price_change(tickType, price, time_)
         else:
             self.transmit_order(monitor, price=price)
             for child_monitor in monitor.child_test_monitors:
@@ -112,26 +116,22 @@ class IBHft(EClient, EWrapper):
 
 
     def wait_for_readiness(self):
-        if self.live_mode:
-            for i in range(120):
-                if self.current_order_id is not None:
-                    break
-                else:
-                    time.sleep(1)
-
+        for i in range(120):
             if self.current_order_id is not None:
-                print("IB Ready")
+                break
             else:
-                # raise exception ?
-                print("IB was not reported ready after 120 seconds")
-        else:
-            self.current_order_id = 0
+                time.sleep(1)
+
+        if self.current_order_id is None:
+            # raise exception ?
+            print("IB was not reported ready after 120 seconds")
 
 
     # callback to client.reqIds(-1)
-    # def nextValidId(self, orderId:int):
-    #     super().nextValidId(orderId)
-    #     self.current_order_id = orderId
+    def nextValidId(self, orderId:int):
+        super().nextValidId(orderId)
+        self.current_order_id = orderId
+        print("IB Ready")
 
     # App functions
     def get_next_order_id(self):
@@ -164,7 +164,8 @@ class IBHft(EClient, EWrapper):
                 self.orderStatus(order_id, "Submitted", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
                 self.transmit_order(monitor, order)
             else:
-                self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+                # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
+                pass
 
 
     def cancel_order(self, order_id, test=False):
@@ -173,7 +174,8 @@ class IBHft(EClient, EWrapper):
             self.orderStatus(order_id, "Cancelled", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
             self.active_order[monitor] = None
         else:
-            self.cancelOrder(order_id)
+            # self.cancelOrder(order_id)
+            pass
 
 
     def orderStatus(self, orderId, status, filled,
