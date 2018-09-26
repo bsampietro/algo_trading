@@ -81,7 +81,7 @@ class Monitor:
             if len(self.data) == 1:
                 self.initial_time = int(self.data[0].time)
 
-            if self.remote.live_mode or len(self.data) % 100 == 0:
+            if not self.test and (self.remote.live_mode or len(self.data) % 100 == 0):
                 print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
             if self.remote.data_mode:
                 return

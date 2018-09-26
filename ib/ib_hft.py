@@ -18,7 +18,7 @@ from models.monitor import Monitor
 
 class IBHft(EClient, EWrapper):
 
-    def __init__(self, tickers=[], input_file="", data_mode=False):
+    def __init__(self, tickers=[], input_file="", data_mode=False, monitor_children=1):
         EClient.__init__(self, wrapper = self)
 
         self.monitors = []
@@ -42,6 +42,7 @@ class IBHft(EClient, EWrapper):
         self.current_tick_price = {} # dict by tick
 
         self.data_mode = data_mode
+        self.monitor_children = monitor_children
 
         self.live_mode = True if input_file == "" else False
         try:
@@ -67,7 +68,7 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitor = Monitor(ticker, self)
-            monitor.create_children(1)
+            monitor.create_children(self.monitor_children)
 
             next_req_id = self.get_next_req_id()
             self.req_id_to_monitor_map[next_req_id] = monitor
