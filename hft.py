@@ -9,15 +9,17 @@ from lib import util
 
 # Main method
 if __name__ == "__main__":
-    logging.basicConfig(filename='./log/hft.log', level=logging.INFO)
     try:
         if ".txt" in sys.argv[1]:
-            ib_hft = IBHft(tickers = util.read_symbol_list(sys.argv[1]))
+            # Live
+            logging.basicConfig(filename='./log/hft_live.log', level=logging.INFO)
+            IBHft(tickers = util.read_symbol_list(sys.argv[1]), data_mode = sys.argv[2] == 'data_mode')
         else:
-            ib_hft = IBHft(input_file = sys.argv[1])
-        print("Main program finished")
+            # Load
+            logging.basicConfig(filename='./log/hft_load.log', level=logging.ERROR)
+            IBHft(input_file = sys.argv[1])
     except:
-        print("Exceptions raised")
+        print("Reraising exceptions in main file.")
         raise
     finally:
-        print("Done.")
+        print("Program finished.")

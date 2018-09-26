@@ -68,12 +68,9 @@ class Density:
 
         self.list_dps.sort(key=lambda dp: dp.duration)
 
-        # Set index, percentile and dpercentage
+        # Set dpercentage
         total_duration = sum(map(lambda dp: dp.duration, self.list_dps))
-        ipercentile_coefficient = 100.0 / (len(self.list_dps) - 1)
         for index, dp in enumerate(self.list_dps):
-            dp.index = index
-            dp.ipercentile = round(dp.index * ipercentile_coefficient)
             dp.dpercentage = (dp.duration / total_duration) * 100
 
         # set dpercentile 
@@ -332,8 +329,6 @@ class DensityPoint:
     def __init__(self, price):
         self.price = price
         self.duration = 0
-        self.index = None # type: int
-        self.ipercentile = None # type: int
         self.dpercentage = None # type: int
         self.dpercentile = None # type: int
         self.height = gvars.HEIGHT['mid']
@@ -342,13 +337,11 @@ class DensityPoint:
         output = (
             "price: {:.{price_precision}f}, "
             "duration: {:.2f}, "
-            "index: {}, "
-            "ipercentile: {}, "
             "dpercentage: {:.2f}, "
             "dpercentile: {}, "
             "height: {}"
-        ).format(self.price, self.duration, self.index,
-            self.ipercentile, self.dpercentage, self.dpercentile, self.height,
+        ).format(self.price, self.duration,
+            self.dpercentage, self.dpercentile, self.height,
             price_precision = price_precision)
         return output
 

@@ -139,5 +139,5 @@ class Position:
             self.m.datalog_buffer += ("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS\n")
             print("PROBLEM!! MORE THAN {CONTRACT_NR} CONTRACTS ON {self.m.ticker}\n")
             # self.sound_notify()
-            os._exit(1)
-            # sys.exit(1)
+            # os._exit(1)
+            sys.exit(1)

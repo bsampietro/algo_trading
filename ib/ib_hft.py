@@ -18,7 +18,7 @@ from models.monitor import Monitor
 
 class IBHft(EClient, EWrapper):
 
-    def __init__(self, tickers=[], input_file=""):
+    def __init__(self, tickers=[], input_file="", data_mode=False):
         EClient.__init__(self, wrapper = self)
 
         self.monitors = []
@@ -41,21 +41,25 @@ class IBHft(EClient, EWrapper):
         self.current_tick_time = {} # dict by tick
         self.current_tick_price = {} # dict by tick
 
-        self.live_mode = True if input_file == "" else False
-        if self.live_mode:
-            self.connect("127.0.0.1", 7497, 0)
-            self.run()
-            self.wait_for_readiness()
-        else:
-            self.input_file = input_file
-            self.tickers = [util.file_from_path(input_file)]
-            
-            self.nextValidId(0)
-            self.wait_for_readiness() # Dummy call
+        self.data_mode = data_mode
 
-            self.test_thread = Thread(target = self.connectAck)
-            self.test_thread.start()
-            self.test_thread.join()
+        self.live_mode = True if input_file == "" else False
+        try:
+            if self.live_mode:
+                self.connect("127.0.0.1", 7497, 0)
+                self.run()
+            else:
+                self.input_file = input_file
+                self.tickers = [util.file_from_path(input_file)]
+                self.nextValidId(0)
+                self.test_thread = Thread(target = self.connectAck)
+                self.test_thread.start()
+                self.test_thread.join()
+        except:
+            print("Exceptions raised inside IBHft.__init__")
+            raise
+        finally:
+            self.clear_all()
 
 
     def connectAck(self):
@@ -85,17 +89,10 @@ class IBHft(EClient, EWrapper):
                 self.current_tick_time[ticker] = time
                 self.current_tick_price[ticker] = price
                 self.tickPrice(self.current_req_id, 4, price, {})
-            
-            for req_id, monitor in self.req_id_to_monitor_map.items():
-                monitor.close()
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
         super().tickPrice(reqId, tickType, price, attrib)
-
-        if price <= 0:
-            logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {self.ticker}")
-            return
 
         # tickType:
         # bid price = 1
@@ -103,6 +100,9 @@ class IBHft(EClient, EWrapper):
         # last traded price = 4
 
         monitor = self.req_id_to_monitor_map[reqId]
+        if price <= 0:
+            logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {monitor.ticker}")
+            return
         if self.live_mode:
             time_ = time.time()
             self.current_tick_price[monitor.ticker] = price
@@ -115,23 +115,13 @@ class IBHft(EClient, EWrapper):
             monitor.price_change(tickType, price, self.current_tick_time[monitor.ticker])
 
 
-    def wait_for_readiness(self):
-        for i in range(120):
-            if self.current_order_id is not None:
-                break
-            else:
-                time.sleep(1)
-
-        if self.current_order_id is None:
-            # raise exception ?
-            print("IB was not reported ready after 120 seconds")
-
-
     # callback to client.reqIds(-1)
+    # This method is called after first connection to the API
+    # and initialize the order_id in 0
     def nextValidId(self, orderId:int):
         super().nextValidId(orderId)
         self.current_order_id = orderId
-        print("IB Ready")
+        print(f"nextValidId called with order_id: {orderId}")
 
     # App functions
     def get_next_order_id(self):
@@ -164,8 +154,7 @@ class IBHft(EClient, EWrapper):
                 self.orderStatus(order_id, "Submitted", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
                 self.transmit_order(monitor, order)
             else:
-                # self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
-                pass
+                self.placeOrder(order_id, util.get_contract(monitor.ticker), order)
 
 
     def cancel_order(self, order_id, test=False):
@@ -174,8 +163,7 @@ class IBHft(EClient, EWrapper):
             self.orderStatus(order_id, "Cancelled", 1, self.remaining.get(monitor, 0), 0, 0, 0, 0, 0, "")
             self.active_order[monitor] = None
         else:
-            # self.cancelOrder(order_id)
-            pass
+            self.cancelOrder(order_id)
 
 
     def orderStatus(self, orderId, status, filled,
@@ -241,15 +229,21 @@ class IBHft(EClient, EWrapper):
 
     def keyboardInterrupt(self):
         self.clear_all()
+        time.sleep(1)
+        sys.exit(1)
 
 
     def clear_all(self):
-        print("Clearing all...")
-        
-        for req_id, monitor in self.req_id_to_monitor_map.items():
-            self.cancelMktData(req_id)
-            monitor.close()
-            time.sleep(3)
-        self.disconnect()
+        if 'called_clear_all' in vars(self):
+            return
+        setattr(self, 'called_clear_all', True)
 
+        print("\nClearing all...")
+        for req_id, monitor in self.req_id_to_monitor_map.items():
+            if self.live_mode and self.isConnected():
+                self.cancelMktData(req_id)
+                time.sleep(0.25)
+            monitor.close()
+        if self.live_mode and self.isConnected():
+            self.disconnect()
         print("Finished clearing.")

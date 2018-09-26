@@ -5,3 +5,4 @@ tws_output.txt
 *.pk
 *.pyc
 input/contracts.txt
+input/test_contract.txt

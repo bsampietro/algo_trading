@@ -81,6 +81,11 @@ class Monitor:
             if len(self.data) == 1:
                 self.initial_time = int(self.data[0].time)
 
+            if self.remote.live_mode or len(self.data) % 100 == 0:
+                print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
+            if self.remote.data_mode:
+                return
+
             self.set_last_height_and_trend()
 
             self.density.price_change()
@@ -268,7 +273,7 @@ class Monitor:
             self.output_chart('all')
             if self.remote.live_mode:
                 self.save_data()
-        self.log_final_data()
+        self.log_final_data(should_print = not self.remote.live_mode)
 
         self.datalog.close()
         self.datalog_final.close()
@@ -354,8 +359,6 @@ class Monitor:
         if self.test:
             self.datalog_buffer = ""
             return
-        if self.remote.live_mode or len(self.data) % 100 == 0:
-            print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
         self.datalog.write(
             f"\n=>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
             f"({self.last_time():.2f} - {int(self.last_time()) - self.initial_time}): {self.last_price():.{self.prm.price_precision}f}\n"
@@ -372,14 +375,14 @@ class Monitor:
             self.datalog_buffer = ""
 
 
-    def log_final_data(self):
+    def log_final_data(self, should_print):
         output = "\nFINAL DATA\n"
         output += self.results.state_str('stats')
         min_max = self.min_max_since(86400*7)
         output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
         output += f"  Data points: {len(self.data)}\n"
         output += self.prm.state_str()
-        print(output)
+        print(output) if should_print else None
         output += self.results.state_str('all')
         self.datalog.write(output)
         self.datalog_final.write(output)
