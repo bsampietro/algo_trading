@@ -4,9 +4,17 @@ from lib import core
 class Density:
     def __init__(self, monitor):
         self.m = monitor
-
         self.list_dps = []
+        self.initialize_interval_variables()
+        self.in_position = False
 
+        # Private
+        self._previous_price_data = []
+        self.min_higher_area = None # type: int
+        self.max_lower_area = None # type: int
+
+
+    def initialize_interval_variables(self):
         self.current_dp = None
         self.up_density_direction = None # type: int
         self.down_density_direction = None # type: int
@@ -17,30 +25,25 @@ class Density:
         self.current_interval_min = None # type: float
         self.down_interval_max = None # type: float
         self.down_interval_min = None # type: float
-
-        self.in_position = False
-        self.values_set = False
-
-        # Private
-        self._previous_price_data = []
-        self.min_higher_area = None # type: int
-        self.max_lower_area = None # type: int
         
 
     def price_change(self):
-        self.update_state()
-
-
-    def update_state(self):
+        # Update structure
         self.update_dps()
-        self.update_intervals()
+
+        # Calculations
+        if len(self.list_dps) >= self.m.prm.density_min_data:
+            # self.update_heights() # Not in use now
+            self.update_intervals()
+        else:
+            self.initialize_interval_variables()
 
 
     def update_dps(self):
-        data = self.m.data_since(self.m.prm.primary_look_back_time)
-        if len(data) < 2:
-            return
+        self.in_position = False
 
+        data = self.m.data_since(self.m.prm.primary_look_back_time)
+        
         # Add 2 newest prices
         for cdp in data[-2:]:
             dp = core.find(lambda dp: dp.price == cdp.price, self.list_dps)
@@ -85,7 +88,12 @@ class Density:
 
         self.list_dps.sort(key=lambda dp: dp.price)
 
-        # Set height
+
+    def update_heights(self):
+        # This method assumes that self.list_dps is ordered by price
+        if len(self._previous_price_data) == 0:
+            return
+
         for i in range(len(self.list_dps)):
             self.list_dps[i].height = gvars.HEIGHT['mid']
         unreal_consecutives = 0
@@ -129,10 +137,9 @@ class Density:
 
 
     def update_intervals(self):
+        # This method assumes that self.list_dps is ordered by price
         if len(self._previous_price_data) == 0:
             return
-
-        self.in_position = False
 
         current_dp_index = core.index(lambda dp: dp.price == self.m.last_price(), self.list_dps)
         self.current_dp = self.list_dps[current_dp_index]
@@ -245,7 +252,6 @@ class Density:
             self.down_interval_min = self.list_dps[0].price
 
         self.in_position = True
-        self.values_set = True
 
 
     def up_down_ratio(self, direction):
@@ -291,8 +297,13 @@ class Density:
         return dd
 
 
+    def values_set(self):
+        # Using self.up_interval_max as representative of setting all the values in update_intervals()
+        return self.up_interval_max is not None
+
+
     def state_str(self):
-        if not self.values_set:
+        if not self.values_set():
             return ""
         output = "  DENSITY:\n"
         if self.in_position:

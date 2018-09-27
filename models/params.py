@@ -89,6 +89,8 @@ class Params:
 
         self._mode_fantasy_pnl_options = (None, 'calc')
 
+        self.density_min_data_options = (6, 10, 15)
+
 
     # set the default value as the first of the options
     def set_defaults(self):
