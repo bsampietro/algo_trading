@@ -1,10 +1,11 @@
-import sys
+import sys, os
 sys.path.append('/home/bruno/ib_api/9_73/IBJts/source/pythonclient')
 
 from threading import Thread, Lock
 import logging
 import time
 import json
+import subprocess
 
 from ibapi.wrapper import EWrapper
 from ibapi.client import EClient
@@ -34,6 +35,9 @@ class IBHft(EClient, EWrapper):
 
         # threading variables
         self.place_order_lock = Lock()
+
+        # self.periodically_thread = Thread(target = self.periodically, daemon = True)
+        # self.periodically_thread.start()
 
         # Used in load (not live) mode or test orders
         self.active_order = {} # dict by monitor
@@ -248,3 +252,14 @@ class IBHft(EClient, EWrapper):
         if self.live_mode and self.isConnected():
             self.disconnect()
         print("Finished clearing.")
+
+
+    def periodically(self):
+        while True:
+            time.sleep(120)
+            if self.live_mode:
+                output = subprocess.getoutput('ps axu | grep java')
+                if not ("java" in output and "Jts" in output):
+                    print("TWS/Gateway not running")
+                    self.clear_all()
+                    os._exit(1)
