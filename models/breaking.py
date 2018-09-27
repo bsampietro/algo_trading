@@ -24,12 +24,15 @@ class Breaking:
         if not self.m.density.values_set():
             return
         if self.direction == 0:
-            if self.m.density.current_interval_max < self.m.last_price() < self.m.density.up_interval_min:
+            d = self.m.density
+            if (self.m.ticks(d.up_interval_min - d.current_interval_max) >= self.m.prm.min_breaking_range and
+                    d.current_interval_max < self.m.last_price() < d.up_interval_min):
                 self.direction = 1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()
                 self.density_data = self.m.density.get_data(self.direction)
-            elif self.m.density.current_interval_min > self.m.last_price() > self.m.density.down_interval_max:
+            elif (self.m.ticks(d.current_interval_min - d.down_interval_max) >= self.m.prm.min_breaking_range and
+                    d.current_interval_min > self.m.last_price() > d.down_interval_max):
                 self.direction = -1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()

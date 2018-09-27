@@ -99,8 +99,8 @@ class BreakingDecision(Decision):
 
 
     def reached_maximum(self):
-        if self.m.prm.mode_fantasy_pnl is not None:
-            if self.direction * (self.m.last_price() - self.ap.transaction_price) >= self.m.prm.mode_fantasy_pnl:
+        if self.m.prm.max_winning_ticks is not None:
+            if self.direction * (self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks:
                 return True
         if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0:
             return True

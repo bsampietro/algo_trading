@@ -80,6 +80,7 @@ class Params:
 
         self._min_breaking_price_changes_options = (5, 3, 10, 15, 'calc') # times
         self.breaking_up_down_ratio_options = (1.0, 1.5, 2.0)
+        self.min_breaking_range_options = (2, 3, 4, 5)
         
         self.primary_look_back_time_options = (900, 1800, 3600, 7200) # secs # ideal for ES, 600-900 for all others
 
@@ -87,7 +88,7 @@ class Params:
         self.time_speeding_points_length_options = (4, 3, 6)
         self.speed_min_max_win_loose_ticks_options = ((2, 6), (3, 6), (4, 8))
 
-        self._mode_fantasy_pnl_options = (None, 'calc')
+        self._max_winning_ticks_options = (None, 'calc', 3)
 
         self.density_min_data_options = (6, 10, 15)
 
@@ -121,17 +122,17 @@ class Params:
 
 
     @property
-    def mode_fantasy_pnl(self):
-        if self._mode_fantasy_pnl == 'calc':
+    def max_winning_ticks(self):
+        if self._max_winning_ticks == 'calc':
             if len(self.m.results.data) < 20:
-                return self.default('_mode_fantasy_pnl')
+                return self.default('_max_winning_ticks')
             else:
                 try:
                     return statistics.mode(r.fantasy_pnl for r in self.m.results.data)
                 except statistics.StatisticsError:
-                    return self.default('_mode_fantasy_pnl')
+                    return self.default('_max_winning_ticks')
         else:
-            return self._mode_fantasy_pnl
+            return self._max_winning_ticks
 
 
     def default(self, attr):
