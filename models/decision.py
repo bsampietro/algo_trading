@@ -5,7 +5,7 @@ class Decision:
         self.m = monitor
 
         self.direction = None # type: int
-        self.last_price = None # type: float
+        self.creation_price = None # type: float
         
         self.adjusting_ticks = None # type: int
 

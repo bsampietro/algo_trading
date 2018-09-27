@@ -110,12 +110,12 @@ class BreakingDecision(Decision):
 
     @lru_cache(maxsize=None)
     def to_win_ticks(self):
-        return self.m.ticks(abs(self.density_data.trend_tuple[1] - self.last_price))
+        return self.m.ticks(abs(self.density_data.trend_tuple[1] - self.creation_price))
 
 
     @lru_cache(maxsize=None)
     def to_loose_ticks(self):
-        return self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.last_price))
+        return self.m.ticks(abs(self.density_data.anti_trend_tuple[0] - self.creation_price))
         
 
     @lru_cache(maxsize=None)

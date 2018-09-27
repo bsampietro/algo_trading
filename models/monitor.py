@@ -168,7 +168,7 @@ class Monitor:
                 
                 decision = BreakingDecision(self, density_data = self.breaking.density_data)
                 decision.direction = self.breaking.direction
-                decision.last_price = self.last_price()
+                decision.creation_price = self.last_price()
 
                 decision.breaking_price_changes = self.breaking.price_changes
                 decision.breaking_duration_ok = self.breaking.duration_ok()
