@@ -26,7 +26,7 @@ class Position:
             self.ap.price_change()
         
 
-    def buy(self, price = 0):
+    def buy(self, price = None):
         if self.is_pending():
             return
         self.order_price = price
@@ -38,7 +38,7 @@ class Position:
         self.m.datalog_buffer += (f"    Order to BUY at {price}\n")
 
 
-    def sell(self, price = 0):
+    def sell(self, price = None):
         if self.is_pending():
             return
         self.order_price = price
@@ -50,17 +50,19 @@ class Position:
         self.m.datalog_buffer += (f"    Order to SELL at {price}\n")
 
 
-    def close(self):
+    def close(self, price = None):
         if self.position == 0:
             return
         if self.is_pending():
             return
+        self.order_price = price
+        self.order_time = self.m.last_time()
 
         self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
-            self.remote.place_order(self.m, "SELL", CONTRACT_NR, test=self.m.test)
+            self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, test=self.m.test)
         elif self.position == -CONTRACT_NR:
-            self.remote.place_order(self.m, "BUY", CONTRACT_NR, test=self.m.test)
+            self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
 
@@ -103,8 +105,12 @@ class Position:
             else:
                 self.ap.append_results(fill_price, fill_time)
                 self.ap = None
+            self.order_price = None
+            self.order_time = None
         elif status == "Cancelled":
             self.pending_order_id = POI['none']
+            self.order_price = None
+            self.order_time = None
         else:
             # status == "Submitted" or other
             # get the order id after placing the order so
@@ -118,12 +124,15 @@ class Position:
         if self.is_active() or self.is_pending():
             output += (
                 f"  POSITION:\n"
-                f"    order_price: {self.order_price:.{self.m.prm.price_precision}f}\n"
-                f"    order_time: {self.order_time:.4f}\n"
                 f"    nr_of_trades: {self.nr_of_trades}\n"
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
             )
+            if self.order_price is not None and self.order_time is not None:
+                output += (
+                    f"    order_price: {self.order_price:.{self.m.prm.price_precision}f}\n"
+                    f"    order_time: {self.order_time:.4f}\n"
+                )
         if self.ap is not None:
             output += self.ap.state_str()
         return output

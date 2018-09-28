@@ -190,18 +190,12 @@ class Monitor:
                 self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
 
 
-    def last_cdp(self):
-        if len(self.data) == 0:
-            return ChartDataPoint()
-        return self.data[-1]
-
-    
     def last_price(self):
-        return self.last_cdp().price
+        return self.data[-1].price
 
     
     def last_time(self):
-        return self.last_cdp().time
+        return self.data[-1].time
 
 
     # the_time could be a specific time or an amount of time since now
@@ -269,8 +263,8 @@ class Monitor:
     
     def close(self):
         if not self.test:
-            self.output_chart('timed')
-            self.output_chart('all')
+            # self.output_chart('timed')
+            # self.output_chart('all')
             if self.remote.live_mode:
                 self.save_data()
         self.log_final_data(should_print = not self.remote.live_mode)
@@ -409,7 +403,7 @@ class Monitor:
 
 
 class ChartDataPoint:
-    def __init__(self, price=0, time=0):
+    def __init__(self, price, time):
         self.price = price
         self.time = time
         self.duration = 0

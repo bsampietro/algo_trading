@@ -139,10 +139,10 @@ class IBHft(EClient, EWrapper):
 
 
     # Orders
-    def place_order(self, monitor, action, quantity, price=0, order_id=None, test=False):
+    def place_order(self, monitor, action, quantity, price=None, order_id=None, test=False):
         with self.place_order_lock:
             order = Order()
-            if price == 0:
+            if price == None:
                 order.orderType = "MKT"
             else:    
                 order.orderType = "LMT"
@@ -197,7 +197,8 @@ class IBHft(EClient, EWrapper):
     # ++++++++++++++ PRIVATE +++++++++++++++++++
 
     # Only for load mode
-    def transmit_order(self, monitor, order=None, price=0):
+    def transmit_order(self, monitor, order=None, price=None):
+        assert (order, price).count(None) == 1
         if order is None:
             # lmt order created before, assigned to self.active_order and executing based on price parameter
             if self.active_order.get(monitor) is None:
