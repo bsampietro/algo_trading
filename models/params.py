@@ -4,12 +4,12 @@ import statistics
 class Params:
     def __init__(self, monitor):
         self.m = monitor
-        self.set_initial_parameters()
+        self.set_basic_parameters()
         self.set_options()
         self.set_defaults()
 
 
-    def set_initial_parameters(self):
+    def set_basic_parameters(self):
         if self.m.ticker[0:2] == "ES":
             self.tick_price = 0.25
             self.price_precision = 2
@@ -75,22 +75,40 @@ class Params:
     # if parameter is set 'calc', it is calculated in the property part
     # first value of tuple is default value
     def set_options(self):
+        self.primary_look_back_time_options = (900, 1800, 3600, 7200) # secs # ideal for ES, 600-900 for all others
+        
+        # Stop time
         self.breaking_stop_time_options = (60, 20, 40, 80, 120) # secs
         self.speeding_stop_time_options = (10, 5, 20, 30) # secs
 
+        # Breaking
         self._min_breaking_price_changes_options = (5, 3, 10, 15, 'calc') # times
         self.breaking_up_down_ratio_options = (1.0, 1.5, 2.0)
-        self.min_breaking_range_options = (2, 3, 4, 5)
-        
-        self.primary_look_back_time_options = (900, 1800, 3600, 7200) # secs # ideal for ES, 600-900 for all others
+        self.min_breaking_range_options = (2, 4)
 
+        # Speeding
         self.speeding_time_options = (5, 10, 20) # secs
         self.time_speeding_points_length_options = (4, 3, 6)
         self.speed_min_max_win_loose_ticks_options = ((2, 6), (3, 6), (4, 8))
 
-        self._max_winning_ticks_options = (None, 'calc', 3)
+        # Stop values
+        self.reached_first_target_break_options = (1, 2, 4)
+        self.made_two_break_options = (3, 2, 5)
+        self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 8), (5, 10)) # could replace speed_min_max_win_loose_ticks_options
+        self.reversal_addition_break_options = (1, 2, 4)
+
+        self._max_winning_ticks_options = (None, 3, 4)
 
         self.density_min_data_options = (6, 10, 15)
+
+        # Scores
+        self.breaking_price_changes_score_options = (4, 3, 2)
+        self.duration_score_options = (2, 1, 0)
+        self.in_line_score_options = (2, 1)
+        self.trend_two_score_options = (2, 1)
+        self.in_density_direction_score_options = (2, 1, 3)
+        self.out_density_direction_score_options = (2, 1, 3)
+        self.advantage_score_options = (2, 1, 3)
 
 
     # set the default value as the first of the options
