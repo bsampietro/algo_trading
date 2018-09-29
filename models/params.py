@@ -6,10 +6,9 @@ class Params:
         self.m = None
         self.set_options_and_defaults()
 
-        self.id = None
-        self.average_pnl = None
-        self.nr_of_winners = None
-        self.nr_of_loosers = None
+        self.results = []
+        self.last_result = None # temp variable to store last result, will be appended to results when stored
+        self.id = -1 # negative ids for maintaining code default versions
 
 
     def assign_monitor(self, monitor):
@@ -18,72 +17,72 @@ class Params:
 
 
     def set_basic_parameters(self):
-        if self.m.ticker[0:2] == "ES":
+        if self.m.ticker_code() == "ES":
             self.tick_price = 0.25
             self.price_precision = 2
             self.dollar_multiplier = 50
         
-        elif self.m.ticker[0:2] == "NQ":
+        elif self.m.ticker_code() == "NQ":
             self.tick_price = 0.25
             self.price_precision = 2
             self.dollar_multiplier = 20
         
-        elif self.m.ticker[0:2] == "YM":
+        elif self.m.ticker_code() == "YM":
             self.tick_price = 1
             self.price_precision = 2
             self.dollar_multiplier = 20
         
-        elif self.m.ticker[0:2] == "CL":
+        elif self.m.ticker_code() == "CL":
             self.tick_price = 0.01
             self.price_precision = 2
             self.dollar_multiplier = 1000
         
-        elif self.m.ticker[0:2] == "NG":
+        elif self.m.ticker_code() == "NG":
             self.tick_price = 0.001
             self.price_precision = 3
             self.dollar_multiplier = 10000
         
-        elif self.m.ticker[0:2] == "GC":
+        elif self.m.ticker_code() == "GC":
             self.tick_price = 0.10
             self.price_precision = 2
             self.dollar_multiplier = 100
         
-        elif self.m.ticker[0:2] == "HG":
+        elif self.m.ticker_code() == "HG":
             self.tick_price = 0.0005
             self.price_precision = 4
             self.dollar_multiplier = 5000
         
-        elif self.m.ticker[0:2] == "SI":
+        elif self.m.ticker_code() == "SI":
             self.tick_price = 0.005
             self.price_precision = 3
             self.dollar_multiplier = 5000
         
-        elif self.m.ticker[0:3] == "EUR":
+        elif self.m.ticker_code() == "EU":
             self.tick_price = 0.00005
             self.price_precision = 5
             self.dollar_multiplier = 125000
         
-        elif self.m.ticker[0:3] == "JPY":
+        elif self.m.ticker_code() == "JP":
             self.tick_price = 0.0000005
             self.price_precision = 7
             self.dollar_multiplier = 12500000
         
-        elif self.m.ticker[0:2] == "ZB":
+        elif self.m.ticker_code() == "ZB":
             self.tick_price = 0.03125
             self.price_precision = 5
             self.dollar_multiplier = 1000
         
-        elif self.m.ticker[0:2] == "ZN":
+        elif self.m.ticker_code() == "ZN":
             self.tick_price = 0.015625
             self.price_precision = 6
             self.dollar_multiplier = 1000
         
-        elif self.m.ticker[0:2] == "ZC":
+        elif self.m.ticker_code() == "ZC":
             self.tick_price = 0.25
             self.price_precision = 2
             self.dollar_multiplier = 50
         
-        elif self.m.ticker[0:2] == "ZS":
+        elif self.m.ticker_code() == "ZS":
             self.tick_price = 0.25
             self.price_precision = 2
             self.dollar_multiplier = 50
@@ -143,6 +142,7 @@ class Params:
         for variable, value in vars(self).items():
             if variable[-8:] == '_options':
                 setattr(self, variable.replace('_options', ''), random.choice(value))
+        self.id = None
 
 
     @property

@@ -263,6 +263,10 @@ class Monitor:
             price1, price2 = price1
         return round((price1 + price2) / 2.0, self.prm.price_precision)
 
+
+    def ticker_code(self):
+        return self.ticker[0:2]
+
     
     def close(self):
         for monitor in self.child_test_monitors:
@@ -391,10 +395,15 @@ class Monitor:
 
 
     def save_params(self):
-        self.prm.average_pnl = self.dollars(self.results.average_pnl())
-        self.prm.nr_of_winners = self.results.nr_of_wl('winners')
-        self.prm.nr_of_loosers = self.results.nr_of_wl('loosers')
-        ParamsDb.gi().add(self.prm)
+        result = {}
+        result['average_pnl'] = self.dollars(self.results.average_pnl())
+        result['nr_of_winners'] = self.results.nr_of_wl('winners')
+        result['nr_of_loosers'] = self.results.nr_of_wl('loosers')
+        result['total_trades'] = self.results.total_trades()
+        result['underlying'] = self.ticker_code()
+        self.prm.last_result = result
+        if self.prm.last_result['average_pnl'] >= 7:
+            ParamsDb.gi().add_or_modify(self.prm)
         if not self.test:
             ParamsDb.gi().save()
 
