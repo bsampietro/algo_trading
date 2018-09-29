@@ -5,10 +5,6 @@ import json
 import os
 from functools import lru_cache
 
-# import pygal
-import bokeh.plotting
-import bokeh.models
-
 import gvars
 from lib import util
 from lib.secondary import DummyStream
@@ -273,8 +269,8 @@ class Monitor:
             monitor.close()
         self.save_params()
         if not self.test:
-            # self.output_chart('timed')
-            # self.output_chart('all')
+            #self.output_chart('timed')
+            #self.output_chart('all')
             if self.remote.live_mode:
                 self.save_data()
         self.log_final_data(should_print = not self.remote.live_mode)
@@ -283,6 +279,11 @@ class Monitor:
 
 
     def output_chart(self, kind):
+        # Importing at the function level because method is not always used
+        # import pygal
+        import bokeh.plotting
+        import bokeh.models
+
         # Bokeh
         x = None
         y = None
