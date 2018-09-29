@@ -8,6 +8,8 @@ class Density:
         self.initialize_interval_variables()
         self.in_position = False
 
+        self.build_dps()
+
         # Private
         self._previous_price_data = []
         self.min_higher_area = None # type: int
@@ -33,10 +35,21 @@ class Density:
 
         # Calculations
         if len(self.list_dps) >= self.m.prm.density_min_data:
+            self.set_percentagiles() and self.update_intervals()
             # self.update_heights() # Not in use now
-            self.update_intervals()
+            # self.update_intervals()
         else:
             self.initialize_interval_variables()
+
+
+    def build_dps(self):
+        data = self.m.data_since(self.m.prm.primary_look_back_time)
+        dict_dps = {}
+        for cdp in data:
+            if cdp.price not in dict_dps:
+                dict_dps[cdp.price] = DensityPoint(cdp.price)
+            dict_dps[cdp.price].duration += cdp.duration
+        self.list_dps = list(dict_dps.values())
 
 
     def update_dps(self):
@@ -69,6 +82,8 @@ class Density:
                 self.list_dps.pop(dp_index)
         self._previous_price_data = data
 
+
+    def set_percentagiles(self):
         self.list_dps.sort(key=lambda dp: dp.duration)
 
         # Set dpercentage
@@ -85,14 +100,15 @@ class Density:
         quarter = round((len(self.list_dps) - 1) / 4)
         self.min_higher_area = self.list_dps[quarter * 3].dpercentile
         self.max_lower_area = self.list_dps[quarter].dpercentile
-
-        self.list_dps.sort(key=lambda dp: dp.price)
+        return True # Signals that the next method can be executed
 
 
     def update_heights(self):
         # This method assumes that self.list_dps is ordered by price
         if len(self._previous_price_data) == 0:
             return
+
+        self.list_dps.sort(key=lambda dp: dp.price)
 
         for i in range(len(self.list_dps)):
             self.list_dps[i].height = gvars.HEIGHT['mid']
@@ -140,6 +156,8 @@ class Density:
         # This method assumes that self.list_dps is ordered by price
         if len(self._previous_price_data) == 0:
             return
+
+        self.list_dps.sort(key=lambda dp: dp.price)
 
         current_dp_index = core.index(lambda dp: dp.price == self.m.last_price(), self.list_dps)
         self.current_dp = self.list_dps[current_dp_index]
