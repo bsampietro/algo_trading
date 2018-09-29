@@ -23,6 +23,7 @@ from models.speed import Speed
 from models.results import Results
 from models.breaking_decision import BreakingDecision
 from models.speeding_decision import SpeedingDecision
+from models.params_db import ParamsDb
 
 class Monitor:
     def __init__(self, ticker, remote, test = False):
@@ -32,15 +33,17 @@ class Monitor:
         self.data = []
         
         if test:
-            self.prm = Params(self)
+            self.prm = Params()
+            self.prm.assign_monitor(self)
             self.prm.randomize()
         else:
-            self.prm = Params(self)
+            self.prm = Params()
+            self.prm.assign_monitor(self)
         self.position = Position(self, remote)
         self.density = Density(self)
         self.speed = Speed(self)
-        self.results = Results(self)
         self.breaking = Breaking(self)
+        self.results = Results(self)
         
         self.action_decision = None
 
@@ -251,6 +254,10 @@ class Monitor:
         return round(price_difference / self.prm.tick_price)
 
 
+    def dollars(self, price_difference):
+        return price_difference * self.prm.dollar_multiplier
+
+
     def price_plus_ticks(self, ticks):
         return round(self.last_price() + ticks * self.prm.tick_price, self.prm.price_precision)
 
@@ -262,17 +269,17 @@ class Monitor:
 
     
     def close(self):
+        for monitor in self.child_test_monitors:
+            monitor.close()
+        self.save_params()
         if not self.test:
             # self.output_chart('timed')
             # self.output_chart('all')
             if self.remote.live_mode:
                 self.save_data()
         self.log_final_data(should_print = not self.remote.live_mode)
-
         self.datalog.close()
         self.datalog_final.close()
-        for monitor in self.child_test_monitors:
-            monitor.close()
 
 
     def output_chart(self, kind):
@@ -380,6 +387,15 @@ class Monitor:
         output += self.results.state_str('all')
         self.datalog.write(output)
         self.datalog_final.write(output)
+
+
+    def save_params(self):
+        self.prm.average_pnl = self.dollars(self.results.average_pnl())
+        self.prm.nr_of_winners = self.results.nr_of_wl('winners')
+        self.prm.nr_of_loosers = self.results.nr_of_wl('loosers')
+        ParamsDb.gi().add(self.prm)
+        if not self.test:
+            ParamsDb.gi().save()
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):
