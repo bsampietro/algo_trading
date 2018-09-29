@@ -402,7 +402,7 @@ class Monitor:
         result['total_trades'] = self.results.total_trades()
         result['underlying'] = self.ticker_code()
         self.prm.last_result = result
-        if self.prm.last_result['average_pnl'] >= 7:
+        if self.prm.last_result['average_pnl'] >= 6:
             ParamsDb.gi().add_or_modify(self.prm)
         if not self.test:
             ParamsDb.gi().save()

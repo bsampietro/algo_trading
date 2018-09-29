@@ -26,7 +26,8 @@ class ParamsDb:
 
 
     # To save
-    def get_attributes_from_params(self, params):
+    @staticmethod
+    def get_attributes_from_params(params):
         attrs = {}
         # Performance attributes
         for variable, value in vars(params).items():
@@ -73,7 +74,7 @@ class ParamsDb:
         if not self.changed:
             return
         with open(self.file_name, 'w') as f:
-            json.dump([self.get_attributes_from_params(p) for p in self.params_list], f, indent=4)
+            json.dump([type(self).get_attributes_from_params(p) for p in self.params_list], f, indent=4)
         self.changed = False
 
 
@@ -94,5 +95,7 @@ class ParamsDb:
                 self.next_id = 0
             else:
                 self.next_id = max(p.id for p in self.params_list)
+                if self.next_id < 0:
+                    self.next_id = 0
         self.next_id += 1
         return self.next_id

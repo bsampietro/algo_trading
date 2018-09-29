@@ -110,12 +110,12 @@ class Params:
         # Speeding
         self.speeding_time_options = (5, 10, 20) # secs
         self.time_speeding_points_length_options = (4, 3, 6)
-        self.speed_min_max_win_loose_ticks_options = ((2, 6), (3, 6), (4, 8))
+        self.speed_min_max_win_loose_ticks_options = ((2, 6), (3, 6), (4, 10))
 
         # Stop values
         self.reached_first_target_break_options = (1, 2, 4)
         self.made_two_break_options = (3, 2, 5)
-        self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 8), (5, 10)) # could replace speed_min_max_win_loose_ticks_options
+        self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 10)) # could replace speed_min_max_win_loose_ticks_options
         self.reversal_addition_break_options = (1, 2, 4)
 
         self._max_winning_ticks_options = (None, 3, 4)
@@ -142,7 +142,7 @@ class Params:
         for variable, value in vars(self).items():
             if variable[-8:] == '_options':
                 setattr(self, variable.replace('_options', ''), random.choice(value))
-        self.id = None
+        self.id = None # without any id, ParamsDb will assign a new one and save it as new
 
 
     @property

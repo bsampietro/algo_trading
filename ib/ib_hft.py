@@ -13,13 +13,14 @@ from ibapi.contract import *
 from ibapi.common import *
 from ibapi.order import *
 
-from lib import util
+from lib import util, core
+import gvars
 from models.monitor import Monitor
 
 
 class IBHft(EClient, EWrapper):
 
-    def __init__(self, tickers=[], input_file="", data_mode=False, monitor_children=1):
+    def __init__(self, tickers=[], input_file="", data_mode=False):
         EClient.__init__(self, wrapper = self)
 
         self.monitors = []
@@ -46,7 +47,6 @@ class IBHft(EClient, EWrapper):
         self.current_tick_price = {} # dict by tick
 
         self.data_mode = data_mode
-        self.monitor_children = monitor_children
 
         self.live_mode = True if input_file == "" else False
         try:
@@ -72,7 +72,7 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitor = Monitor(ticker, self)
-            monitor.create_children(self.monitor_children)
+            monitor.create_children(core.safe_execute(0, ValueError, int, gvars.params[2]))
 
             next_req_id = self.get_next_req_id()
             self.req_id_to_monitor_map[next_req_id] = monitor
