@@ -47,11 +47,19 @@ class ParamsDb:
         self.load()
 
 
+    def get_params(self, id):
+        if id is None or id == 0:
+            return Params()
+        else:
+            return core.find(lambda p: p.id == id, self.params_list)
+
+
     def add_or_modify(self, param):
         if param.id is None:
             param.id = self.get_next_id()
             param.results.append(param.last_result)
             self.params_list.append(param)
+            self.changed = True
         else:
             stored_param = core.find(lambda p: p.id == param.id, self.params_list)
             if stored_param:
@@ -62,12 +70,13 @@ class ParamsDb:
                         lambda r: (r['average_pnl'], r['total_trades'], r['underlying']) == last_result_key_data,
                         stored_param.results):
                     stored_param.results.append(param.last_result)
+                    self.changed = True
             else:
                 # new default version
                 assert param.id < 0
                 param.results.append(param.last_result)
                 self.params_list.append(param)
-        self.changed = True
+                self.changed = True
 
 
     def save(self):

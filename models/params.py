@@ -179,6 +179,7 @@ class Params:
 
     def state_str(self):
         output = "  PARAMETERS:\n"
+        output += f"    id: {self.id}\n"
         for variable, value in vars(self).items():
             if variable[-8:] == '_options':
                 output += f"    {variable.replace('_options', '')}: {getattr(self, variable.replace('_options', ''))}\n"

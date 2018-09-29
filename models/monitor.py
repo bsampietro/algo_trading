@@ -6,7 +6,7 @@ import os
 from functools import lru_cache
 
 import gvars
-from lib import util
+from lib import util, core
 from lib.secondary import DummyStream
 
 # State objects can be used to return data and decide in this class whether to change state
@@ -33,7 +33,7 @@ class Monitor:
             self.prm.assign_monitor(self)
             self.prm.randomize()
         else:
-            self.prm = Params()
+            self.prm = ParamsDb.gi().get_params(core.safe_execute(None, ValueError, int, gvars.params[3]))
             self.prm.assign_monitor(self)
         self.position = Position(self, remote)
         self.density = Density(self)
