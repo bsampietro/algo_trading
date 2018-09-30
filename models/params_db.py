@@ -43,7 +43,7 @@ class ParamsDb:
         self.params_list = None
         self.changed = False
         self.next_id = None # type: int
-        self.file_name = "./data/params_list.json"
+        self.file_name = "./output/params_list.json"
         self.load()
 
 
@@ -64,10 +64,9 @@ class ParamsDb:
             stored_param = core.find(lambda p: p.id == param.id, self.params_list)
             if stored_param:
                 # modify
-                last_result_key_data = (param.last_result['average_pnl'],
-                    param.last_result['total_trades'], param.last_result['underlying'])
+                last_result_key_data = (param.last_result['average_pnl'], param.last_result['underlying'])
                 if not core.find(
-                        lambda r: (r['average_pnl'], r['total_trades'], r['underlying']) == last_result_key_data,
+                        lambda r: (r['average_pnl'], r['underlying']) == last_result_key_data,
                         stored_param.results):
                     stored_param.results.append(param.last_result)
                     self.changed = True

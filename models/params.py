@@ -6,9 +6,9 @@ class Params:
         self.m = None
         self.set_options_and_defaults()
 
+        self.id = -1 # negative ids for maintaining code default versions
         self.results = []
         self.last_result = None # temp variable to store last result, will be appended to results when stored
-        self.id = -1 # negative ids for maintaining code default versions
 
 
     def assign_monitor(self, monitor):

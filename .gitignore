@@ -1,7 +1,7 @@
 __pycache__/*
 tws_output.txt
 *.log
-*.json
+data/*.json
 *.pk
 *.pyc
 input/contracts.txt

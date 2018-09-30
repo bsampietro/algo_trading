@@ -399,7 +399,6 @@ class Monitor:
         result['average_pnl'] = self.dollars(self.results.average_pnl())
         result['nr_of_winners'] = self.results.nr_of_wl('winners')
         result['nr_of_loosers'] = self.results.nr_of_wl('loosers')
-        result['total_trades'] = self.results.total_trades()
         result['underlying'] = self.ticker_code()
         self.prm.last_result = result
         if self.prm.last_result['average_pnl'] >= 6:

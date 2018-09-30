@@ -1,0 +1,209 @@
+[
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 9.473684210526317,
+                "nr_of_winners": 52,
+                "nr_of_loosers": 25,
+                "underlying": "ES"
+            },
+            {
+                "average_pnl": 6.25,
+                "nr_of_winners": 46,
+                "nr_of_loosers": 17,
+                "underlying": "ES"
+            }
+        ],
+        "id": -1
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            8
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 10,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 11.85064935064935,
+                "nr_of_winners": 38,
+                "nr_of_loosers": 31,
+                "underlying": "ES"
+            },
+            {
+                "average_pnl": 6.756756756756757,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 17,
+                "underlying": "ES"
+            }
+        ],
+        "id": 1
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 8.513513513513518,
+                "nr_of_winners": 38,
+                "nr_of_loosers": 24,
+                "underlying": "CL"
+            }
+        ],
+        "id": 2
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 6.013071895424837,
+                "nr_of_winners": 69,
+                "nr_of_loosers": 58,
+                "underlying": "CL"
+            }
+        ],
+        "id": 3
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 15,
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 6.0714285714285685,
+                "nr_of_winners": 15,
+                "nr_of_loosers": 12,
+                "underlying": "GC"
+            }
+        ],
+        "id": 4
+    }
+]
