@@ -37,13 +37,13 @@ class Monitor:
             self.prm.assign_monitor(self)
         self.position = Position(self, remote)
         self.density = Density(self)
-        self.speed = Speed(self)
         self.breaking = Breaking(self)
+        self.speed = Speed(self)
         self.results = Results(self)
         
         self.action_decision = None
-
         self.initial_time = None # type: int
+        self.processed_params = {}
 
         # Lock variables
         self.price_change_lock = Lock()
@@ -95,7 +95,7 @@ class Monitor:
 
             self.position.price_change()
 
-            # self.prm.adjust()
+            self.process_params()
 
             self.query_and_decision()
 
@@ -395,16 +395,72 @@ class Monitor:
 
 
     def save_params(self):
-        result = {}
-        result['average_pnl'] = self.dollars(self.results.average_pnl())
-        result['nr_of_winners'] = self.results.nr_of_wl('winners')
-        result['nr_of_loosers'] = self.results.nr_of_wl('loosers')
-        result['underlying'] = self.ticker_code()
-        self.prm.last_result = result
-        if self.prm.last_result['average_pnl'] >= 6:
+        if gvars.CONF['dynamic_parameter_change']:
+            return
+        self.prm.attach_last_result()
+        if self.prm.last_result['average_pnl'] >= gvars.CONF['accepting_average_pnl']:
             ParamsDb.gi().add_or_modify(self.prm)
-        if not self.test:
-            ParamsDb.gi().save()
+
+
+    def process_params(self):
+        if not gvars.CONF['dynamic_parameter_change']:
+            return
+        # Change not working for childs
+        for monitor in self.child_test_monitors:
+            if len(monitor.results.data) >= gvars.CONF['dynamic_parameter_change']:
+                average_pnl = self.dollars(monitor.results.average_pnl(gvars.CONF['dynamic_parameter_change']))
+                if average_pnl < gvars.CONF['discarding_average_pnl']:
+                    # get new params
+                    print(f"Changing params on child monitors with avg_pnl of {average_pnl}")
+                    monitor.prm.randomize()
+                    monitor.density = Density(monitor)
+                    monitor.breaking = Breaking(monitor)
+                    monitor.speed = Speed(monitor)
+                    monitor.results = Results(monitor)
+                    monitor.position = Position(monitor, self.remote)
+                elif average_pnl > gvars.CONF['accepting_average_pnl']:
+                    print(f"Saving params on child monitors with avg_pnl of {average_pnl}")
+                    monitor.prm.attach_last_result()
+                    ParamsDb.gi().add_or_modify(monitor.prm)
+                    monitor.results = Results(monitor)
+                    monitor.position = Position(monitor, self.remote)
+                # # In case we don't want to reset results.
+                # # Identical to above block but without reseting results
+                # if (len(monitor.results.data) >= 30 and
+                #         len(monitor.results.data) % 30 == 0 and
+                #         not self.processed_params.get(monitor, False)):
+                #     average_pnl = self.dollars(monitor.results.average_pnl(30))
+                #     if average_pnl < 4.0:
+                #         monitor.prm.randomize()
+                #         monitor.density = Density(monitor)
+                #         monitor.breaking = Breaking(monitor)
+                #         monitor.speed = Speed(monitor)
+                #     elif average_pnl > 6.0:
+                #         monitor.prm.attach_last_result()
+                #         ParamsDb.gi().add_or_modify(monitor.prm)
+                #     self.processed_params[monitor] = True
+                # elif len(monitor.results.data) % 30 == 1:
+                #     self.processed_params[monitor] = False
+
+        # # +++++++ Find best prm in children and assignt to parent ++++++
+        # current_avg_pnl = None
+        # children_prm_pnl = []
+        # for monitor in self.child_test_monitors:
+        #     if len(monitor.results.data) >= 30:
+        #         monitor_avg_pnl = monitor.results.average_pnl(30)
+        #         current_avg_pnl = self.results.average_pnl(30) if current_avg_pnl is None else current_avg_pnl
+        #         if monitor_avg_pnl > current_avg_pnl:
+        #             children_prm_pnl.append((monitor.prm, monitor_avg_pnl))
+        # try:
+        #     best_prm = max(children_prm_pnl, key=lambda t: t[1])[0]
+        # except ValueError:
+        #     return # there is no max so it can't assign anything
+        # print("Changing params on main (live) trading monitor")
+        # best_prm.assign_monitor(self)
+        # self.prm = best_prm
+        # self.density = Density(self)
+        # self.breaking = Breaking(self)
+        # self.speed = Speed(self)
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):

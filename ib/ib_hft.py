@@ -16,6 +16,7 @@ from ibapi.order import *
 from lib import util, core
 import gvars
 from models.monitor import Monitor
+from models.params_db import ParamsDb
 
 
 class IBHft(EClient, EWrapper):
@@ -250,6 +251,7 @@ class IBHft(EClient, EWrapper):
                 self.cancelMktData(req_id)
                 time.sleep(0.25)
             monitor.close()
+        ParamsDb.gi().save()
         if self.live_mode and self.isConnected():
             self.disconnect()
         print("Finished clearing.")

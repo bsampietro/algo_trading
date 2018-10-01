@@ -13,8 +13,11 @@ class Results:
             order_time, start_time, end_time, self.m.initial_time))
 
 
-    def pnl(self):
-        return sum(map(lambda r: r.pnl, self.data))
+    def pnl(self, last=None):
+        if last is None:
+            return sum(map(lambda r: r.pnl, self.data))
+        else:
+            return sum(map(lambda r: r.pnl, self.data[-last:]))
 
     def fantasy_pnl(self):
         return sum(map(lambda r: r.fantasy_pnl, self.data))
@@ -30,8 +33,11 @@ class Results:
         results = [r.pnl for r in self.data if multi * r.pnl > 0]
         return statistics.mean(results) if len(results) > 0 else 0
 
-    def average_pnl(self):
-        return self.pnl() / self.total_trades() if self.total_trades() > 0 else 0
+    def average_pnl(self, last=None):
+        if last is None:
+            return self.pnl() / self.total_trades() if self.total_trades() > 0 else 0
+        else:
+            return self.pnl(last) / last
 
     def total_trades(self):
         return len(self.data)

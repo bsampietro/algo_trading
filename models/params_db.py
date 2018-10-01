@@ -55,6 +55,7 @@ class ParamsDb:
 
 
     def add_or_modify(self, param):
+        assert param.last_result is not None
         if param.id is None:
             param.id = self.get_next_id()
             param.results.append(param.last_result)
