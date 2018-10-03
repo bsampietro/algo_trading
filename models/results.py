@@ -14,30 +14,27 @@ class Results:
 
 
     def pnl(self, last=None):
-        if last is None:
-            return sum(map(lambda r: r.pnl, self.data))
-        else:
-            return sum(map(lambda r: r.pnl, self.data[-last:]))
+        data = self.data if last is None else self.data[-last:]
+        return sum(map(lambda r: r.pnl, data))
 
-    def fantasy_pnl(self):
-        return sum(map(lambda r: r.fantasy_pnl, self.data))
-
-    def nr_of_wl(self, x):
+    def nr_of_wl(self, x, last=None):
+        data = self.data if last is None else self.data[-last:]
         assert x in ('winners', 'loosers')
         multi = 1 if x == 'winners' else -1
-        return len([r.pnl for r in self.data if multi * r.pnl > 0])
+        return len([r.pnl for r in data if multi * r.pnl > 0])
+
+    def average_pnl(self, last=None):
+        data = self.data if last is None else self.data[-last:]
+        return (sum(map(lambda r: r.pnl, data)) / len(data)) if len(data) > 0 else 0
 
     def average_wl(self, x):
         assert x in ('winners', 'loosers')
         multi = 1 if x == 'winners' else -1
         results = [r.pnl for r in self.data if multi * r.pnl > 0]
         return statistics.mean(results) if len(results) > 0 else 0
-
-    def average_pnl(self, last=None):
-        if last is None:
-            return self.pnl() / self.total_trades() if self.total_trades() > 0 else 0
-        else:
-            return self.pnl(last) / last
+    
+    def fantasy_pnl(self):
+        return sum(map(lambda r: r.fantasy_pnl, self.data))
 
     def total_trades(self):
         return len(self.data)
@@ -48,7 +45,7 @@ class Results:
         output = ""
         if self.show_results_history or len(pshow) > 0:
             self.show_results_history = False
-            output += "  RESULTS:\n"
+            output += f"  RESULTS (live: {not self.m.test}):\n"
             if 'all' in show:
                 for result in self.data:
                     output += f"    {result.state_str(self.m.prm.price_precision)}\n"

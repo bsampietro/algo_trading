@@ -9,4 +9,8 @@ params = None
 
 # Config:
 TEMP_DIR = "/media/ramd"
-CONF = {'dynamic_parameter_change': 30, 'accepting_average_pnl': 6.0, 'discarding_average_pnl': 4.0}
+CONF = {
+	'dynamic_parameter_change': 20, # None to disable
+	'accepting_average_pnl': 6.0,
+	'discarding_average_pnl': 3.0
+}

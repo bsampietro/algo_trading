@@ -177,11 +177,11 @@ class Params:
         return getattr(self, attr + '_options')[0]
 
 
-    def attach_last_result(self):
+    def attach_last_result(self, last=None):
         self.last_result = {}
-        self.last_result['average_pnl'] = self.m.dollars(self.m.results.average_pnl())
-        self.last_result['nr_of_winners'] = self.m.results.nr_of_wl('winners')
-        self.last_result['nr_of_loosers'] = self.m.results.nr_of_wl('loosers')
+        self.last_result['average_pnl'] = self.m.dollars(self.m.results.average_pnl(last))
+        self.last_result['nr_of_winners'] = self.m.results.nr_of_wl('winners', last)
+        self.last_result['nr_of_loosers'] = self.m.results.nr_of_wl('loosers', last)
         self.last_result['underlying'] = self.m.ticker_code()
 
 

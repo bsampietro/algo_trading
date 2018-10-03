@@ -29,12 +29,9 @@ class Monitor:
         self.data = []
         
         if test:
-            self.prm = Params()
-            self.prm.assign_monitor(self)
-            self.prm.randomize()
+            self.assign_params(Params(), randomize=True)
         else:
-            self.prm = ParamsDb.gi().get_params(core.safe_execute(None, ValueError, int, gvars.params[3]))
-            self.prm.assign_monitor(self)
+            self.assign_params(ParamsDb.gi().get_params(core.safe_execute(None, ValueError, int, gvars.params[3])))
         self.position = Position(self, remote)
         self.density = Density(self)
         self.breaking = Breaking(self)
@@ -43,6 +40,7 @@ class Monitor:
         
         self.action_decision = None
         self.initial_time = None # type: int
+        self.max_average_pnl = None
         self.processed_params = {}
 
         # Lock variables
@@ -405,25 +403,28 @@ class Monitor:
     def process_params(self):
         if not gvars.CONF['dynamic_parameter_change']:
             return
-        # Change not working for childs
+        
+        current_average_pnl = None
+        children_prm_pnl = []
         for monitor in self.child_test_monitors:
             if len(monitor.results.data) >= gvars.CONF['dynamic_parameter_change']:
-                average_pnl = self.dollars(monitor.results.average_pnl(gvars.CONF['dynamic_parameter_change']))
-                if average_pnl < gvars.CONF['discarding_average_pnl']:
-                    # get new params
-                    print(f"Changing params on child monitors with avg_pnl of {average_pnl}")
-                    monitor.prm.randomize()
+                # Assigning data
+                monitor_average_pnl = self.dollars(monitor.results.average_pnl(gvars.CONF['dynamic_parameter_change']))
+                if current_average_pnl is None:
+                    current_average_pnl = self.dollars(self.results.average_pnl(gvars.CONF['dynamic_parameter_change']))
+                if self.max_average_pnl is None or current_average_pnl > self.max_average_pnl:
+                    self.max_average_pnl = current_average_pnl
+
+                if monitor_average_pnl < gvars.CONF['discarding_average_pnl']:
+                    print(f"Changing params on child monitors with avg_pnl of {monitor_average_pnl}")
+                    monitor.assign_params(Params(), randomize=True)
                     monitor.density = Density(monitor)
                     monitor.breaking = Breaking(monitor)
                     monitor.speed = Speed(monitor)
-                    monitor.results = Results(monitor)
-                    monitor.position = Position(monitor, self.remote)
-                elif average_pnl > gvars.CONF['accepting_average_pnl']:
-                    print(f"Saving params on child monitors with avg_pnl of {average_pnl}")
-                    monitor.prm.attach_last_result()
+                elif monitor_average_pnl > gvars.CONF['accepting_average_pnl']:
+                    print(f"Saving params on child monitors with avg_pnl of {monitor_average_pnl}")
+                    monitor.prm.attach_last_result(gvars.CONF['dynamic_parameter_change'])
                     ParamsDb.gi().add_or_modify(monitor.prm)
-                    monitor.results = Results(monitor)
-                    monitor.position = Position(monitor, self.remote)
                 # # In case we don't want to reset results.
                 # # Identical to above block but without reseting results
                 # if (len(monitor.results.data) >= 30 and
@@ -441,26 +442,23 @@ class Monitor:
                 #     self.processed_params[monitor] = True
                 # elif len(monitor.results.data) % 30 == 1:
                 #     self.processed_params[monitor] = False
+                if monitor_average_pnl > self.max_average_pnl + gvars.CONF['discarding_average_pnl']:
+                    children_prm_pnl.append((monitor.prm, monitor_average_pnl))
 
-        # # +++++++ Find best prm in children and assignt to parent ++++++
-        # current_avg_pnl = None
-        # children_prm_pnl = []
-        # for monitor in self.child_test_monitors:
-        #     if len(monitor.results.data) >= 30:
-        #         monitor_avg_pnl = monitor.results.average_pnl(30)
-        #         current_avg_pnl = self.results.average_pnl(30) if current_avg_pnl is None else current_avg_pnl
-        #         if monitor_avg_pnl > current_avg_pnl:
-        #             children_prm_pnl.append((monitor.prm, monitor_avg_pnl))
-        # try:
-        #     best_prm = max(children_prm_pnl, key=lambda t: t[1])[0]
-        # except ValueError:
-        #     return # there is no max so it can't assign anything
-        # print("Changing params on main (live) trading monitor")
-        # best_prm.assign_monitor(self)
-        # self.prm = best_prm
-        # self.density = Density(self)
-        # self.breaking = Breaking(self)
-        # self.speed = Speed(self)
+                monitor.results = Results(monitor)
+                monitor.position = Position(monitor, self.remote)
+        try:
+            best_prm, prm_avg_pnl = max(children_prm_pnl, key=lambda t: t[1])
+        except ValueError:
+            return # there is no max so it can't assign anything
+        if self.prm == best_prm:
+            return
+        print(f"Changing params on main (live) trading monitor, groing from avg_pnls of: {current_average_pnl} to {prm_avg_pnl}")
+        self.max_average_pnl = prm_avg_pnl
+        self.assign_params(best_prm)
+        self.density = Density(self)
+        self.breaking = Breaking(self)
+        self.speed = Speed(self)
 
 
     def order_change(self, order_id, status, remaining, fill_price, fill_time):
@@ -471,6 +469,12 @@ class Monitor:
     def create_children(self, number):
         for i in range(number):
             self.child_test_monitors.append(Monitor(self.ticker, self.remote, test=True))
+
+
+    def assign_params(self, params, randomize=False):
+        self.prm = params
+        self.prm.assign_monitor(self)
+        self.prm.randomize() if randomize else None
 
 
     @lru_cache(maxsize=None)
