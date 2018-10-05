@@ -39,6 +39,9 @@ class Results:
     def total_trades(self):
         return len(self.data)
 
+    def acc_pnl(self):
+        return self.data[-1].acc_pnl if len(self.data) > 0 else 0
+
 
     def state_str(self, *pshow):
         show = ('last', 'stats') if len(pshow) == 0 else pshow
@@ -93,9 +96,9 @@ class Result:
             f"fluct: {self.fluctuation:.{price_precision}f}, "
             f"rev: {self.reversal:.{price_precision}f}, "
             f"acc_pnl: {self.acc_pnl:>+6.{price_precision}f}, "
-            f"decision: ({self.decision.state_str()}), "
             f"o_time: {self.order_time - self.initial_time:>8.1f}, "
             f"s_time: {self.start_time - self.initial_time:>8.1f}, "
             f"e_time: {self.end_time - self.initial_time:>8.1f}, "
+            f"decision: ({self.decision.state_str()}), "
         )
         return output

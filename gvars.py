@@ -10,7 +10,9 @@ params = None
 # Config:
 TEMP_DIR = "/media/ramd"
 CONF = {
-	'dynamic_parameter_change': 20, # None to disable
+	'dynamic_parameter_change': None, # None to disable
 	'accepting_average_pnl': 6.0,
-	'discarding_average_pnl': 3.0
+	'discarding_average_pnl': 3.0,
+	'speeding_enabled': False,
+	'breaking_enabled': True
 }

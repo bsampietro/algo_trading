@@ -73,13 +73,29 @@ class Monitor:
                 self.data[-1].duration = cdp.time - self.data[-1].time
                 cdp.jump = self.ticks(cdp.price - self.data[-1].price)
 
+            # Stats
+            cdp.price_data_length = len(self.data_since(900))
+            cdp.density_points_length = len(self.density.list_dps)
+            cdp.acc_pnl = self.results.acc_pnl()
+            cdp.nr_of_trades = self.position.nr_of_trades
+
             self.data.append(cdp)
 
             if len(self.data) == 1:
                 self.initial_time = int(self.data[0].time)
 
-            if not self.test and (self.remote.live_mode or len(self.data) % 100 == 0):
-                print(f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}: {self.last_price():.{self.prm.price_precision}f}")
+            if not self.test and (self.remote.live_mode or len(self.data) % 50 == 0):
+                output = (
+                    f"{self.ticker} => {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_time()))}"
+                    f"({self.last_time():.2f} - {int(self.last_time()) - self.initial_time:>6}): "
+                    f"{self.last_price():.{self.prm.price_precision}f}   "
+                    f"plen: {self.data[-1].price_data_length:>4} - "
+                    f"dlen: {self.data[-1].density_points_length:>3} - "
+                    f"acc_pnl: {self.data[-1].acc_pnl:>5.2f} - "
+                    f"nr_of_trades: {self.data[-1].nr_of_trades:>3} - "
+                )
+                print(output)
+                self.datalog_final.write(f"{output}\n")
             if self.remote.data_mode:
                 return
 
@@ -101,8 +117,6 @@ class Monitor:
 
 
     def set_last_height_and_trend(self):
-        if len(self.data) == 0:
-            return
         if len(self.data) == 1:
             self.data[-1].trend = 1 # Arbitrary, could be -1
             return
@@ -157,11 +171,11 @@ class Monitor:
         else:
             decision = None
             
-            if self.speed.is_speeding():
+            if self.speed.is_speeding() and gvars.CONF['speeding_enabled']:
 
                 decision = SpeedingDecision(self, time_speeding_points = self.speed.time_speeding_points)
 
-            elif self.breaking.in_range():
+            elif self.breaking.in_range() and gvars.CONF['breaking_enabled']:
                 
                 decision = BreakingDecision(self, density_data = self.breaking.density_data)
                 decision.direction = self.breaking.direction
@@ -271,8 +285,9 @@ class Monitor:
             monitor.close()
         self.save_params()
         if not self.test:
-            #self.output_chart('timed')
-            #self.output_chart('all')
+            self.output_chart('timed')
+            self.output_chart('all')
+            self.output_chart_pnl_against('price_data_length', 'density_points_length')
             if self.remote.live_mode:
                 self.save_data()
         self.log_final_data(should_print = not self.remote.live_mode)
@@ -285,42 +300,51 @@ class Monitor:
         # import pygal
         import bokeh.plotting
         import bokeh.models
+        from bokeh.models.ranges import Range1d
+        from bokeh.models.axes import LinearAxis
 
         # Bokeh
-        x = None
-        y = None
+        
+        price_source = None
         if kind == 'timed':
             timed_prices = self.timed_prices(interval=15)
-            x = list(map(lambda cdp: cdp.time, timed_prices))
-            y = list(map(lambda cdp: cdp.price, timed_prices))
+            price_source = bokeh.plotting.ColumnDataSource(data=dict(
+                x=list(map(lambda cdp: cdp.time, timed_prices)),
+                y=list(map(lambda cdp: cdp.price, timed_prices))
+            ))
         else:
-            x = list(map(lambda cdp: cdp.time - self.initial_time, self.data))
-            y = list(map(lambda cdp: cdp.price, self.data))
-
-        bokeh.plotting.output_file(f"{self.create_and_return_output_dir()}/{self.ticker}_{kind}_chart.html", title=self.ticker)
+            price_source = bokeh.plotting.ColumnDataSource(data=dict(
+                x=[cdp.time - self.initial_time for cdp in self.data],
+                y=[cdp.price for cdp in self.data],
+                price_data_length=[cdp.price_data_length for cdp in self.data],
+                density_points_length=[cdp.density_points_length for cdp in self.data],
+                acc_pnl=[cdp.acc_pnl for cdp in self.data],
+                nr_of_trades=[cdp.nr_of_trades for cdp in self.data]
+            ))
         
         TOOLTIPS = [
             ("index", "$index"),
-            ("price", "@y{0.00}"),
             ("time", "@x{0.00}"),
-            ("hover (price,time)", "($y{0.00}, $x{0.00})")
+            ("price", "@y{0.00}"),
+            # ("hover (price,time)", "($y{0.00}, $x{0.00})"),
+            ("price_data_length", "@price_data_length"),
+            ("density_points_length", "@density_points_length"),
+            ("acc_pnl", "@acc_pnl{0.00}"),
+            ("nr_of_trades", "@nr_of_trades"),
         ]
         hover_tool = bokeh.models.HoverTool(
             tooltips=TOOLTIPS,
-
             # display a tooltip whenever the cursor is vertically in line with a glyph
             mode='mouse' # "mouse" (default) | "vline" | "hline"
         )
+        bokeh.plotting.output_file(f"{self.create_and_return_output_dir()}/{self.ticker}_{kind}_chart.html", title=self.ticker)
         p = bokeh.plotting.figure(
-           #tools="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,hover",
-           # tooltips=TOOLTIPS,
            title=self.ticker,
            width=1200,
            tools=[hover_tool,"crosshair,pan,wheel_zoom,box_zoom,reset,box_select"]
         )
-        p.circle(x, y, size=4, color='blue')
-        p.line(x, y, color='blue')
-
+        p.circle(x = 'x', y = 'y', size=4, color='blue', source=price_source)
+        p.line(x = 'x', y = 'y', color='blue', source=price_source)
         bokeh.plotting.save(p)
 
         # # Pygal
@@ -350,6 +374,69 @@ class Monitor:
         #     chart.show_dots = True
         #     chart.dots_size = 2
         #     chart.render_to_file(f"{dir_path}/{initial_time}_{final_time}.svg")
+
+
+    def output_chart_pnl_against(self, *stats):
+        import bokeh.plotting
+        import bokeh.models
+        from bokeh.models.ranges import Range1d
+        from bokeh.models.axes import LinearAxis
+
+        time = [cdp.time - self.initial_time for cdp in self.data]
+        price = [cdp.price for cdp in self.data]
+        price_data_length = [cdp.price_data_length for cdp in self.data]
+        density_points_length = [cdp.density_points_length for cdp in self.data]
+        acc_pnl = [cdp.acc_pnl for cdp in self.data]
+        nr_of_trades = [cdp.nr_of_trades for cdp in self.data]
+
+        pnl_source = bokeh.plotting.ColumnDataSource(data=dict(
+            x=time,
+            y=acc_pnl,
+            price=price,
+            price_data_length=price_data_length,
+            density_points_length=density_points_length,
+            nr_of_trades=nr_of_trades
+        ))
+        
+        TOOLTIPS = [
+            ("index", "$index"),
+            ("time", "@x{0.00}"),
+            ("acc_pnl", "@y{0.00}"),
+            ("price", "@price"),
+            ("price_data_length", "@price_data_length"),
+            ("density_points_length", "@density_points_length"),
+            ("nr_of_trades", "@nr_of_trades"),
+        ]
+        hover_tool = bokeh.models.HoverTool(
+            tooltips=TOOLTIPS,
+            mode='mouse' # "mouse" (default) | "vline" | "hline"
+        )
+        bokeh.plotting.output_file(f"{self.create_and_return_output_dir()}/{self.ticker}_comparison_chart.html", title=self.ticker)
+        p = bokeh.plotting.figure(
+            title=self.ticker,
+            width=1200,
+            tools=[hover_tool,"crosshair,pan,wheel_zoom,box_zoom,reset,box_select"],
+            x_range=(min(time), max(time)),
+            y_range=(min(acc_pnl), max(acc_pnl))
+        )
+        p.circle(x = 'x', y = 'y', size=2, color='blue', source=pnl_source)
+        p.line(x = 'x', y = 'y', color='blue', source=pnl_source)
+
+        # Against data
+        colors = ['green', 'red', 'brown', 'yellow', 'pink', 'grey']
+        extra_y_ranges = {}
+        for stat in stats:
+            var_stat = locals()[stat]
+            extra_y_ranges[stat] = Range1d(start=min(var_stat), end=max(var_stat))
+        p.extra_y_ranges = extra_y_ranges
+        for stat in stats:
+            var_stat = locals()[stat]
+            color = colors.pop(0)
+            p.add_layout(LinearAxis(y_range_name=stat), 'right')
+            p.circle(x = time, y = var_stat, size=2, color=color, y_range_name=stat, legend=stat)
+            p.line(x = time, y = var_stat, color=color, y_range_name=stat, legend=stat)
+
+        bokeh.plotting.save(p)
 
 
     def save_data(self):
@@ -492,7 +579,13 @@ class ChartDataPoint:
         self.price = price
         self.time = time
         self.duration = 0
+        self.jump = 0 # distance (in ticks) from previous price
         self.height = gvars.HEIGHT['mid'] # min - mid - max
         self.trend = None # type: int # distance (in ticks) from min or max
-        self.jump = 0 # distance (in ticks) from previous price
         # self.slope = 0
+        
+        # Stats fields (should they be in different class?)
+        self.price_data_length = None # type: int
+        self.density_points_length = None # type: int
+        self.acc_pnl = None # type: int
+        self.nr_of_trades = None # type: int
