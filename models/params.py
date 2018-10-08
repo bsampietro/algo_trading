@@ -6,7 +6,7 @@ class Params:
         self.m = None
         self.set_options_and_defaults()
 
-        self.id = -1 # negative ids for maintaining code default versions
+        self.id = -2 # negative ids for maintaining code default versions
         self.results = []
         self.last_result = None # temp variable to store last result, will be appended to results when stored
 
@@ -118,9 +118,10 @@ class Params:
         self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 10)) # could replace speed_min_max_win_loose_ticks_options
         self.reversal_addition_break_options = (1, 2, 4)
 
+        # Variety
         self._max_winning_ticks_options = (None, 3, 4)
-
-        self.density_min_data_options = (6, 10, 15)
+        self.density_min_data_options = (6, 12, 20)
+        self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None)
 
         # Scores
         self.breaking_price_changes_score_options = (4, 3, 2)
@@ -152,7 +153,7 @@ class Params:
                 return self.default('_min_breaking_price_changes')
             else:
                 try:
-                    return statistics.mode(self.m.breaking.price_changes_list)
+                    return round(statistics.median(self.m.breaking.price_changes_list) * 1.5)
                 except statistics.StatisticsError:
                     return self.default('_min_breaking_price_changes')
         else:

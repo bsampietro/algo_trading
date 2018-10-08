@@ -1,4 +1,5 @@
 import gvars
+from lib import util
 
 class Decision:
     def __init__(self, monitor):
@@ -51,6 +52,9 @@ class Decision:
                 score = funct_obj(self)
                 self._scores_output += (f"{funct_name}: {score}, ")
                 scores.append(score)
+        if (self.m.prm.reduce_score_rate_on_price_data_length is not None and 
+                not util.in_range(self.m.data[-1].price_data_length, self.m.prm.reduce_score_rate_on_price_data_length[0:2])):
+            scores = [round(score * self.m.prm.reduce_score_rate_on_price_data_length[2]) for score in scores]
         return scores
 
 

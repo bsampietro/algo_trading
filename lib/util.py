@@ -46,6 +46,9 @@ def value_or_min_max(value, min_max):
     else:
         return value
 
+def in_range(value, min_max):
+    return min_max[0] <= value <= min_max[1]
+
 # ------ Private ------
 
 def get_basic_contract():
