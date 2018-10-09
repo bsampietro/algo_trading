@@ -31,7 +31,7 @@ class Monitor:
         if test:
             self.assign_params(Params(), randomize=True)
         else:
-            self.assign_params(ParamsDb.gi().get_params(core.safe_execute(None, ValueError, int, gvars.params[3])))
+            self.assign_params(ParamsDb.gi().get_params(gvars.args.params_id()))
         self.position = Position(self, remote)
         self.density = Density(self)
         self.breaking = Breaking(self)
@@ -96,7 +96,8 @@ class Monitor:
                 )
                 print(output)
                 self.datalog_final.write(f"{output}\n")
-            if self.remote.data_mode:
+            
+            if gvars.args.data_mode():
                 return
 
             self.set_last_height_and_trend()
@@ -285,9 +286,10 @@ class Monitor:
             monitor.close()
         self.save_params()
         if not self.test:
-            self.output_chart('timed')
-            self.output_chart('all')
-            self.output_chart_pnl_against('price_data_length', 'density_points_length')
+            if gvars.args.output_chart():
+                self.output_chart('timed')
+                self.output_chart('all')
+                self.output_chart_pnl_against('price_data_length', 'density_points_length')
             if self.remote.live_mode:
                 self.save_data()
         self.log_final_data(should_print = not self.remote.live_mode)

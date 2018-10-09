@@ -5,7 +5,7 @@ DENSITY_DIRECTION_INV = {v: k for k, v in DENSITY_DIRECTION.items()}
 TREND_PATTERN = {'follow': 1, 'neutral': 0, 'reversal': -1}
 
 # Variables:
-params = None
+args = None
 
 # Config:
 TEMP_DIR = "/media/ramd"
