@@ -485,7 +485,10 @@ class Monitor:
         if gvars.CONF['dynamic_parameter_change']:
             return
         self.prm.attach_last_result()
-        if self.prm.last_result['average_pnl'] >= gvars.CONF['accepting_average_pnl']:
+        if ((gvars.CONF['accepting_average_pnl'] is None or
+                self.prm.last_result['average_pnl'] >= gvars.CONF['accepting_average_pnl'])
+                    and
+                self.data[-1].time - self.data[0].time > 3600 * 4):
             ParamsDb.gi().add_or_modify(self.prm)
 
 

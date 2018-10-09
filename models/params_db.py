@@ -82,6 +82,7 @@ class ParamsDb:
     def save(self):
         if not self.changed:
             return
+        self.params_list.sort(key=lambda p: p.id)
         with open(self.file_name, 'w') as f:
             json.dump([type(self).get_attributes_from_params(p) for p in self.params_list], f, indent=4)
         self.changed = False

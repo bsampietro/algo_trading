@@ -1,5 +1,6 @@
 import random
 import statistics
+import time
 
 class Params:
     def __init__(self):
@@ -116,12 +117,12 @@ class Params:
         self.reached_first_target_break_options = (1, 2, 4)
         self.made_two_break_options = (3, 2, 5)
         self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 10)) # could replace speed_min_max_win_loose_ticks_options
-        self.reversal_addition_break_options = (1, 2, 4)
+        self.reversal_addition_break_options = (1, 2, 4, 0)
 
         # Variety
         self._max_winning_ticks_options = (None, 3, 4)
         self.density_min_data_options = (6, 12, 20)
-        self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None)
+        self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None, None)
 
         # Scores
         self.breaking_price_changes_score_options = (4, 3, 2)
@@ -183,7 +184,7 @@ class Params:
         self.last_result['average_pnl'] = self.m.dollars(self.m.results.average_pnl(last))
         self.last_result['nr_of_winners'] = self.m.results.nr_of_wl('winners', last)
         self.last_result['nr_of_loosers'] = self.m.results.nr_of_wl('loosers', last)
-        self.last_result['underlying'] = self.m.ticker_code()
+        self.last_result['underlying'] = f"{self.m.ticker_code()}_{time.strftime('%Y-%m-%d--%H-%M', time.localtime(self.m.last_time()))}"
 
 
     def state_str(self):
