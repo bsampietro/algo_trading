@@ -24,11 +24,10 @@ class IBHft(EClient, EWrapper):
     def __init__(self, tickers=[], input_file=""):
         EClient.__init__(self, wrapper = self)
 
-        self.monitors = []
         self.tickers = tickers
 
         # state variables
-        self.req_id_to_monitor_map = {} # Only parent monitors
+        self.req_id_to_monitors_map = {} # Only parent monitors
         self.order_id_to_monitor_map = {} # Parent and children monitors
 
         # tws variables
@@ -70,16 +69,16 @@ class IBHft(EClient, EWrapper):
         """ callback signifying completion of successful connection """
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
-            monitor = Monitor(ticker, self)
-            monitor.create_children(gvars.args.instances())
-
+            monitors = []
+            for id in gvars.args.params_ids():
+                monitor = Monitor(ticker, self, id)
+                monitor.create_children(gvars.args.test_instances())
+                monitors.append(monitor)
             next_req_id = self.get_next_req_id()
-            self.req_id_to_monitor_map[next_req_id] = monitor
-            self.request_market_data(next_req_id, monitor.ticker)
-            
-            self.monitors.append(monitor)
+            self.req_id_to_monitors_map[next_req_id] = monitors
+            self.request_market_data(next_req_id, ticker)
         print("Registered:")
-        print([f"{req_id}: {monitor.ticker}" for req_id, monitor in self.req_id_to_monitor_map.items()])
+        print([f"{req_id}: {monitors[0].ticker}" for req_id, monitors in self.req_id_to_monitors_map.items()])
 
 
     def request_market_data(self, req_id, ticker):
@@ -108,20 +107,22 @@ class IBHft(EClient, EWrapper):
             # maybe in the future one can work with other prices
             return
 
-        monitor = self.req_id_to_monitor_map[reqId]
+        monitors = self.req_id_to_monitors_map[reqId]
         if price <= 0:
             logging.info(f"Returned 0 or under 0 price: '{price}', for ticker {monitor.ticker}")
             return
         if self.live_mode:
             time_ = time.time()
-            self.current_tick_price[monitor.ticker] = price
-            self.current_tick_time[monitor.ticker] = time_
-            monitor.price_change(tickType, price, time_)
+            self.current_tick_price[monitors[0].ticker] = price
+            self.current_tick_time[monitors[0].ticker] = time_
+            for monitor in monitors:
+                monitor.price_change(tickType, price, time_)
         else:
-            self.transmit_order(monitor, price=price)
-            for child_monitor in monitor.child_test_monitors:
-                self.transmit_order(child_monitor, price=price)
-            monitor.price_change(tickType, price, self.current_tick_time[monitor.ticker])
+            for monitor in monitors:
+                self.transmit_order(monitor, price=price)
+                for child_monitor in monitor.child_test_monitors:
+                    self.transmit_order(child_monitor, price=price)
+                monitor.price_change(tickType, price, self.current_tick_time[monitor.ticker])
 
 
     # callback to client.reqIds(-1)
@@ -249,11 +250,12 @@ class IBHft(EClient, EWrapper):
         setattr(self, 'called_clear_all', True)
 
         print("\nClearing all...")
-        for req_id, monitor in self.req_id_to_monitor_map.items():
+        for req_id, monitors in self.req_id_to_monitors_map.items():
             if self.live_mode and self.isConnected():
                 self.cancelMktData(req_id)
                 time.sleep(0.25)
-            monitor.close()
+            for monitor in monitors:
+                monitor.close()
         ParamsDb.gi().save()
         if self.live_mode and self.isConnected():
             self.disconnect()

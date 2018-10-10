@@ -22,16 +22,20 @@ from models.speeding_decision import SpeedingDecision
 from models.params_db import ParamsDb
 
 class Monitor:
-    def __init__(self, ticker, remote, test = False):
+    def __init__(self, ticker, remote, id):
 
         self.ticker = ticker
         self.remote = remote
         self.data = []
         
-        if test:
+        self.test = False
+        if id == None:
+            self.test = True
             self.assign_params(Params(), randomize=True)
+        elif id == 0:
+            self.assign_params(Params())
         else:
-            self.assign_params(ParamsDb.gi().get_params(gvars.args.params_id()))
+            self.assign_params(ParamsDb.gi().get_params(id))
         self.position = Position(self, remote)
         self.density = Density(self)
         self.breaking = Breaking(self)
@@ -47,10 +51,9 @@ class Monitor:
         self.price_change_lock = Lock()
         self.order_change_lock = Lock()
 
-        self.test = test
         self.child_test_monitors = []
 
-        if test:
+        if self.test:
             base_file_name = f"{ticker}_{hash(self)}"
             self.datalog = DummyStream()
         else:
@@ -93,6 +96,7 @@ class Monitor:
                     f"dlen: {self.data[-1].density_points_length:>3} - "
                     f"acc_pnl: {self.data[-1].acc_pnl:>5.2f} - "
                     f"nr_of_trades: {self.data[-1].nr_of_trades:>3} - "
+                    f"prm_id: {self.prm.id:>3} - "
                 )
                 print(output)
                 self.datalog_final.write(f"{output}\n")
@@ -560,7 +564,7 @@ class Monitor:
 
     def create_children(self, number):
         for i in range(number):
-            self.child_test_monitors.append(Monitor(self.ticker, self.remote, test=True))
+            self.child_test_monitors.append(Monitor(self.ticker, self.remote, None))
 
 
     def assign_params(self, params, randomize=False):

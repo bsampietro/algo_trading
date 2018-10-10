@@ -48,10 +48,7 @@ class ParamsDb:
 
 
     def get_params(self, id):
-        if id is None or id == 0:
-            return Params()
-        else:
-            return core.find(lambda p: p.id == id, self.params_list)
+        return core.find(lambda p: p.id == id, self.params_list)
 
 
     def add_or_modify(self, param):
