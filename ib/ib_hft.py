@@ -102,6 +102,11 @@ class IBHft(EClient, EWrapper):
         # bid price = 1
         # ask price = 2
         # last traded price = 4
+        
+        if tickType != 4:
+            # For now this only makes sense with last price,
+            # maybe in the future one can work with other prices
+            return
 
         monitor = self.req_id_to_monitor_map[reqId]
         if price <= 0:

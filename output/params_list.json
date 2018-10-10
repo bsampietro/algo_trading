@@ -9824,5 +9824,4205 @@
             }
         ],
         "id": 233
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 4.166666666666666,
+                "nr_of_winners": 32,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 234
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0.4464285714285714,
+                "nr_of_winners": 21,
+                "nr_of_loosers": 29,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 235
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -1.1627906976744187,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 236
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": -0.25510204081632654,
+                "nr_of_winners": 19,
+                "nr_of_loosers": 15,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 237
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 1.4925373134328357,
+                "nr_of_winners": 22,
+                "nr_of_loosers": 28,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 238
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -1.644736842105263,
+                "nr_of_winners": 22,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 239
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 8.152173913043478,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 7,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 240
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 28.125,
+                "nr_of_winners": 4,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 241
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 1.0204081632653061,
+                "nr_of_winners": 18,
+                "nr_of_loosers": 21,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 242
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 2.8301886792452833,
+                "nr_of_winners": 48,
+                "nr_of_loosers": 32,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 243
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 1.1574074074074074,
+                "nr_of_winners": 22,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 244
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 3.125,
+                "nr_of_winners": 18,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 245
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 1.7857142857142856,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 13,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 246
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -0.5263157894736842,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 12,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 247
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 20,
+                "nr_of_loosers": 32,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 248
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 16.666666666666664,
+                "nr_of_winners": 2,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 249
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 4.545454545454546,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 6,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 250
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 6.696428571428571,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 13,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 251
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": -2.727272727272727,
+                "nr_of_winners": 21,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 252
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 0,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 253
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 7.638888888888889,
+                "nr_of_winners": 10,
+                "nr_of_loosers": 2,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 254
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 5.1861702127659575,
+                "nr_of_winners": 44,
+                "nr_of_loosers": 40,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 255
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": -0.6696428571428571,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 256
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 0.2777777777777778,
+                "nr_of_winners": 16,
+                "nr_of_loosers": 14,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 257
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 4.3604651162790695,
+                "nr_of_winners": 20,
+                "nr_of_loosers": 12,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 258
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 5.208333333333334,
+                "nr_of_winners": 16,
+                "nr_of_loosers": 6,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 259
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 9.868421052631579,
+                "nr_of_winners": 9,
+                "nr_of_loosers": 4,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 260
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 12.5,
+                "nr_of_winners": 12,
+                "nr_of_loosers": 2,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 261
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -1.488095238095238,
+                "nr_of_winners": 25,
+                "nr_of_loosers": 44,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 262
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 4.022988505747127,
+                "nr_of_winners": 43,
+                "nr_of_loosers": 27,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 263
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 4.310344827586207,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 10,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 264
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -1.2295081967213115,
+                "nr_of_winners": 23,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 265
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": -0.3472222222222222,
+                "nr_of_winners": 19,
+                "nr_of_loosers": 15,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 266
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0,
+                "nr_of_winners": 0,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 267
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": -6.081081081081082,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 17,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 268
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 11.698717948717949,
+                "nr_of_winners": 45,
+                "nr_of_loosers": 19,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 269
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 2.912621359223301,
+                "nr_of_winners": 48,
+                "nr_of_loosers": 26,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 270
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 2.8846153846153846,
+                "nr_of_winners": 18,
+                "nr_of_loosers": 16,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 271
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 10.0,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 8,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 272
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 2.5,
+                "nr_of_winners": 15,
+                "nr_of_loosers": 10,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 273
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 3.322784810126582,
+                "nr_of_winners": 35,
+                "nr_of_loosers": 25,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 274
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 9.75609756097561,
+                "nr_of_winners": 24,
+                "nr_of_loosers": 9,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 275
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 4.166666666666666,
+                "nr_of_winners": 16,
+                "nr_of_loosers": 12,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 276
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 4.710144927536232,
+                "nr_of_winners": 35,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 277
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 0.14367816091954022,
+                "nr_of_winners": 33,
+                "nr_of_loosers": 44,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 278
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 3.30188679245283,
+                "nr_of_winners": 24,
+                "nr_of_loosers": 16,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 279
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -6.907894736842106,
+                "nr_of_winners": 1,
+                "nr_of_loosers": 10,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 280
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 4.545454545454546,
+                "nr_of_winners": 34,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 281
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 20,
+                "nr_of_loosers": 24,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 282
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 2.8350515463917527,
+                "nr_of_winners": 37,
+                "nr_of_loosers": 25,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 283
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 6.188118811881188,
+                "nr_of_winners": 51,
+                "nr_of_loosers": 36,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 284
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 6.0,
+                "nr_of_winners": 17,
+                "nr_of_loosers": 17,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 285
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -5.208333333333334,
+                "nr_of_winners": 9,
+                "nr_of_loosers": 21,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 286
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 3.25,
+                "nr_of_winners": 21,
+                "nr_of_loosers": 17,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 287
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 8.928571428571429,
+                "nr_of_winners": 4,
+                "nr_of_loosers": 1,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 288
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 2.644230769230769,
+                "nr_of_winners": 24,
+                "nr_of_loosers": 15,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 289
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 33.33333333333333,
+                "nr_of_winners": 10,
+                "nr_of_loosers": 1,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 290
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 10.714285714285714,
+                "nr_of_winners": 4,
+                "nr_of_loosers": 2,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 291
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 1.747311827956989,
+                "nr_of_winners": 42,
+                "nr_of_loosers": 29,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 292
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 6.6558441558441555,
+                "nr_of_winners": 39,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 293
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": -3.7037037037037033,
+                "nr_of_winners": 35,
+                "nr_of_loosers": 32,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 294
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 6.63265306122449,
+                "nr_of_winners": 28,
+                "nr_of_loosers": 11,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 295
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 5.118110236220472,
+                "nr_of_winners": 63,
+                "nr_of_loosers": 34,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 296
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 0.30864197530864196,
+                "nr_of_winners": 34,
+                "nr_of_loosers": 29,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 297
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -3.3653846153846154,
+                "nr_of_winners": 9,
+                "nr_of_loosers": 9,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 298
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 16.25,
+                "nr_of_winners": 6,
+                "nr_of_loosers": 2,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 299
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 8.89423076923077,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 11,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 300
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 4.605263157894736,
+                "nr_of_winners": 4,
+                "nr_of_loosers": 1,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 301
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 3.009259259259259,
+                "nr_of_winners": 22,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 302
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 4.6875,
+                "nr_of_winners": 12,
+                "nr_of_loosers": 8,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 303
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0.7575757575757576,
+                "nr_of_winners": 15,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 304
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -7.327586206896551,
+                "nr_of_winners": 5,
+                "nr_of_loosers": 20,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 305
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 2.7083333333333335,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 19,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 306
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 2.083333333333333,
+                "nr_of_winners": 14,
+                "nr_of_loosers": 11,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 307
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -0.9615384615384616,
+                "nr_of_winners": 5,
+                "nr_of_loosers": 6,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 308
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 1.9736842105263157,
+                "nr_of_winners": 27,
+                "nr_of_loosers": 21,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 309
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 10.78125,
+                "nr_of_winners": 44,
+                "nr_of_loosers": 14,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 310
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 7.894736842105263,
+                "nr_of_winners": 21,
+                "nr_of_loosers": 12,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 311
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 8.169291338582676,
+                "nr_of_winners": 76,
+                "nr_of_loosers": 27,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 312
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": -0.8333333333333334,
+                "nr_of_winners": 21,
+                "nr_of_loosers": 20,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 313
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 0,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 314
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -0.33783783783783783,
+                "nr_of_winners": 15,
+                "nr_of_loosers": 18,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 315
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 3.8793103448275863,
+                "nr_of_winners": 25,
+                "nr_of_loosers": 20,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 316
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 2.631578947368421,
+                "nr_of_winners": 27,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 317
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 10,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": -1.8018018018018018,
+                "nr_of_winners": 20,
+                "nr_of_loosers": 30,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 318
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": 3,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 25,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 319
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 18.055555555555554,
+                "nr_of_winners": 7,
+                "nr_of_loosers": 1,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 320
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": -1.488095238095238,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 27,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 321
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 2.6923076923076925,
+                "nr_of_winners": 23,
+                "nr_of_loosers": 32,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 322
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 7.236842105263158,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 10,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 323
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 3.2196969696969697,
+                "nr_of_winners": 28,
+                "nr_of_loosers": 19,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 324
+    },
+    {
+        "primary_look_back_time": 3600,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 2,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 3,
+        "results": [
+            {
+                "average_pnl": 5.037313432835821,
+                "nr_of_winners": 35,
+                "nr_of_loosers": 22,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 325
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 5,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 9.375,
+                "nr_of_winners": 13,
+                "nr_of_loosers": 6,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 326
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 3,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 4.6875,
+                "nr_of_winners": 20,
+                "nr_of_loosers": 11,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 327
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 80,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 15,
+        "breaking_up_down_ratio": 1.5,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 2,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 23.214285714285715,
+                "nr_of_winners": 6,
+                "nr_of_loosers": 0,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 328
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 30,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 1,
+        "out_density_direction_score": 3,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 12,
+                "nr_of_loosers": 8,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 329
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 10,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            300,
+            0.5
+        ],
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 19.791666666666664,
+                "nr_of_winners": 8,
+                "nr_of_loosers": 2,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 330
+    },
+    {
+        "primary_look_back_time": 1800,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 3,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 2.387640449438202,
+                "nr_of_winners": 34,
+                "nr_of_loosers": 45,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 331
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            4,
+            10
+        ],
+        "reversal_addition_break": 2,
+        "_max_winning_ticks": null,
+        "density_min_data": 20,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "breaking_price_changes_score": 4,
+        "duration_score": 0,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 3,
+        "out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 3.697183098591549,
+                "nr_of_winners": 19,
+                "nr_of_loosers": 14,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 332
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 20,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 3,
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 20,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            3,
+            6
+        ],
+        "reached_first_target_break": 4,
+        "made_two_break": 5,
+        "min_max_loose_ticks": [
+            2,
+            6
+        ],
+        "reversal_addition_break": 4,
+        "_max_winning_ticks": 3,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 1,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 1,
+        "advantage_score": 1,
+        "results": [
+            {
+                "average_pnl": 0.0,
+                "nr_of_winners": 33,
+                "nr_of_loosers": 34,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": 333
     }
 ]
