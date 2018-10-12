@@ -1,4 +1,5 @@
 import os, sys
+import logging
 import gvars
 from models.active_position import ActivePosition
 
@@ -17,6 +18,7 @@ class Position:
         
         self.nr_of_trades = 0
 
+        self.pending_position = 0
         self.position = 0 # set by IB
         self.pending_order_id = POI['none'] # set manually and by IB
 
@@ -27,30 +29,39 @@ class Position:
         
 
     def buy(self, price = None):
+        assert self.position == 0
         if self.is_pending():
             return
         self.order_price = price
         self.order_time = self.m.last_time()
-        
+
+        self.pending_position = CONTRACT_NR
         self.pending_order_id = POI['local']
+
         self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to BUY at {price}\n")
+        logging.info("+++++ Buy called ++++++")
 
 
     def sell(self, price = None):
+        assert self.position == 0
         if self.is_pending():
             return
         self.order_price = price
         self.order_time = self.m.last_time()
-        
+
+        self.pending_position = -CONTRACT_NR
         self.pending_order_id = POI['local']
+
         self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to SELL at {price}\n")
+        logging.info("+++++ Sell called ++++++")
 
 
     def close(self, price = None):
+        assert self.position != 0
         if self.position == 0:
             return
         if self.is_pending():
@@ -60,18 +71,22 @@ class Position:
 
         self.pending_order_id = POI['local']
         if self.position == CONTRACT_NR:
+            self.pending_position = -CONTRACT_NR
             self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, test=self.m.test)
         elif self.position == -CONTRACT_NR:
+            self.pending_position = CONTRACT_NR
             self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
+        logging.info("+++++ Close Called ++++++")
 
 
     def cancel_pending(self):
-        if self.pending_order_id >= 0:
-            pending_order_id = self.pending_order_id
-            self.pending_order_id = POI['local']
-            self.remote.cancel_order(pending_order_id, test=self.m.test)
+        if self.pending_order_id < 0:
+            return
+        pending_order_id = self.pending_order_id
+        self.pending_order_id = POI['local']
+        self.remote.cancel_order(pending_order_id, test=self.m.test)
 
 
     def is_pending(self):
@@ -99,12 +114,13 @@ class Position:
         if status == "Filled":
             self.pending_order_id = POI['none']
             self.nr_of_trades += 1
-            self.position = remaining
-            if self.position != 0:
-                self.ap = ActivePosition(self.m, self, fill_price, fill_time)
-            else:
+            self.position += self.pending_position
+            self.pending_position = 0
+            if self.position == 0:
                 self.ap.append_results(fill_price, fill_time)
                 self.ap = None
+            else:
+                self.ap = ActivePosition(self.m, self, fill_price, fill_time)
             self.order_price = None
             self.order_time = None
         elif status == "Cancelled":
@@ -116,7 +132,7 @@ class Position:
             # get the order id after placing the order so
             # it is managed only on remote
             self.pending_order_id = order_id
-        self.security_check(remaining)
+        # self.security_check(remaining)
 
 
     def state_str(self):
@@ -127,6 +143,7 @@ class Position:
                 f"    nr_of_trades: {self.nr_of_trades}\n"
                 f"    position: {self.position}\n"
                 f"    pending_order_id: {self.pending_order_id}\n"
+                f"    pending_position: {self.pending_position}\n"
             )
             if self.order_price is not None and self.order_time is not None:
                 output += (

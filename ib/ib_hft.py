@@ -95,8 +95,6 @@ class IBHft(EClient, EWrapper):
 
 
     def tickPrice(self, reqId, tickType, price:float, attrib):
-        super().tickPrice(reqId, tickType, price, attrib)
-
         # tickType:
         # bid price = 1
         # ask price = 2
@@ -127,7 +125,8 @@ class IBHft(EClient, EWrapper):
 
     # callback to client.reqIds(-1)
     # This method is called after first connection to the API
-    # and initialize the order_id in 0
+    # and initialize the order_id in 0 or the current sequence
+    # which persists between tws sessions
     def nextValidId(self, orderId:int):
         super().nextValidId(orderId)
         self.current_order_id = orderId
@@ -184,19 +183,31 @@ class IBHft(EClient, EWrapper):
             lastFillPrice, clientId, whyHeld)
 
         monitor = self.order_id_to_monitor_map[orderId]
+        if monitor is None:
+            return
         if status == "Filled" or status == "Cancelled":
-            self.order_id_to_monitor_map.pop(orderId)
+            # Check why it is called twice ...
+            # self.order_id_to_monitor_map.pop(orderId)
+            self.order_id_to_monitor_map[orderId] = None
         if self.live_mode:
             monitor.order_change(orderId, status, remaining, lastFillPrice, time.time())
         else:
             monitor.order_change(orderId, status, remaining, lastFillPrice, self.current_tick_time[monitor.ticker])
 
-    
-    def openOrder(self, orderId, contract, order,
-                  orderState):
-        super().openOrder(orderId, contract, order, orderState)
 
-        # self.order_id_to_monitor_map[orderId].order_change()
+    # Overwritten to avoid cluttering log
+    def openOrder(self, orderId, contract, order, orderState):
+        pass
+    def tickSize(self, reqId, tickType, size):
+        pass
+    def tickString(self, reqId, tickType, value):
+        pass
+    def tickGeneric(self, reqId, tickType, value):
+        pass
+    def execDetails(self, reqId, contract, execution):
+        pass
+    def commissionReport(self, commissionReport):
+        pass
 
     
     # ++++++++++++++ PRIVATE +++++++++++++++++++

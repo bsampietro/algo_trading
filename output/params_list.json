@@ -13059,6 +13059,12 @@
                 "nr_of_winners": 44,
                 "nr_of_loosers": 14,
                 "underlying": "ES_2018-09-26--16-50"
+            },
+            {
+                "average_pnl": 3.260869565217391,
+                "nr_of_winners": 17,
+                "nr_of_loosers": 13,
+                "underlying": "ES_2018-07-17--16-04"
             }
         ],
         "id": 310
@@ -17719,6 +17725,12 @@
                 "nr_of_winners": 29,
                 "nr_of_loosers": 9,
                 "underlying": "ES_2018-09-27--10-14"
+            },
+            {
+                "average_pnl": -9.226190476190476,
+                "nr_of_winners": 8,
+                "nr_of_loosers": 21,
+                "underlying": "ES_2018-07-17--16-04"
             }
         ],
         "id": 421
@@ -22042,5 +22054,57 @@
             }
         ],
         "id": 524
+    },
+    {
+        "primary_look_back_time": 100,
+        "breaking_stop_time": 30,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 0,
+        "breaking_up_down_ratio": 0,
+        "min_breaking_range": 0,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 3,
+        "reduce_score_rate_on_price_data_length": null,
+        "breaking_price_changes_score": 6,
+        "duration_score": 6,
+        "in_line_score": 6,
+        "trend_two_score": 6,
+        "in_density_direction_score": 6,
+        "out_density_direction_score": 6,
+        "advantage_score": 6,
+        "results": [
+            {
+                "average_pnl": 8.487654320987655,
+                "nr_of_winners": 44,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-07-17--16-04 | Params for testing trades... creates lots of them"
+            },
+            {
+                "average_pnl": 3.75,
+                "nr_of_winners": 52,
+                "nr_of_loosers": 47,
+                "underlying": "ES_2018-09-26--16-50"
+            },
+            {
+                "average_pnl": 9.239130434782608,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 7,
+                "underlying": "ES_2018-09-27--10-14"
+            }
+        ],
+        "id": 525
     }
 ]
