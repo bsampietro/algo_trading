@@ -14,5 +14,6 @@ CONF = {
 	'accepting_average_pnl': None, # None to disable
 	'discarding_average_pnl': 3.0,
 	'speeding_enabled': False,
-	'breaking_enabled': True
+	'breaking_enabled': True,
+	'instant_market_fill': False
 }

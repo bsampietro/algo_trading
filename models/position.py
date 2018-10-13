@@ -62,27 +62,33 @@ class Position:
 
     def close(self, price = None):
         assert self.position != 0
-        if self.position == 0:
-            return
-        if self.is_pending():
+        if self.pending_order_id == POI['local']:
+            logging.info("Called close multiple times without intermediate confirmation")
             return
         self.order_price = price
         self.order_time = self.m.last_time()
 
-        self.pending_order_id = POI['local']
+        if self.pending_order_id == POI['none']:
+            self.pending_order_id = POI['local']
+            order_id = None
+        elif self.pending_order_id == POI['local']:
+            assert False # should never get here
+        else:
+            order_id = self.pending_order_id
+
         if self.position == CONTRACT_NR:
             self.pending_position = -CONTRACT_NR
-            self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, test=self.m.test)
+            self.remote.place_order(self.m, "SELL", CONTRACT_NR, price, order_id=order_id, test=self.m.test)
         elif self.position == -CONTRACT_NR:
             self.pending_position = CONTRACT_NR
-            self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, test=self.m.test)
+            self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, order_id=order_id, test=self.m.test)
 
         self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
         logging.info("+++++ Close Called ++++++")
 
 
     def cancel_pending(self):
-        if self.pending_order_id < 0:
+        if self.pending_order_id in (POI['none'], POI['local']):
             return
         pending_order_id = self.pending_order_id
         self.pending_order_id = POI['local']

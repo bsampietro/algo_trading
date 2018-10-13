@@ -13,6 +13,7 @@ class BreakingDecision(Decision):
         self.breaking_price_changes = 0
         self.in_line = 0
         self.trend_two = 0
+        self.adjusting_ticks = None # type: int
 
 
     @lru_cache(maxsize=None)
@@ -21,7 +22,7 @@ class BreakingDecision(Decision):
         self.set_breaking_data()
         total_score = sum(self.all_scores())
         if total_score >= 6:
-            self.adjusting_ticks = 1
+            self.adjusting_ticks = self.m.prm.trade_initiation_ticks
             if self.direction == 1:
                 decision = 'buy'
             elif self.direction == -1:
@@ -97,11 +98,11 @@ class BreakingDecision(Decision):
         return break_ticks
 
 
-    def reached_maximum(self):
+    def reached_maximum(self, ticks_to_maximum):
         if self.m.prm.max_winning_ticks is not None:
-            if self.direction * (self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks:
+            if self.direction * (self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks - ticks_to_maximum:
                 return True
-        if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0:
+        if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 - ticks_to_maximum:
             return True
         else:
             return False

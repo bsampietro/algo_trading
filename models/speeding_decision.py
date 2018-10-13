@@ -51,9 +51,9 @@ class SpeedingDecision(Decision):
         return break_ticks
 
 
-    def reached_maximum(self):
+    def reached_maximum(self, ticks_to_maximum):
         if (self.trend_pattern == gvars.TREND_PATTERN['reversal'] and
-                self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= self.to_win_ticks()):
+                self.direction * self.m.ticks(self.ap.trending_price() - self.ap.transaction_price) >= self.to_win_ticks() - ticks_to_maximum):
             return True
         else:
             return False

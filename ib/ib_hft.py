@@ -215,6 +215,7 @@ class IBHft(EClient, EWrapper):
     # Only for load mode
     def transmit_order(self, monitor, order=None, price=None):
         assert (order, price).count(None) == 1
+        # Executing previously enqued order
         if order is None:
             # lmt order created before, assigned to self.active_order and executing based on price parameter
             if self.active_order.get(monitor) is None:
@@ -229,7 +230,9 @@ class IBHft(EClient, EWrapper):
                     self.remaining[monitor] = self.remaining.get(monitor, 0) - self.active_order[monitor].totalQuantity
                     self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
                     self.active_order[monitor] = None
-        elif (order.orderType == "MKT") or (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price[monitor.ticker]):
+        # Enqueuing order
+        elif ((order.orderType == "MKT") or 
+                (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price[monitor.ticker] and gvars.CONF['instant_market_fill'])):
             if order.action == "BUY":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) + order.totalQuantity
                 self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],

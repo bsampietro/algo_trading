@@ -20,6 +20,7 @@ from models.results import Results
 from models.breaking_decision import BreakingDecision
 from models.speeding_decision import SpeedingDecision
 from models.params_db import ParamsDb
+from models.closing import Closing
 
 class Monitor:
     def __init__(self, ticker, remote, id):
@@ -153,16 +154,28 @@ class Monitor:
         
         if self.position.is_active():
 
-            if self.action_decision.should_stop() or self.action_decision.reached_maximum():
-                self.position.close()
-                if self.action_decision.is_breaking_in_range():
-                    # self.breaking.initialize_state()
-                    pass
-                elif self.action_decision.is_speeding():
-                    self.speed.reset()
-                return
+            if self.closing is None:
+                self.closing = Closing(self)
+
+            if self.action_decision.should_stop():
+                order_type = self.closing.order_type()
+                if order_type == 'LMT':
+                    self.position.close(self.last_price())
+                elif order_type == 'MKT':
+                    self.position.close()
+            elif self.action_decision.reached_maximum(1):
+                self.position.close(self.price_plus_ticks(self.position.direction() * 1))
+
+                # Before doing this, we need to make sure the price filled
+                # if self.action_decision.is_breaking_in_range():
+                #     # self.breaking.initialize_state()
+                #     pass
+                # elif self.action_decision.is_speeding():
+                #     self.speed.reset()
+                # return
 
         elif self.position.is_pending():
+            # pending to open position
 
             if self.action_decision.is_breaking_in_range():
                 if not self.breaking.in_range():
@@ -174,6 +187,7 @@ class Monitor:
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
+            self.closing = None
             decision = None
             
             if self.speed.is_speeding() and gvars.CONF['speeding_enabled']:
