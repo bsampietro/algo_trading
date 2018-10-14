@@ -285,8 +285,9 @@ class Monitor:
         return price_difference * self.prm.dollar_multiplier
 
 
-    def price_plus_ticks(self, ticks):
-        return round(self.last_price() + ticks * self.prm.tick_price, self.prm.price_precision)
+    def price_plus_ticks(self, ticks, price=None):
+        price = price or self.last_price()
+        return round(price + ticks * self.prm.tick_price, self.prm.price_precision)
 
 
     def mid_price(self, price1, price2 = 0):

@@ -65,6 +65,9 @@ class Position:
         if self.pending_order_id == POI['local']:
             logging.info("Called close multiple times without intermediate confirmation")
             return
+        if price is not None and self.order_price == price and self.is_pending():
+            # Don't repeat the order if already there
+            return
         self.order_price = price
         self.order_time = self.m.last_time()
 
@@ -82,6 +85,8 @@ class Position:
         elif self.position == -CONTRACT_NR:
             self.pending_position = CONTRACT_NR
             self.remote.place_order(self.m, "BUY", CONTRACT_NR, price, order_id=order_id, test=self.m.test)
+        else:
+            assert False # should never get here
 
         self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
         logging.info("+++++ Close Called ++++++")

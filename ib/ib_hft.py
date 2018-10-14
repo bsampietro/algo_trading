@@ -223,12 +223,14 @@ class IBHft(EClient, EWrapper):
             if self.active_order[monitor].action == "BUY":
                 if price <= self.active_order[monitor].lmtPrice:
                     self.remaining[monitor] = self.remaining.get(monitor, 0) + self.active_order[monitor].totalQuantity
-                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
+                        self.active_order[monitor].lmtPrice, 0, 0, self.active_order[monitor].lmtPrice, 0, "")
                     self.active_order[monitor] = None
             elif self.active_order[monitor].action == "SELL":
                 if price >= self.active_order[monitor].lmtPrice:
                     self.remaining[monitor] = self.remaining.get(monitor, 0) - self.active_order[monitor].totalQuantity
-                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor], price, 0, 0, price, 0, "")
+                    self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
+                        self.active_order[monitor].lmtPrice, 0, 0, self.active_order[monitor].lmtPrice, 0, "")
                     self.active_order[monitor] = None
         # Enqueuing order
         elif ((order.orderType == "MKT") or 
@@ -236,11 +238,13 @@ class IBHft(EClient, EWrapper):
             if order.action == "BUY":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) + order.totalQuantity
                 self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
-                    self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
+                    monitor.price_plus_ticks(+1, price=self.current_tick_price[monitor.ticker]), 0, 0,
+                    monitor.price_plus_ticks(+1, price=self.current_tick_price[monitor.ticker]), 0, "")
             elif order.action == "SELL":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) - order.totalQuantity
                 self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
-                    self.current_tick_price[monitor.ticker], 0, 0, self.current_tick_price[monitor.ticker], 0, "")
+                    monitor.price_plus_ticks(-1, price=self.current_tick_price[monitor.ticker]), 0, 0,
+                    monitor.price_plus_ticks(-1, price=self.current_tick_price[monitor.ticker]), 0, "")
         else:
             # Order is lmt, so just assigning for later execution
             self.active_order[monitor] = order
