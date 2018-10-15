@@ -88,7 +88,7 @@ class Position:
         else:
             assert False # should never get here
 
-        self.m.datalog_buffer += (f"    Order to close at {self.m.last_price()}\n")
+        self.m.datalog_buffer += (f"    Order to close at {price}\n")
         logging.info("+++++ Close Called ++++++")
 
 
@@ -98,6 +98,7 @@ class Position:
         pending_order_id = self.pending_order_id
         self.pending_order_id = POI['local']
         self.remote.cancel_order(pending_order_id, test=self.m.test)
+        self.m.datalog_buffer += (f"    Order to cancel - Position: {self.position}\n")
 
 
     def is_pending(self):
@@ -134,6 +135,8 @@ class Position:
                 self.ap = ActivePosition(self.m, self, fill_price, fill_time)
             self.order_price = None
             self.order_time = None
+            self.m.data[-1].action = f"Filled - Position: {self.position} - fill_price: {fill_price}"
+            self.m.datalog_buffer += (f"    Filled at price: {fill_price} - Position: {self.position}\n")
         elif status == "Cancelled":
             self.pending_order_id = POI['none']
             self.order_price = None

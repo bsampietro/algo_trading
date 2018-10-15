@@ -100,9 +100,10 @@ class BreakingDecision(Decision):
 
     def reached_maximum(self, ticks_to_maximum):
         if self.m.prm.max_winning_ticks is not None:
-            if self.direction * (self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks - ticks_to_maximum:
+            if self.direction * self.m.ticks(self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks - ticks_to_maximum:
                 return True
-        if self.direction * (self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 - ticks_to_maximum:
+        if self.direction * self.m.ticks(self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 - ticks_to_maximum:
+            self.m.datalog_buffer += (f"    breaking_decision.reached_maximum({ticks_to_maximum}).maximum: {self.m.mid_price(self.density_data.trend_tuple[1:3])}\n")
             return True
         else:
             return False

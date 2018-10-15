@@ -23,20 +23,20 @@ from models.params_db import ParamsDb
 from models.closing import Closing
 
 class Monitor:
-    def __init__(self, ticker, remote, id):
+    def __init__(self, ticker, remote, prm_id):
 
         self.ticker = ticker
         self.remote = remote
         self.data = []
         
         self.test = False
-        if id == None:
+        if prm_id == None:
             self.test = True
             self.assign_params(Params(), randomize=True)
-        elif id == 0:
+        elif prm_id == 0:
             self.assign_params(Params())
         else:
-            self.assign_params(ParamsDb.gi().get_params(id))
+            self.assign_params(ParamsDb.gi().get_params(prm_id))
         self.position = Position(self, remote)
         self.density = Density(self)
         self.breaking = Breaking(self)
@@ -82,6 +82,7 @@ class Monitor:
             cdp.density_points_length = len(self.density.list_dps)
             cdp.acc_pnl = self.results.acc_pnl()
             cdp.nr_of_trades = self.position.nr_of_trades
+            cdp.action = ''
 
             self.data.append(cdp)
 
@@ -161,18 +162,21 @@ class Monitor:
                 order_type = self.closing.order_type()
                 if order_type == 'LMT':
                     self.position.close(self.last_price())
+                    self.data[-1].action += f"-- Stop LMT {self.last_price()} "
                 elif order_type == 'MKT':
                     self.position.close()
+                    self.data[-1].action += f"-- Stop MKT {self.last_price()} "
             elif self.action_decision.reached_maximum(1):
                 self.position.close(self.price_plus_ticks(self.position.direction() * 1))
+                self.data[-1].action += f"-- Max LMT {self.price_plus_ticks(self.position.direction() * 1)} "
 
-                # Before doing this, we need to make sure the price filled
-                # if self.action_decision.is_breaking_in_range():
-                #     # self.breaking.initialize_state()
-                #     pass
-                # elif self.action_decision.is_speeding():
-                #     self.speed.reset()
-                # return
+            # Before doing this, we need to make sure the price filled
+            # if self.action_decision.is_breaking_in_range():
+            #     # self.breaking.initialize_state()
+            #     pass
+            # elif self.action_decision.is_speeding():
+            #     self.speed.reset()
+            # return
 
         elif self.position.is_pending():
             # pending to open position
@@ -180,10 +184,12 @@ class Monitor:
             if self.action_decision.is_breaking_in_range():
                 if not self.breaking.in_range():
                     self.position.cancel_pending()
+                    self.data[-1].action += "-- Cancel: Out of range "
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
             elif self.action_decision.is_speeding():
                 if not self.speed.is_speeding():
                     self.position.cancel_pending()
+                    self.data[-1].action += "-- Cancel: Stopped speeding "
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
@@ -213,10 +219,12 @@ class Monitor:
             if decision.should() == 'buy':
                 self.action_decision = decision
                 self.position.buy(self.price_plus_ticks(-decision.adjusting_ticks))
+                self.data[-1].action += f"-- BUY LMT {self.price_plus_ticks(-decision.adjusting_ticks)} "
                 self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
             elif decision.should() == 'sell':
                 self.action_decision = decision
                 self.position.sell(self.price_plus_ticks(+decision.adjusting_ticks))
+                self.data[-1].action += f"-- SELL LMT {self.price_plus_ticks(+decision.adjusting_ticks)} "
                 self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
 
 
@@ -340,8 +348,15 @@ class Monitor:
                 price_data_length=[cdp.price_data_length for cdp in self.data],
                 density_points_length=[cdp.density_points_length for cdp in self.data],
                 acc_pnl=[cdp.acc_pnl for cdp in self.data],
-                nr_of_trades=[cdp.nr_of_trades for cdp in self.data]
+                nr_of_trades=[cdp.nr_of_trades for cdp in self.data],
+                action=[cdp.action for cdp in self.data]
             ))
+
+        min_price = min([cdp.price for cdp in self.data])
+        action_source = bokeh.plotting.ColumnDataSource(data=dict(
+            x=[cdp.time - self.initial_time for cdp in self.data],
+            y=[cdp.price if cdp.action != "" else min_price for cdp in self.data]
+        ))
         
         TOOLTIPS = [
             ("index", "$index"),
@@ -352,6 +367,7 @@ class Monitor:
             ("density_points_length", "@density_points_length"),
             ("acc_pnl", "@acc_pnl{0.00}"),
             ("nr_of_trades", "@nr_of_trades"),
+            ("action", "@action")
         ]
         hover_tool = bokeh.models.HoverTool(
             tooltips=TOOLTIPS,
@@ -365,6 +381,7 @@ class Monitor:
            tools=[hover_tool,"crosshair,pan,wheel_zoom,box_zoom,reset,box_select"]
         )
         p.circle(x = 'x', y = 'y', size=4, color='blue', source=price_source)
+        p.circle(x = 'x', y = 'y', size=8, color='red', source=action_source)
         p.line(x = 'x', y = 'y', color='blue', source=price_source)
         bokeh.plotting.save(p)
 
@@ -461,8 +478,10 @@ class Monitor:
 
 
     def save_data(self):
-        mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
         file_name = f"{self.create_and_return_output_dir()}/{self.ticker}_live_{time.strftime('%Y-%m-%d|%H-%M')}.json"
+        if os.path.isfile(file_name):
+            return
+        mapped_data = list(map(lambda cdp: (cdp.time, cdp.price), self.data))
         with open(file_name, "w") as f:
             json.dump(mapped_data, f)
 
@@ -502,6 +521,8 @@ class Monitor:
 
     def save_params(self):
         if gvars.CONF['dynamic_parameter_change']:
+            return
+        if not self.test:
             return
         self.prm.attach_last_result()
         if ((gvars.CONF['accepting_average_pnl'] is None or
@@ -613,3 +634,4 @@ class ChartDataPoint:
         self.density_points_length = None # type: int
         self.acc_pnl = None # type: int
         self.nr_of_trades = None # type: int
+        self.action = None # type: string

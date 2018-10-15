@@ -235,16 +235,17 @@ class IBHft(EClient, EWrapper):
         # Enqueuing order
         elif ((order.orderType == "MKT") or 
                 (order.orderType == "LMT" and order.lmtPrice == self.current_tick_price[monitor.ticker] and gvars.CONF['instant_market_fill'])):
+            spread = 1 if order.orderType == "MKT" else 0
             if order.action == "BUY":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) + order.totalQuantity
                 self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
-                    monitor.price_plus_ticks(+1, price=self.current_tick_price[monitor.ticker]), 0, 0,
-                    monitor.price_plus_ticks(+1, price=self.current_tick_price[monitor.ticker]), 0, "")
+                    monitor.price_plus_ticks(+spread, price=self.current_tick_price[monitor.ticker]), 0, 0,
+                    monitor.price_plus_ticks(+spread, price=self.current_tick_price[monitor.ticker]), 0, "")
             elif order.action == "SELL":
                 self.remaining[monitor] = self.remaining.get(monitor, 0) - order.totalQuantity
                 self.orderStatus(self.monitor_to_order_id_map(monitor), "Filled", 1, self.remaining[monitor],
-                    monitor.price_plus_ticks(-1, price=self.current_tick_price[monitor.ticker]), 0, 0,
-                    monitor.price_plus_ticks(-1, price=self.current_tick_price[monitor.ticker]), 0, "")
+                    monitor.price_plus_ticks(-spread, price=self.current_tick_price[monitor.ticker]), 0, 0,
+                    monitor.price_plus_ticks(-spread, price=self.current_tick_price[monitor.ticker]), 0, "")
         else:
             # Order is lmt, so just assigning for later execution
             self.active_order[monitor] = order

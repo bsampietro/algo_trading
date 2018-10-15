@@ -120,7 +120,7 @@ class Params:
         self.reversal_addition_break_options = (1, 2, 4, 0)
 
         # Variety
-        self._max_winning_ticks_options = (None, 3, 4)
+        self._max_winning_ticks_options = (None, 1, 2) # With 1 it is mostly a market maker
         self.density_min_data_options = (6, 12, 20)
         self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None, None)
         self.trade_initiation_ticks_options = (1, 0)
