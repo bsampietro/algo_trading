@@ -525,8 +525,9 @@ class Monitor:
         if not self.test:
             return
         self.prm.attach_last_result()
-        if ((gvars.CONF['accepting_average_pnl'] is None or
-                self.prm.last_result['average_pnl'] >= gvars.CONF['accepting_average_pnl'])
+        if ((gvars.CONF['accepting_average_pnl'] is None or self.prm.last_result['average_pnl'] >= gvars.CONF['accepting_average_pnl'])
+                    and
+                (gvars.CONF['accepting_trade_number'] is None or (self.prm.last_result['nr_of_winners'] + self.prm.last_result['nr_of_loosers']) >= gvars.CONF['accepting_trade_number'])
                     and
                 self.data[-1].time - self.data[0].time > 3600 * 4):
             ParamsDb.gi().add_or_modify(self.prm)

@@ -70,8 +70,8 @@ class IBHft(EClient, EWrapper):
         # tickers = ["GCQ8"]
         for ticker in self.tickers:
             monitors = []
-            for id in gvars.args.params_ids():
-                monitor = Monitor(ticker, self, id)
+            for prm_id in gvars.args.params_ids():
+                monitor = Monitor(ticker, self, prm_id)
                 monitor.create_children(gvars.args.test_instances())
                 monitors.append(monitor)
             next_req_id = self.get_next_req_id()

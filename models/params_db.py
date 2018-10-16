@@ -43,6 +43,7 @@ class ParamsDb:
         self.params_list = None
         self.changed = False
         self.next_id = None # type: int
+        self.custom_params_file_name = "./output/custom_params.json"
         self.file_name = "./output/params_list.json"
         self.load()
 
@@ -58,6 +59,8 @@ class ParamsDb:
             param.results.append(param.last_result)
             self.params_list.append(param)
             self.changed = True
+        elif param.id < 0:
+            pass # do not store with id < 0
         else:
             stored_param = core.find(lambda p: p.id == param.id, self.params_list)
             if stored_param:
@@ -68,17 +71,12 @@ class ParamsDb:
                         stored_param.results):
                     stored_param.results.append(param.last_result)
                     self.changed = True
-            else:
-                # new default version
-                assert param.id < 0
-                param.results.append(param.last_result)
-                self.params_list.append(param)
-                self.changed = True
 
 
     def save(self):
         if not self.changed:
             return
+        self.params_list = [prm for prm in self.params_list if prm.id > 0]
         self.params_list.sort(key=lambda p: p.id)
         with open(self.file_name, 'w') as f:
             json.dump([type(self).get_attributes_from_params(p) for p in self.params_list], f, indent=4)
@@ -87,8 +85,11 @@ class ParamsDb:
 
     def load(self):
         try:
+            self.params_list = []
+            with open(self.custom_params_file_name, 'r') as f:
+                self.params_list += [type(self).create_params_from_attributes(attrs) for attrs in json.load(f)]
             with open(self.file_name, 'r') as f:
-                self.params_list = [type(self).create_params_from_attributes(attrs) for attrs in json.load(f)]
+                self.params_list += [type(self).create_params_from_attributes(attrs) for attrs in json.load(f)]
         except FileNotFoundError as e:
             self.params_list = []
         except JSONDecodeError as e:
