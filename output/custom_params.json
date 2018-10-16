@@ -1,0 +1,172 @@
+[
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 8.487654320987655,
+                "nr_of_winners": 44,
+                "nr_of_loosers": 23,
+                "underlying": "ES_2018-07-17--16-04"
+            },
+            {
+                "average_pnl": 3.75,
+                "nr_of_winners": 52,
+                "nr_of_loosers": 47,
+                "underlying": "ES_2018-09-26--16-50"
+            },
+            {
+                "average_pnl": 9.239130434782608,
+                "nr_of_winners": 29,
+                "nr_of_loosers": 7,
+                "underlying": "ES_2018-09-27--10-14"
+            }
+        ],
+        "id": -2
+    },
+	{
+        "primary_look_back_time": 100,
+        "breaking_stop_time": 30,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 0,
+        "breaking_up_down_ratio": 0,
+        "min_breaking_range": 0,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": null,
+        "density_min_data": 3,
+        "reduce_score_rate_on_price_data_length": null,
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 6,
+        "duration_score": 6,
+        "in_line_score": 6,
+        "trend_two_score": 6,
+        "in_density_direction_score": 6,
+        "out_density_direction_score": 6,
+        "advantage_score": 6,
+        "results": [
+        ],
+        "id": -3
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 1,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+        ],
+        "id": -4
+    },
+    {
+        "primary_look_back_time": 900,
+        "breaking_stop_time": 60,
+        "speeding_stop_time": 10,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 5,
+        "time_speeding_points_length": 4,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 1,
+        "_max_winning_ticks": 2,
+        "density_min_data": 6,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 4,
+        "duration_score": 2,
+        "in_line_score": 2,
+        "trend_two_score": 2,
+        "in_density_direction_score": 2,
+        "out_density_direction_score": 2,
+        "advantage_score": 2,
+        "results": [
+        ],
+        "id": -5
+    }
+]
