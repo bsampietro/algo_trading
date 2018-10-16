@@ -155,7 +155,7 @@
         "reduce_score_rate_on_price_data_length": [
             150,
             350,
-            0.75
+            1
         ],
         "trade_initiation_ticks": 1,
         "breaking_price_changes_score": 4,
@@ -168,5 +168,50 @@
         "results": [
         ],
         "id": -5
+    },
+    {
+        "primary_look_back_time": 7200,
+        "breaking_stop_time": 40,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": 5,
+        "breaking_up_down_ratio": 1.0,
+        "min_breaking_range": 2,
+        "speeding_time": 10,
+        "time_speeding_points_length": 6,
+        "speed_min_max_win_loose_ticks": [
+            2,
+            6
+        ],
+        "reached_first_target_break": 1,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            3,
+            6
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 2,
+        "density_min_data": 12,
+        "reduce_score_rate_on_price_data_length": [
+            150,
+            350,
+            0.75
+        ],
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 3,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 2,
+        "in_density_direction_score": 0,
+        "out_density_direction_score": 0,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 11.698717948717949,
+                "nr_of_winners": 45,
+                "nr_of_loosers": 19,
+                "underlying": "ES_2018-09-26--16-50"
+            }
+        ],
+        "id": -269
     }
 ]

@@ -509,11 +509,11 @@ class Monitor:
     def log_final_data(self, should_print):
         output = "\nFINAL DATA\n"
         output += self.results.state_str('stats')
+        print(output) if should_print else None
         min_max = self.min_max_since(86400*7)
         output += f"  Max ticks: {self.ticks(min_max[1].price - min_max[0].price)}\n"
         output += f"  Data points: {len(self.data)}\n"
         output += self.prm.state_str()
-        print(output) if should_print else None
         output += self.results.state_str('all')
         self.datalog.write(output)
         self.datalog_final.write(output)
