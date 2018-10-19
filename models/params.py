@@ -104,7 +104,7 @@ class Params:
         self.speeding_stop_time_options = (10, 5, 20, 30) # secs
 
         # Breaking
-        self._min_breaking_price_changes_options = (5, 3, 10, 15, 'calc') # times
+        self._min_breaking_price_changes_options = (7, 3, 15, 'calc') # times
         self.breaking_up_down_ratio_options = (1.0, 1.5, 2.0)
         self.min_breaking_range_options = (2, 4)
 
@@ -114,13 +114,13 @@ class Params:
         self.speed_min_max_win_loose_ticks_options = ((2, 6), (3, 6), (4, 10))
 
         # Stop values
-        self.reached_first_target_break_options = (1, 2, 4)
-        self.made_two_break_options = (3, 2, 5)
-        self.min_max_loose_ticks_options = ((3, 6), (2, 6), (4, 10)) # could replace speed_min_max_win_loose_ticks_options
-        self.reversal_addition_break_options = (1, 2, 4, 0)
+        self.reached_first_target_break_options = (1, 2)
+        self.made_two_break_options = (2, 3)
+        self.min_max_loose_ticks_options = ((1, 3), (2, 5)) # could replace speed_min_max_win_loose_ticks_options
+        self.reversal_addition_break_options = (1, 2, 0)
 
         # Variety
-        self._max_winning_ticks_options = (None, 1, 2) # With 1 it is mostly a market maker
+        self._max_winning_ticks_options = (4, 1, 2) # With 1 it is mostly a market maker
         self.density_min_data_options = (6, 12, 20)
         self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None, None)
         self.trade_initiation_ticks_options = (1, 0)
@@ -128,11 +128,10 @@ class Params:
         # Scores
         self.breaking_price_changes_score_options = (4, 3, 2)
         self.duration_score_options = (2, 1, 0)
-        self.in_line_score_options = (2, 1)
-        self.trend_two_score_options = (2, 1)
-        self.in_density_direction_score_options = (2, 1, 3)
-        self.out_density_direction_score_options = (2, 1, 3)
-        self.advantage_score_options = (2, 1, 3)
+        self.in_line_score_options = (2, 1, 0)
+        self.trend_two_score_options = (2, 1, 0)
+        self.in_out_density_direction_score_options = (1, 0, 2)
+        self.advantage_score_options = (2, 1, 0)
 
         # Set defaults (default value is the first of the options)
         current_vars = dict(vars(self))

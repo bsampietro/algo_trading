@@ -54,9 +54,9 @@ class BreakingDecision(Decision):
             return 0
         score = 0
         if self.density_data.trend_density_direction in (gvars.DENSITY_DIRECTION['in'], gvars.DENSITY_DIRECTION['out-in']):
-            score += self.m.prm.in_density_direction_score
+            score += self.m.prm.in_out_density_direction_score
             if self.density_data.anti_trend_density_direction in (gvars.DENSITY_DIRECTION['out'], gvars.DENSITY_DIRECTION['out-edge']):
-                score += self.m.prm.out_density_direction_score
+                score += self.m.prm.in_out_density_direction_score
         return score
 
 
@@ -85,7 +85,8 @@ class BreakingDecision(Decision):
     def trending_break_ticks(self):
         break_ticks = None
         trend_ticks = self.m.ticks(abs(self.density_data.trend_tuple[1] - self.ap.trending_price()))
-        anti_trend_ticks = self.m.ticks(abs(self.ap.transaction_price - self.density_data.anti_trend_tuple[0]))
+        #anti_trend_ticks = self.m.ticks(abs(self.ap.transaction_price - self.density_data.anti_trend_tuple[0]))
+        anti_trend_ticks = self.m.ticks(abs(self.ap.transaction_price - self.density_data.trend_tuple[0])) + 1
 
         # break_ticks = min(trend_ticks, anti_trend_ticks)
         if self.direction * self.m.ticks(self.ap.trending_price() - self.density_data.trend_tuple[1]) >= 0:
@@ -99,10 +100,9 @@ class BreakingDecision(Decision):
 
 
     def reached_maximum(self, ticks_to_maximum):
-        if self.m.prm.max_winning_ticks is not None:
-            if self.direction * self.m.ticks(self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks - ticks_to_maximum:
-                return True
-        if self.direction * self.m.ticks(self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 - ticks_to_maximum:
+        if self.direction * self.m.ticks(self.m.last_price() - self.ap.transaction_price) >= self.m.prm.max_winning_ticks - ticks_to_maximum:
+            return True
+        elif self.direction * self.m.ticks(self.m.last_price() - self.m.mid_price(self.density_data.trend_tuple[1:3])) >= 0 - ticks_to_maximum:
             self.m.datalog_buffer += (f"    breaking_decision.reached_maximum({ticks_to_maximum}).maximum: {self.m.mid_price(self.density_data.trend_tuple[1:3])}\n")
             return True
         else:

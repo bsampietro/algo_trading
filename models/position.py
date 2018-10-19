@@ -130,6 +130,7 @@ class Position:
             self.pending_position = 0
             if self.position == 0:
                 self.ap.append_results(fill_price, fill_time)
+                self.m.position_closed()
                 self.ap = None
             else:
                 self.ap = ActivePosition(self.m, self, fill_price, fill_time)

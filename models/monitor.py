@@ -44,6 +44,7 @@ class Monitor:
         self.results = Results(self)
         
         self.action_decision = None
+        self.closing = None
         self.initial_time = None # type: int
         self.max_average_pnl = None
         self.processed_params = {}
@@ -193,7 +194,6 @@ class Monitor:
                     #self.results.append(0, 0, 0, 0, self.position.order_time, 0, self.last_time())
 
         else:
-            self.closing = None
             decision = None
             
             if self.speed.is_speeding() and gvars.CONF['speeding_enabled']:
@@ -226,6 +226,13 @@ class Monitor:
                 self.position.sell(self.price_plus_ticks(+decision.adjusting_ticks))
                 self.data[-1].action += f"-- SELL LMT {self.price_plus_ticks(+decision.adjusting_ticks)} "
                 self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
+
+
+    def position_closed(self):
+        self.closing = None
+        self.action_decision = None
+        if self.results.data[-1].pnl < 0:
+            self.breaking.initialize_state()
 
 
     def last_price(self):

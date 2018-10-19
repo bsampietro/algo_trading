@@ -6,3 +6,4 @@ data/*.json
 *.pyc
 input/contracts.txt
 input/test_contract.txt
+output/params_list*.json

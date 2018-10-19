@@ -255,19 +255,19 @@ class Density:
                     break
 
         if self.up_interval_max == None:
-            self.up_interval_max = self.list_dps[-1].price
+            self.up_interval_max = self.m.price_plus_ticks(self.m.prm.max_winning_ticks, price=self.list_dps[-1].price)
         if self.up_interval_min == None:
-            self.up_interval_min = self.list_dps[-1].price
+            self.up_interval_min = self.m.price_plus_ticks(self.m.prm.max_winning_ticks, price=self.list_dps[-1].price)
             self.up_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.current_interval_max == None:
             self.current_interval_max = self.list_dps[-1].price
         if self.current_interval_min == None:
             self.current_interval_min = self.list_dps[0].price
         if self.down_interval_max == None:
-            self.down_interval_max = self.list_dps[0].price
+            self.down_interval_max = self.m.price_plus_ticks(-self.m.prm.max_winning_ticks, price=self.list_dps[0].price)
             self.down_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.down_interval_min == None:
-            self.down_interval_min = self.list_dps[0].price
+            self.down_interval_min = self.m.price_plus_ticks(-self.m.prm.max_winning_ticks, price=self.list_dps[0].price)
 
         self.in_position = True
 
