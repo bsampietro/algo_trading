@@ -47,6 +47,7 @@ class Monitor:
         self.closing = None
         self.initial_time = None # type: int
         self.max_average_pnl = None
+        self.cdp_action_buffer = ""
         self.processed_params = {}
 
         # Lock variables
@@ -83,7 +84,8 @@ class Monitor:
             cdp.density_points_length = len(self.density.list_dps)
             cdp.acc_pnl = self.results.acc_pnl()
             cdp.nr_of_trades = self.position.nr_of_trades
-            cdp.action = ''
+            cdp.action = self.cdp_action_buffer; self.cdp_action_buffer = ""
+            cdp.position = self.position.position
 
             self.data.append(cdp)
 
@@ -228,11 +230,17 @@ class Monitor:
                 self.datalog_buffer += f"    monitor.query_and_decision.decision: {decision.state_str()}\n"
 
 
-    def position_closed(self):
+    def position_closed(self, fill_price, fill_time):
+        self.cdp_action_buffer += f"-- Filled - Closed position: {self.position.position} - fill_price: {fill_price} "
         self.closing = None
         self.action_decision = None
         if self.results.data[-1].pnl < 0:
             self.breaking.initialize_state()
+
+
+    def position_opened(self, fill_price, fill_time):
+        self.cdp_action_buffer += f"-- Filled - Opened position: {self.position.position} - fill_price: {fill_price} "
+        self.m.datalog_buffer += (f"    Filled at price: {fill_price} - Position: {self.position.position}\n")
 
 
     def last_price(self):
@@ -356,7 +364,8 @@ class Monitor:
                 density_points_length=[cdp.density_points_length for cdp in self.data],
                 acc_pnl=[cdp.acc_pnl for cdp in self.data],
                 nr_of_trades=[cdp.nr_of_trades for cdp in self.data],
-                action=[cdp.action for cdp in self.data]
+                action=[cdp.action for cdp in self.data],
+                position=[cdp.position for cdp in self.data]
             ))
 
         min_price = min([cdp.price for cdp in self.data])
@@ -374,7 +383,8 @@ class Monitor:
             ("density_points_length", "@density_points_length"),
             ("acc_pnl", "@acc_pnl{0.00}"),
             ("nr_of_trades", "@nr_of_trades"),
-            ("action", "@action")
+            ("action", "@action"),
+            ("position", "@position")
         ]
         hover_tool = bokeh.models.HoverTool(
             tooltips=TOOLTIPS,
@@ -388,7 +398,7 @@ class Monitor:
            tools=[hover_tool,"crosshair,pan,wheel_zoom,box_zoom,reset,box_select"]
         )
         p.circle(x = 'x', y = 'y', size=4, color='blue', source=price_source)
-        p.circle(x = 'x', y = 'y', size=8, color='red', source=action_source)
+        p.circle(x = 'x', y = 'y', size=10, color='red', source=action_source)
         p.line(x = 'x', y = 'y', color='blue', source=price_source)
         bokeh.plotting.save(p)
 
@@ -643,3 +653,4 @@ class ChartDataPoint:
         self.acc_pnl = None # type: int
         self.nr_of_trades = None # type: int
         self.action = None # type: string
+        self.position = None # type: int

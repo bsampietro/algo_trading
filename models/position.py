@@ -130,14 +130,13 @@ class Position:
             self.pending_position = 0
             if self.position == 0:
                 self.ap.append_results(fill_price, fill_time)
-                self.m.position_closed()
+                self.m.position_closed(fill_price, fill_time)
                 self.ap = None
             else:
+                self.m.position_opened(fill_price, fill_time)
                 self.ap = ActivePosition(self.m, self, fill_price, fill_time)
             self.order_price = None
             self.order_time = None
-            self.m.data[-1].action = f"Filled - Position: {self.position} - fill_price: {fill_price}"
-            self.m.datalog_buffer += (f"    Filled at price: {fill_price} - Position: {self.position}\n")
         elif status == "Cancelled":
             self.pending_order_id = POI['none']
             self.order_price = None
