@@ -1,5 +1,5 @@
 import gvars
-from lib import core
+from lib import util, core
 
 class Density:
     def __init__(self, monitor):
@@ -34,7 +34,7 @@ class Density:
         self.update_dps()
 
         # Calculations
-        if len(self.list_dps) >= self.m.prm.density_min_data:
+        if len(self.list_dps) >= util.value_or_min_max(self.m.prm.density_division, (10, 20)):
             self.set_percentagiles() and self.update_intervals()
             # self.update_heights() # Not in use now
             # self.update_intervals()
@@ -97,9 +97,9 @@ class Density:
             dp.dpercentile = round(dp.dpercentage * dpercentile_coefficient)
 
         # set first_quarter and last_quarter dpercentiles
-        quarter = round((len(self.list_dps) - 1) / 4)
-        self.min_higher_area = self.list_dps[quarter * 3].dpercentile
-        self.max_lower_area = self.list_dps[quarter].dpercentile
+        division = round((len(self.list_dps) - 1) / self.m.prm.density_division)
+        self.min_higher_area = self.list_dps[(len(self.list_dps) - 1) - division].dpercentile
+        self.max_lower_area = self.list_dps[division].dpercentile
         return True # Signals that the next method can be executed
 
 
@@ -255,19 +255,19 @@ class Density:
                     break
 
         if self.up_interval_max == None:
-            self.up_interval_max = self.m.price_plus_ticks(self.m.prm.max_winning_ticks, price=self.list_dps[-1].price)
+            self.up_interval_max = self.list_dps[-1].price
         if self.up_interval_min == None:
-            self.up_interval_min = self.m.price_plus_ticks(self.m.prm.max_winning_ticks, price=self.list_dps[-1].price)
+            self.up_interval_min = self.list_dps[-1].price
             self.up_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.current_interval_max == None:
             self.current_interval_max = self.list_dps[-1].price
         if self.current_interval_min == None:
             self.current_interval_min = self.list_dps[0].price
         if self.down_interval_max == None:
-            self.down_interval_max = self.m.price_plus_ticks(-self.m.prm.max_winning_ticks, price=self.list_dps[0].price)
+            self.down_interval_max = self.list_dps[0].price
             self.down_density_direction = gvars.DENSITY_DIRECTION['out-edge']
         if self.down_interval_min == None:
-            self.down_interval_min = self.m.price_plus_ticks(-self.m.prm.max_winning_ticks, price=self.list_dps[0].price)
+            self.down_interval_min = self.list_dps[0].price
 
         self.in_position = True
 

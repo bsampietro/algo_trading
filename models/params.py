@@ -98,6 +98,7 @@ class Params:
     # first value of tuple is default value
     def set_options_and_defaults(self):
         self.primary_look_back_time_options = (900, 1800, 3600, 7200) # secs # ideal for ES, 600-900 for all others
+        self.density_division_options = (10, 5)
         
         # Stop time
         self.breaking_stop_time_options = (60, 20, 40, 80, 120) # secs
@@ -106,7 +107,7 @@ class Params:
         # Breaking
         self._min_breaking_price_changes_options = (7, 3, 15, 'calc') # times
         self.breaking_up_down_ratio_options = (1.0, 1.5, 2.0)
-        self.min_breaking_range_options = (2, 4)
+        self.min_breaking_range_options = (4, 2, 6)
 
         # Speeding
         self.speeding_time_options = (5, 10, 20) # secs
@@ -121,7 +122,6 @@ class Params:
 
         # Variety
         self._max_winning_ticks_options = (4, 1, 2) # With 1 it is mostly a market maker
-        self.density_min_data_options = (6, 12, 20)
         self.reduce_score_rate_on_price_data_length_options = ((150, 350, 0.75), (150, 300, 0.50), None, None)
         self.trade_initiation_ticks_options = (1, 0)
 

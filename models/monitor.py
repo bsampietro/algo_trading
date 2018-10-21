@@ -240,7 +240,7 @@ class Monitor:
 
     def position_opened(self, fill_price, fill_time):
         self.cdp_action_buffer += f"-- Filled - Opened position: {self.position.position} - fill_price: {fill_price} "
-        self.m.datalog_buffer += (f"    Filled at price: {fill_price} - Position: {self.position.position}\n")
+        self.datalog_buffer += (f"    Filled at price: {fill_price} - Position: {self.position.position}\n")
 
 
     def last_price(self):

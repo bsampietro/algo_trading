@@ -1,4 +1,5 @@
 import gvars
+from lib import util
 
 class Breaking:
     def __init__(self, monitor):
@@ -18,6 +19,7 @@ class Breaking:
         self.start_time = None # type: int
         self.price_changes = 0
         self.density_data = None
+        self.range = None
 
 
     def update(self):
@@ -25,14 +27,30 @@ class Breaking:
             return
         if self.direction == 0:
             d = self.m.density
-            if (self.m.ticks(d.up_interval_min - d.current_interval_max) >= self.m.prm.min_breaking_range and
-                    d.current_interval_max < self.m.last_price() < d.up_interval_min):
+            if ((d.up_density_direction == gvars.DENSITY_DIRECTION['out-edge'] or
+                    self.m.ticks(d.up_interval_min - d.current_interval_max) >= self.m.prm.min_breaking_range)
+                        and
+                    (d.current_interval_max < self.m.last_price())):
+                self.range = (
+                    self.m.price_plus_ticks(-1, price=d.current_interval_max),
+                    self.m.price_plus_ticks(self.m.prm.min_breaking_range // 2, price=d.current_interval_max)
+                )
+                if not util.in_range(self.m.last_price(), self.range):
+                    return
                 self.direction = 1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()
                 self.density_data = self.m.density.get_data(self.direction)
-            elif (self.m.ticks(d.current_interval_min - d.down_interval_max) >= self.m.prm.min_breaking_range and
-                    d.current_interval_min > self.m.last_price() > d.down_interval_max):
+            elif ((d.down_density_direction == gvars.DENSITY_DIRECTION['out-edge'] or
+                    self.m.ticks(d.current_interval_min - d.down_interval_max) >= self.m.prm.min_breaking_range)
+                        and
+                    (self.m.last_price() < d.current_interval_min)):
+                self.range = (
+                    self.m.price_plus_ticks(+1, price=d.current_interval_min),
+                    self.m.price_plus_ticks(-self.m.prm.min_breaking_range // 2, price=d.current_interval_min)
+                )
+                if not util.in_range(self.m.last_price(), self.range):
+                    return
                 self.direction = -1
                 self.min_price = self.max_price = self.m.last_price()
                 self.start_time = self.m.last_time()
@@ -40,11 +58,9 @@ class Breaking:
         else:
             self.price_changes += 1
             
-            density_interval_mid_price = self.m.mid_price(
-                self.density_data.current_interval_max, self.density_data.current_interval_min)
-            
-            if self.direction == 1:
-                if density_interval_mid_price <= self.m.last_price() < self.density_data.up_interval_min:
+            if util.in_range(self.m.last_price(), self.range):
+                assert self.direction in (1, -1)
+                if self.direction == 1:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -52,11 +68,7 @@ class Breaking:
                     elif self.m.last_price() > self.max_price:
                         self.max_price = self.m.last_price()
                         self.start_time = self.m.last_time()
-                else:
-                    self.add_to_price_changes_list(self.price_changes)
-                    self.initialize_state()
-            elif self.direction == -1:
-                if density_interval_mid_price >= self.m.last_price() > self.density_data.down_interval_max:
+                elif self.direction == -1:
                     if self.m.last_price() < self.min_price:
                         self.min_price = self.m.last_price()
                         self.start_time = self.m.last_time()
@@ -64,11 +76,9 @@ class Breaking:
                         self.max_price = self.m.last_price()
                         self.start_time = self.m.last_time()
                         self.price_changes = 0
-                else:
-                    self.add_to_price_changes_list(self.price_changes)
-                    self.initialize_state()
-
-            self.m.datalog_buffer += (f"    breaking.update.density_interval_mid_price: {density_interval_mid_price}\n")
+            else:
+                self.add_to_price_changes_list(self.price_changes)
+                self.initialize_state()
 
 
     def duration_ok(self):
