@@ -300,5 +300,45 @@
             }
         ],
         "id": -682
+    },
+    {
+        "primary_look_back_time": 1800,
+        "density_division": 10,
+        "breaking_stop_time": 120,
+        "speeding_stop_time": 20,
+        "_min_breaking_price_changes": "calc",
+        "breaking_up_down_ratio": 2.0,
+        "min_breaking_range": 4,
+        "speeding_time": 5,
+        "time_speeding_points_length": 3,
+        "speed_min_max_win_loose_ticks": [
+            4,
+            10
+        ],
+        "reached_first_target_break": 2,
+        "made_two_break": 3,
+        "min_max_loose_ticks": [
+            2,
+            5
+        ],
+        "reversal_addition_break": 0,
+        "_max_winning_ticks": 4,
+        "reduce_score_rate_on_price_data_length": null,
+        "trade_initiation_ticks": 1,
+        "breaking_price_changes_score": 2,
+        "duration_score": 1,
+        "in_line_score": 1,
+        "trend_two_score": 1,
+        "in_out_density_direction_score": 1,
+        "advantage_score": 2,
+        "results": [
+            {
+                "average_pnl": 5.255681818181818,
+                "nr_of_winners": 31,
+                "nr_of_loosers": 54,
+                "underlying": "ES_2018-10-17--17-14"
+            }
+        ],
+        "id": -67
     }
 ]

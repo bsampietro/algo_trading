@@ -97,7 +97,7 @@ class Params:
     # if parameter is set 'calc', it is calculated in the property part
     # first value of tuple is default value
     def set_options_and_defaults(self):
-        self.primary_look_back_time_options = (900, 1800, 3600, 7200) # secs # ideal for ES, 600-900 for all others
+        self.primary_look_back_time_options = (3600, 7200, 1800, 900) # secs # ideal for ES, 600-900 for all others
         self.density_division_options = (10, 5)
         
         # Stop time
@@ -116,7 +116,7 @@ class Params:
 
         # Stop values
         self.reached_first_target_break_options = (1, 2)
-        self.made_two_break_options = (2, 3)
+        self.made_two_break_options = (1, 2)
         self.min_max_loose_ticks_options = ((1, 3), (2, 5)) # could replace speed_min_max_win_loose_ticks_options
         self.reversal_addition_break_options = (1, 2, 0)
 
@@ -126,12 +126,12 @@ class Params:
         self.trade_initiation_ticks_options = (1, 0)
 
         # Scores
-        self.breaking_price_changes_score_options = (4, 3, 2)
-        self.duration_score_options = (2, 1, 0)
-        self.in_line_score_options = (2, 1, 0)
-        self.trend_two_score_options = (2, 1, 0)
-        self.in_out_density_direction_score_options = (1, 0, 2)
-        self.advantage_score_options = (2, 1, 0)
+        self.breaking_price_changes_score_options = (3, 1, 0)
+        self.duration_score_options = (1, 2, 0)
+        self.in_line_score_options = (1, 2, 0)
+        self.trend_two_score_options = (1, 2, 0)
+        self.in_out_density_direction_score_options = (1, 2, 0)
+        self.advantage_score_options = (3, 1, 0)
 
         # Set defaults (default value is the first of the options)
         current_vars = dict(vars(self))

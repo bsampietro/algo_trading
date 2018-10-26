@@ -21,7 +21,7 @@ class BreakingDecision(Decision):
         decision = ''
         self.set_breaking_data()
         total_score = sum(self.all_scores())
-        if total_score >= 6:
+        if total_score >= 5:
             self.adjusting_ticks = self.m.prm.trade_initiation_ticks
             if self.direction == 1:
                 decision = 'buy'
@@ -66,7 +66,7 @@ class BreakingDecision(Decision):
         score = 0
         if self.to_win_ticks() <= 1:
             score += -1000 # Big number so it doesn't place the trade
-        if self.to_win_ticks() - self.to_loose_ticks() >= 1:
+        if self.to_win_ticks() - self.to_loose_ticks() >= self.m.prm.min_breaking_range // 2:
             score += self.m.prm.advantage_score
         return score
 

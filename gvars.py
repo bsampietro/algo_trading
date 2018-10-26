@@ -13,7 +13,7 @@ CONF = {
 	'dynamic_parameter_change': None, # None to disable
 	'accepting_average_pnl': None, # None to disable
 	'discarding_average_pnl': 3.0,
-	'accepting_trade_number': 20,
+	'accepting_trade_number': 10,
 	'speeding_enabled': False,
 	'breaking_enabled': True,
 	'instant_market_fill': False
