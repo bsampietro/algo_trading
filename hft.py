@@ -1,7 +1,6 @@
-import sys
+import sys, os
 import logging
 import time
-import os, os.path
 
 import gvars
 from lib import util, core
